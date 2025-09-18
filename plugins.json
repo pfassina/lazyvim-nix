@@ -1,14 +1,20 @@
 {
-  "version": "stable",
-  "commit": "25abbf546d564dc484cf903804661ba12de45507",
-  "generated": "2025-07-20 11:24:43",
+  "version": "main",
+  "commit": "2401d5fca6f2a2fcaca4f9c4c84c4b713c602352",
+  "generated": "2025-09-18 23:10:56",
   "extraction_report": {
-    "total_plugins": 43,
-    "mapped_plugins": 43,
-    "unmapped_plugins": 0,
-    "multi_module_plugins": 2,
-    "mapping_suggestions": {
-    }
+    "total_plugins": 44,
+    "mapped_plugins": 41,
+    "unmapped_plugins": 3,
+    "multi_module_plugins": 0,
+    "mapping_suggestions": [
+      {
+      },
+      {
+      },
+      {
+      }
+    ]
   },
   "plugins": [
     {
@@ -26,7 +32,10 @@
       "dependencies": {
       },
       "source_file": "table_spec",
-      "cmd": "GrugFar"
+      "cmd": [
+        "GrugFar",
+        "GrugFarWithin"
+      ]
     },
     {
       "name": "MunifTanjim/nui.nvim",
@@ -67,42 +76,15 @@
       "source_file": "extra"
     },
     {
-      "name": "echasnovski/mini.ai",
+      "name": "echasnovski/mini.icons",
       "loadOrder": 8,
       "dependencies": {
       },
-      "multiModule": {
-        "basePackage": "mini-nvim",
-        "module": "mini.ai",
-        "repository": "echasnovski/mini.nvim"
-      },
-      "source_file": "table_spec",
-      "event": "VeryLazy"
-    },
-    {
-      "name": "echasnovski/mini.icons",
-      "loadOrder": 9,
-      "dependencies": {
-      },
-      "source_file": "table_spec",
-      "lazy": true
-    },
-    {
-      "name": "echasnovski/mini.pairs",
-      "loadOrder": 10,
-      "dependencies": {
-      },
-      "multiModule": {
-        "basePackage": "mini-nvim",
-        "module": "mini.pairs",
-        "repository": "echasnovski/mini.nvim"
-      },
-      "source_file": "table_spec",
-      "event": "VeryLazy"
+      "source_file": "extra"
     },
     {
       "name": "folke/flash.nvim",
-      "loadOrder": 11,
+      "loadOrder": 9,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -110,14 +92,14 @@
     },
     {
       "name": "folke/lazy.nvim",
-      "loadOrder": 12,
+      "loadOrder": 10,
       "dependencies": {
       },
       "source_file": "table_spec"
     },
     {
       "name": "folke/lazydev.nvim",
-      "loadOrder": 13,
+      "loadOrder": 11,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -126,21 +108,21 @@
     },
     {
       "name": "folke/neoconf.nvim",
-      "loadOrder": 14,
+      "loadOrder": 12,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
       "name": "folke/neodev.nvim",
-      "loadOrder": 15,
+      "loadOrder": 13,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
       "name": "folke/noice.nvim",
-      "loadOrder": 16,
+      "loadOrder": 14,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -148,7 +130,7 @@
     },
     {
       "name": "folke/persistence.nvim",
-      "loadOrder": 17,
+      "loadOrder": 15,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -156,7 +138,7 @@
     },
     {
       "name": "folke/snacks.nvim",
-      "loadOrder": 18,
+      "loadOrder": 16,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -165,7 +147,7 @@
     },
     {
       "name": "folke/todo-comments.nvim",
-      "loadOrder": 19,
+      "loadOrder": 17,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -177,7 +159,7 @@
     },
     {
       "name": "folke/tokyonight.nvim",
-      "loadOrder": 20,
+      "loadOrder": 18,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -185,7 +167,7 @@
     },
     {
       "name": "folke/trouble.nvim",
-      "loadOrder": 21,
+      "loadOrder": 19,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -195,7 +177,7 @@
     },
     {
       "name": "folke/ts-comments.nvim",
-      "loadOrder": 22,
+      "loadOrder": 20,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -203,7 +185,7 @@
     },
     {
       "name": "folke/which-key.nvim",
-      "loadOrder": 23,
+      "loadOrder": 21,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -211,21 +193,21 @@
     },
     {
       "name": "ibhagwan/fzf-lua",
-      "loadOrder": 24,
+      "loadOrder": 22,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
       "name": "kdheepak/lazygit.nvim",
-      "loadOrder": 25,
+      "loadOrder": 23,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
       "name": "lewis6991/gitsigns.nvim",
-      "loadOrder": 26,
+      "loadOrder": 24,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -233,21 +215,21 @@
     },
     {
       "name": "mason-org/mason-lspconfig.nvim",
-      "loadOrder": 27,
+      "loadOrder": 25,
       "dependencies": {
       },
       "source_file": "table_spec"
     },
     {
       "name": "mason-org/mason.nvim",
-      "loadOrder": 28,
+      "loadOrder": 26,
       "dependencies": {
       },
       "source_file": "string_spec"
     },
     {
       "name": "mfussenegger/nvim-lint",
-      "loadOrder": 29,
+      "loadOrder": 27,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -255,7 +237,7 @@
     },
     {
       "name": "neovim/nvim-lspconfig",
-      "loadOrder": 30,
+      "loadOrder": 28,
       "dependencies": [
         "mason-org/mason.nvim",
         "mason-org/mason-lspconfig.nvim"
@@ -265,7 +247,7 @@
     },
     {
       "name": "nvim-lua/plenary.nvim",
-      "loadOrder": 31,
+      "loadOrder": 29,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -273,7 +255,31 @@
     },
     {
       "name": "nvim-lualine/lualine.nvim",
+      "loadOrder": 30,
+      "dependencies": {
+      },
+      "source_file": "table_spec",
+      "event": "VeryLazy"
+    },
+    {
+      "name": "nvim-mini/mini.ai",
+      "loadOrder": 31,
+      "dependencies": {
+      },
+      "source_file": "table_spec",
+      "event": "VeryLazy"
+    },
+    {
+      "name": "nvim-mini/mini.icons",
       "loadOrder": 32,
+      "dependencies": {
+      },
+      "source_file": "table_spec",
+      "lazy": true
+    },
+    {
+      "name": "nvim-mini/mini.pairs",
+      "loadOrder": 33,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -281,21 +287,21 @@
     },
     {
       "name": "nvim-neo-tree/neo-tree.nvim",
-      "loadOrder": 33,
-      "dependencies": {
-      },
-      "source_file": "extra"
-    },
-    {
-      "name": "nvim-tree/nvim-web-devicons",
       "loadOrder": 34,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
-      "name": "nvim-treesitter/nvim-treesitter",
+      "name": "nvim-tree/nvim-web-devicons",
       "loadOrder": 35,
+      "dependencies": {
+      },
+      "source_file": "extra"
+    },
+    {
+      "name": "nvim-treesitter/nvim-treesitter",
+      "loadOrder": 36,
       "dependencies": {
       },
       "source_file": "table_spec",
@@ -304,59 +310,59 @@
         "VeryLazy"
       ],
       "cmd": [
-        "TSUpdateSync",
         "TSUpdate",
-        "TSInstall"
+        "TSInstall",
+        "TSLog",
+        "TSUninstall"
       ],
       "lazy": true
     },
     {
       "name": "nvim-treesitter/nvim-treesitter-context",
-      "loadOrder": 36,
+      "loadOrder": 37,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
       "name": "nvim-treesitter/nvim-treesitter-textobjects",
-      "loadOrder": 37,
-      "dependencies": {
-      },
-      "source_file": "table_spec",
-      "event": "VeryLazy",
-      "enabled": true
-    },
-    {
-      "name": "nvimdev/dashboard-nvim",
       "loadOrder": 38,
       "dependencies": {
       },
-      "source_file": "extra"
+      "source_file": "table_spec",
+      "event": "VeryLazy"
     },
     {
-      "name": "rafamadriz/friendly-snippets",
+      "name": "nvimdev/dashboard-nvim",
       "loadOrder": 39,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
-      "name": "rcarriga/nvim-notify",
+      "name": "rafamadriz/friendly-snippets",
       "loadOrder": 40,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
-      "name": "saghen/blink.cmp",
+      "name": "rcarriga/nvim-notify",
       "loadOrder": 41,
       "dependencies": {
       },
       "source_file": "extra"
     },
     {
-      "name": "stevearc/conform.nvim",
+      "name": "saghen/blink.cmp",
       "loadOrder": 42,
+      "dependencies": {
+      },
+      "source_file": "extra"
+    },
+    {
+      "name": "stevearc/conform.nvim",
+      "loadOrder": 43,
       "dependencies": [
         "mason-org/mason.nvim"
       ],
@@ -366,7 +372,7 @@
     },
     {
       "name": "windwp/nvim-ts-autotag",
-      "loadOrder": 43,
+      "loadOrder": 44,
       "dependencies": {
       },
       "source_file": "table_spec",
