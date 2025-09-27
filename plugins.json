@@ -1,7 +1,7 @@
 {
   "version": "main",
-  "commit": "37a1c1af5dbbcf069bb94a71b4dda3626fbda77a",
-  "generated": "2025-09-21 16:04:32",
+  "commit": "30a325d67184a80006dc55352d9663cdf01082d5",
+  "generated": "2025-09-27 02:55:59",
   "extraction_report": {
     "total_plugins": 44,
     "mapped_plugins": 44,
