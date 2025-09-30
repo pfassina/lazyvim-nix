@@ -325,8 +325,8 @@ let
       spec = {
         { "LazyVim/LazyVim", import = "lazyvim.plugins", dev = true },
         -- Disable Mason.nvim in Nix environment
-        { "williamboman/mason.nvim", enabled = false },
-        { "williamboman/mason-lspconfig.nvim", enabled = false },
+        { "mason-org/mason.nvim", enabled = false },
+        { "mason-org/mason-lspconfig.nvim", enabled = false },
         { "jay-babu/mason-nvim-dap.nvim", enabled = false },
         -- Disable treesitter auto-install - simple approach like your old config
         { 
