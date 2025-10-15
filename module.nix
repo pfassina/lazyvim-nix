@@ -9,6 +9,66 @@ let
   pluginData = pkgs.lazyvimPluginData or (builtins.fromJSON (builtins.readFile ./plugins.json));
   pluginMappings = pkgs.lazyvimPluginMappings or (import ./plugin-mappings.nix);
 
+  isLuaFile = name: lib.hasSuffix ".lua" name;
+  baseNameNoExt = path: lib.removeSuffix ".lua" (lib.baseNameOf (toString path));
+
+  listLuaFiles = dir:
+    let
+      dirStr = toString dir;
+      entries = builtins.readDir dirStr;
+      names = lib.sort lib.lexicographic (lib.attrNames entries);
+    in lib.map (name: dirStr + "/" + name)
+      (lib.filter (name: entries.${name} == "regular" && isLuaFile name) names);
+
+  pluginFilesSources =
+    if cfg.pluginFiles == null then {}
+    else
+      let
+        dirPath = toString cfg.pluginFiles;
+        readDirAttempt = builtins.tryEval (builtins.readDir dirPath);
+      in if !readDirAttempt.success then
+        throw "LazyVim: pluginFiles path '${dirPath}' must be an existing directory"
+      else
+        let
+          files = listLuaFiles dirPath;
+          entries = lib.map (path: {
+            name = baseNameNoExt path;
+            value = builtins.toPath path;
+          }) files;
+        in
+          assert lib.assertMsg (files != [])
+            "LazyVim: pluginFiles directory '${dirPath}' must contain at least one .lua file";
+          lib.listToAttrs entries;
+
+  inlinePlugins = cfg.plugins or {};
+  pluginNamesFromFiles = lib.attrNames pluginFilesSources;
+  inlinePluginNames = lib.attrNames inlinePlugins;
+  mergedPluginNames = lib.sort lib.lexicographic (lib.unique (pluginNamesFromFiles ++ inlinePluginNames));
+
+  pluginConfigFiles = lib.listToAttrs (map (name:
+    let
+      fileName = "nvim/lua/plugins/${name}.lua";
+    in if pluginFilesSources ? name then
+      let
+        sourcePath = pluginFilesSources.${name};
+        finalSource = lib.warnIf (inlinePlugins ? name)
+          ("LazyVim: plugin '${name}' from pluginFiles overrides inline definition; using "
+            + toString sourcePath + ".")
+          sourcePath;
+      in lib.nameValuePair fileName {
+        source = finalSource;
+      }
+    else
+      let
+        content = inlinePlugins.${name};
+      in lib.nameValuePair fileName {
+        text = ''
+          -- Plugin configuration for ${name} (configured via Nix)
+          ${content}
+        '';
+      }
+  ) mergedPluginNames);
+
   # Load extras metadata
   extrasMetadata = pkgs.lazyvimExtrasMetadata or (import ./extras.nix);
 
@@ -648,6 +708,16 @@ in {
       '';
     };
 
+    pluginFiles = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        A directory containing `.lua` plugin definition files.
+        Each file inside the directory will be linked to
+        `lua/plugins/<basename>.lua` automatically.
+      '';
+    };
+
     plugins = mkOption {
       type = types.attrsOf types.str;
       default = {};
@@ -745,14 +815,7 @@ in {
       
     }
     # Generate plugin configuration files
-    // (lib.mapAttrs' (name: content:
-      lib.nameValuePair "nvim/lua/plugins/${name}.lua" {
-        text = ''
-          -- Plugin configuration for ${name} (configured via Nix)
-          ${content}
-        '';
-      }
-    ) cfg.plugins)
+    // pluginConfigFiles
     # Generate extras config override files
     // extrasConfigFiles;
   };

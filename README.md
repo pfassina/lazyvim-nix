@@ -71,6 +71,8 @@ programs.lazyvim = {
 programs.lazyvim = {
   enable = true;
 
+  pluginFiles = ./lua/plugins;
+
   config = {
     options = ''
       vim.opt.relativenumber = false
@@ -92,6 +94,10 @@ programs.lazyvim = {
   };
 };
 ```
+
+The optional `pluginFiles` directory lets you keep regular Lua plugin files (e.g. `./lua/plugins/*.lua`).
+Each `.lua` file is linked into `~/.config/nvim/lua/plugins/`, and if a filename conflicts with an inline
+`plugins` entry, the real file takes precedence with a warning at evaluation time.
 
 ## Key Features
 
