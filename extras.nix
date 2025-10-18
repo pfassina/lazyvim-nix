@@ -14,15 +14,15 @@
       category = "ai";
       import = "lazyvim.plugins.extras.ai.copilot-chat";
     };
-    "copilot" = {
-      name = "copilot";
-      category = "ai";
-      import = "lazyvim.plugins.extras.ai.copilot";
-    };
     "copilot_native" = {
       name = "copilot-native";
       category = "ai";
       import = "lazyvim.plugins.extras.ai.copilot-native";
+    };
+    "copilot" = {
+      name = "copilot";
+      category = "ai";
+      import = "lazyvim.plugins.extras.ai.copilot";
     };
     "sidekick" = {
       name = "sidekick";
@@ -339,15 +339,15 @@
       category = "lang";
       import = "lazyvim.plugins.extras.lang.python";
     };
-    "rego" = {
-      name = "rego";
-      category = "lang";
-      import = "lazyvim.plugins.extras.lang.rego";
-    };
     "r" = {
       name = "r";
       category = "lang";
       import = "lazyvim.plugins.extras.lang.r";
+    };
+    "rego" = {
+      name = "rego";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.rego";
     };
     "ruby" = {
       name = "ruby";
