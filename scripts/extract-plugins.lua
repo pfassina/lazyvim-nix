@@ -395,20 +395,31 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 			nixpkgs_name = repo_name:gsub("%-", "_"):gsub("%.", "_")
 		end
 
-		-- Test if the resolved name exists in nixpkgs (use unstable channel)
+		-- Test if the resolved name exists in nixpkgs (use nixos-unstable)
 		if nixpkgs_name then
 			local cmd = string.format(
-				"nix eval --impure --expr 'let pkgs = import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz\") {}; in pkgs.vimPlugins.%s or null' 2>/dev/null",
+				"nix eval --impure --expr 'let pkgs = import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz\") {}; in pkgs.vimPlugins.%s or null' 2>&1",
 				nixpkgs_name
 			)
+			print(string.format("DEBUG: Checking %s -> %s", plugin_name, nixpkgs_name))
+			print(string.format("DEBUG: Command: %s", cmd))
+
 			local handle = io.popen(cmd)
 			if handle then
 				local result = handle:read("*all")
 				local success = handle:close()
+				print(string.format("DEBUG: Result: %s", result:gsub("\n", "\\n")))
+				print(string.format("DEBUG: Success: %s", tostring(success)))
+
 				-- Check if the result is not null (package exists)
 				if success and result and not result:match("null") and result:match("«derivation") then
+					print(string.format("DEBUG: ✓ Found %s -> %s", plugin_name, nixpkgs_name))
 					return true
+				else
+					print(string.format("DEBUG: ✗ Not found %s -> %s", plugin_name, nixpkgs_name))
 				end
+			else
+				print(string.format("DEBUG: Failed to execute command for %s", plugin_name))
 			end
 		end
 
