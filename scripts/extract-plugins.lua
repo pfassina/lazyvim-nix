@@ -395,10 +395,10 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 			nixpkgs_name = repo_name:gsub("%-", "_"):gsub("%.", "_")
 		end
 
-		-- Test if the resolved name exists in nixpkgs
+		-- Test if the resolved name exists in nixpkgs (use unstable channel)
 		if nixpkgs_name then
 			local cmd = string.format(
-				"nix eval --impure --expr 'let pkgs = import <nixpkgs> {}; in pkgs.vimPlugins.%s or null' 2>/dev/null",
+				"nix eval --impure --expr 'let pkgs = import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz\") {}; in pkgs.vimPlugins.%s or null' 2>/dev/null",
 				nixpkgs_name
 			)
 			local handle = io.popen(cmd)

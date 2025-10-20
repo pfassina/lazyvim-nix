@@ -46,9 +46,9 @@ local MULTI_MODULE_BASES = {
 
 -- Function to verify if a nixpkgs package exists
 function M.verify_nixpkgs_package(package_name)
-	-- Try to evaluate the package in nixpkgs
+	-- Try to evaluate the package in nixpkgs (use unstable channel)
 	local cmd = string.format(
-		"nix eval --impure --expr 'let pkgs = import <nixpkgs> {}; in pkgs.vimPlugins.%s or null' 2>/dev/null",
+		"nix eval --impure --expr 'let pkgs = import (fetchTarball \"https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz\") {}; in pkgs.vimPlugins.%s or null' 2>/dev/null",
 		package_name
 	)
 	local handle = io.popen(cmd)
