@@ -4,6 +4,16 @@
 
 {
   ai = {
+    "avante" = {
+      name = "avante";
+      category = "ai";
+      import = "lazyvim.plugins.extras.ai.avante";
+    };
+    "claudecode" = {
+      name = "claudecode";
+      category = "ai";
+      import = "lazyvim.plugins.extras.ai.claudecode";
+    };
     "codeium" = {
       name = "codeium";
       category = "ai";
@@ -234,10 +244,20 @@
       category = "lang";
       import = "lazyvim.plugins.extras.lang.cmake";
     };
+    "dart" = {
+      name = "dart";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.dart";
+    };
     "docker" = {
       name = "docker";
       category = "lang";
       import = "lazyvim.plugins.extras.lang.docker";
+    };
+    "dotnet" = {
+      name = "dotnet";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.dotnet";
     };
     "elixir" = {
       name = "elixir";
@@ -248,6 +268,11 @@
       name = "elm";
       category = "lang";
       import = "lazyvim.plugins.extras.lang.elm";
+    };
+    "ember" = {
+      name = "ember";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.ember";
     };
     "erlang" = {
       name = "erlang";
@@ -289,6 +314,11 @@
       category = "lang";
       import = "lazyvim.plugins.extras.lang.json";
     };
+    "julia" = {
+      name = "julia";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.julia";
+    };
     "kotlin" = {
       name = "kotlin";
       category = "lang";
@@ -318,11 +348,6 @@
       name = "ocaml";
       category = "lang";
       import = "lazyvim.plugins.extras.lang.ocaml";
-    };
-    "omnisharp" = {
-      name = "omnisharp";
-      category = "lang";
-      import = "lazyvim.plugins.extras.lang.omnisharp";
     };
     "php" = {
       name = "php";
@@ -364,6 +389,11 @@
       category = "lang";
       import = "lazyvim.plugins.extras.lang.scala";
     };
+    "solidity" = {
+      name = "solidity";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.solidity";
+    };
     "sql" = {
       name = "sql";
       category = "lang";
@@ -399,10 +429,20 @@
       category = "lang";
       import = "lazyvim.plugins.extras.lang.toml";
     };
+    "twig" = {
+      name = "twig";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.twig";
+    };
     "typescript" = {
       name = "typescript";
       category = "lang";
       import = "lazyvim.plugins.extras.lang.typescript";
+    };
+    "typst" = {
+      name = "typst";
+      category = "lang";
+      import = "lazyvim.plugins.extras.lang.typst";
     };
     "vue" = {
       name = "vue";
@@ -503,6 +543,11 @@
       name = "dot";
       category = "util";
       import = "lazyvim.plugins.extras.util.dot";
+    };
+    "gh" = {
+      name = "gh";
+      category = "util";
+      import = "lazyvim.plugins.extras.util.gh";
     };
     "gitui" = {
       name = "gitui";
