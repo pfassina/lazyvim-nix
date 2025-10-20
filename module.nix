@@ -152,12 +152,35 @@ let
       mapping = pluginMappings.${lazyName} or null;
     in
       if mapping == null then
-        # Try automatic resolution
+        # Try automatic resolution with multiple patterns
         let
           parts = lib.splitString "/" lazyName;
           repoName = if length parts == 2 then elemAt parts 1 else lazyName;
-          # Convert repo-name to repo_name and repo.nvim to repo-nvim
-          nixName = lib.replaceStrings ["-" "."] ["_" "-"] repoName;
+
+          # Pattern 1: owner/name.nvim -> name-nvim (most common)
+          pattern1 = if lib.hasSuffix ".nvim" repoName then
+            "${lib.removeSuffix ".nvim" repoName}-nvim"
+          else null;
+
+          # Pattern 2: owner/name-nvim -> name-nvim
+          pattern2 = if lib.hasSuffix "-nvim" repoName then
+            repoName
+          else null;
+
+          # Pattern 3: owner/nvim-name -> nvim-name
+          pattern3 = if lib.hasPrefix "nvim-" repoName then
+            repoName
+          else null;
+
+          # Pattern 4: owner/name -> name (convert dashes to underscores)
+          pattern4 = lib.replaceStrings ["-" "."] ["_" "_"] repoName;
+
+          # Try patterns in order of preference
+          nixName =
+            if pattern1 != null then pattern1
+            else if pattern2 != null then pattern2
+            else if pattern3 != null then pattern3
+            else pattern4;
         in nixName
       else if builtins.isString mapping then
         mapping

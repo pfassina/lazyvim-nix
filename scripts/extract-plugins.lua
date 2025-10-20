@@ -365,10 +365,54 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 		os.execute("sleep 0.2")
 	end
 
-	-- Function to check if a plugin is mapped
+	-- Function to check if a plugin is mapped (manual or automatic)
 	local function is_plugin_mapped(plugin_name)
 		-- Check if it's in existing mappings or multi-module mappings
-		return existing_mappings[plugin_name] ~= nil or multi_module_mappings[plugin_name] ~= nil
+		if existing_mappings[plugin_name] ~= nil or multi_module_mappings[plugin_name] ~= nil then
+			return true
+		end
+
+		-- Test automatic resolution patterns (same logic as module.nix)
+		local owner, repo_name = plugin_name:match("^([^/]+)/(.+)$")
+		if not repo_name then
+			return false
+		end
+
+		local nixpkgs_name = nil
+
+		-- Pattern 1: owner/name.nvim -> name-nvim (most common)
+		if repo_name:match("%.nvim$") then
+			local base_name = repo_name:gsub("%.nvim$", "")
+			nixpkgs_name = base_name .. "-nvim"
+		-- Pattern 2: owner/name-nvim -> name-nvim
+		elseif repo_name:match("%-nvim$") then
+			nixpkgs_name = repo_name
+		-- Pattern 3: owner/nvim-name -> nvim-name
+		elseif repo_name:match("^nvim%-") then
+			nixpkgs_name = repo_name
+		-- Pattern 4: owner/name -> name (convert dashes to underscores)
+		else
+			nixpkgs_name = repo_name:gsub("%-", "_"):gsub("%.", "_")
+		end
+
+		-- Test if the resolved name exists in nixpkgs
+		if nixpkgs_name then
+			local cmd = string.format(
+				"nix eval --impure --expr 'let pkgs = import <nixpkgs> {}; in pkgs.vimPlugins.%s or null' 2>/dev/null",
+				nixpkgs_name
+			)
+			local handle = io.popen(cmd)
+			if handle then
+				local result = handle:read("*all")
+				local success = handle:close()
+				-- Check if the result is not null (package exists)
+				if success and result and not result:match("null") and result:match("«derivation") then
+					return true
+				end
+			end
+		end
+
+		return false
 	end
 
 	-- Function to collect plugin specs recursively
