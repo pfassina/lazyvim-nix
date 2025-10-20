@@ -32,7 +32,7 @@ jobs:
       - name: Install Nix
         uses: nixbuild/nix-quick-install-action@v26
         with:
-          nix_version: 2.22.1
+          nix_version: 2.20.5
         
       - name: Setup Nix cache
         uses: cachix/cachix-action@v12
@@ -178,7 +178,7 @@ jobs:
       - name: Install Nix
         uses: nixbuild/nix-quick-install-action@v26
         with:
-          nix_version: 2.22.1
+          nix_version: 2.20.5
         
       - name: Test flake
         run: |
