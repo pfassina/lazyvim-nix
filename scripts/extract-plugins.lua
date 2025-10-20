@@ -333,7 +333,7 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 			else
 				-- No existing data, so it's a new plugin
 				version_changed = true
-				print("      New plugin, setting fetched_at")
+				print("      New plugin")
 			end
 
 			plugin_info.version_info.commit = version_data.commit
@@ -342,17 +342,16 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 			-- Only update fetched_at if the version actually changed
 			if version_changed then
 				plugin_info.version_info.fetched_at = os.date("!%Y-%m-%dT%H:%M:%SZ")
-				print(string.format("      ✓ Got commit: %s (updated fetched_at)", version_data.commit:sub(1, 8)))
+				print(string.format("      ✓ Got commit: %s (updated)", version_data.commit:sub(1, 8)))
 			else
 				-- Preserve the existing fetched_at timestamp
 				if existing_plugin_data and existing_plugin_data.version_info and existing_plugin_data.version_info.fetched_at then
 					plugin_info.version_info.fetched_at = existing_plugin_data.version_info.fetched_at
-					print(string.format("      ✓ Got commit: %s (unchanged, preserved fetched_at)", version_data.commit:sub(1, 8)))
 				else
 					-- Fallback: set new fetched_at if we don't have an existing one
 					plugin_info.version_info.fetched_at = os.date("!%Y-%m-%dT%H:%M:%SZ")
-					print(string.format("      ✓ Got commit: %s (no existing fetched_at)", version_data.commit:sub(1, 8)))
 				end
+				print(string.format("      ✓ Got commit: %s (unchanged)", version_data.commit:sub(1, 8)))
 			end
 		else
 			print("      ⚠ Could not fetch version info")
