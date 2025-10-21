@@ -1,14 +1,28 @@
 {
   "version": "v15.10.1",
   "commit": "a65d5d530d372b39a468dfbb2ce633f344770c5c",
-  "generated": "2025-10-20 19:55:44",
+  "generated": "2025-10-20 22:02:35",
   "extraction_report": {
-    "total_plugins": 86,
-    "mapped_plugins": 86,
-    "unmapped_plugins": 0,
-    "multi_module_plugins": 9,
-    "mapping_suggestions": {
-    }
+    "total_plugins": 82,
+    "mapped_plugins": 75,
+    "unmapped_plugins": 7,
+    "multi_module_plugins": 8,
+    "mapping_suggestions": [
+      {
+      },
+      {
+      },
+      {
+      },
+      {
+      },
+      {
+      },
+      {
+      },
+      {
+      }
+    ]
   },
   "plugins": [
     {
@@ -355,8 +369,9 @@
       "loadOrder": 20,
       "dependencies": {
       },
-      "source_file": "extras.ai.copilot-chat",
+      "source_file": "extras.ui.edgy",
       "is_core": false,
+      "event": "VeryLazy",
       "version_info": {
         "commit": "ebb77fde6f5cb2745431c6c0fe57024f66471728",
         "tag": "v1.10.2",
@@ -669,26 +684,10 @@
       }
     },
     {
-      "name": "ibhagwan/fzf-lua",
-      "owner": "ibhagwan",
-      "repo": "fzf-lua",
-      "loadOrder": 38,
-      "dependencies": {
-      },
-      "source_file": "extras.util.project",
-      "is_core": false,
-      "version_info": {
-        "commit": "47b85a25c0c0b2c20b4e75199ed01bb71e7814f5",
-        "tag": "0.7",
-        "sha256": "1znlhvb84x3lipa5n1cdk1kpid49h647hnnwy01xw447vk49p11p",
-        "fetched_at": "2025-10-18T04:20:35Z"
-      }
-    },
-    {
       "name": "jay-babu/mason-nvim-dap.nvim",
       "owner": "jay-babu",
       "repo": "mason-nvim-dap.nvim",
-      "loadOrder": 39,
+      "loadOrder": 38,
       "dependencies": [
         "mason-org/mason.nvim"
       ],
@@ -709,7 +708,7 @@
       "name": "julienvincent/nvim-paredit",
       "owner": "julienvincent",
       "repo": "nvim-paredit",
-      "loadOrder": 40,
+      "loadOrder": 39,
       "dependencies": {
       },
       "source_file": "extras.lang.clojure",
@@ -726,7 +725,7 @@
       "name": "ldelossa/gh.nvim",
       "owner": "ldelossa",
       "repo": "gh.nvim",
-      "loadOrder": 41,
+      "loadOrder": 40,
       "dependencies": {
       },
       "source_file": "extras.util.gh",
@@ -741,7 +740,7 @@
       "name": "ldelossa/litee.nvim",
       "owner": "ldelossa",
       "repo": "litee.nvim",
-      "loadOrder": 42,
+      "loadOrder": 41,
       "dependencies": {
       },
       "source_file": "extras.util.gh",
@@ -758,7 +757,7 @@
       "name": "lervag/vimtex",
       "owner": "lervag",
       "repo": "vimtex",
-      "loadOrder": 43,
+      "loadOrder": 42,
       "dependencies": {
       },
       "source_file": "extras.lang.tex",
@@ -775,7 +774,7 @@
       "name": "lewis6991/gitsigns.nvim",
       "owner": "lewis6991",
       "repo": "gitsigns.nvim",
-      "loadOrder": 44,
+      "loadOrder": 43,
       "dependencies": {
       },
       "source_file": "core.editor",
@@ -792,10 +791,10 @@
       "name": "lukas-reineke/indent-blankline.nvim",
       "owner": "lukas-reineke",
       "repo": "indent-blankline.nvim",
-      "loadOrder": 45,
+      "loadOrder": 44,
       "dependencies": {
       },
-      "source_file": "extras.ui.mini-indentscope",
+      "source_file": "extras.ui.indent-blankline",
       "is_core": false,
       "event": "LazyFile",
       "version_info": {
@@ -809,7 +808,7 @@
       "name": "m00qek/baleia.nvim",
       "owner": "m00qek",
       "repo": "baleia.nvim",
-      "loadOrder": 46,
+      "loadOrder": 45,
       "dependencies": {
       },
       "source_file": "extras.lang.clojure",
@@ -825,7 +824,7 @@
       "name": "mason-org/mason-lspconfig.nvim",
       "owner": "mason-org",
       "repo": "mason-lspconfig.nvim",
-      "loadOrder": 47,
+      "loadOrder": 46,
       "dependencies": {
       },
       "source_file": "core.lsp",
@@ -841,7 +840,7 @@
       "name": "mason-org/mason.nvim",
       "owner": "mason-org",
       "repo": "mason.nvim",
-      "loadOrder": 48,
+      "loadOrder": 47,
       "dependencies": {
       },
       "source_file": "core.formatting",
@@ -853,7 +852,7 @@
       "name": "mfussenegger/nvim-ansible",
       "owner": "mfussenegger",
       "repo": "nvim-ansible",
-      "loadOrder": 49,
+      "loadOrder": 48,
       "dependencies": {
       },
       "source_file": "extras.lang.ansible",
@@ -871,10 +870,12 @@
       "name": "mfussenegger/nvim-dap",
       "owner": "mfussenegger",
       "repo": "nvim-dap",
-      "loadOrder": 50,
-      "dependencies": {
-      },
-      "source_file": "extras.lang.scala",
+      "loadOrder": 49,
+      "dependencies": [
+        "rcarriga/nvim-dap-ui",
+        "theHamsta/nvim-dap-virtual-text"
+      ],
+      "source_file": "extras.dap.core",
       "is_core": false,
       "version_info": {
         "commit": "6a5bba0ddea5d419a783e170c20988046376090d",
@@ -887,7 +888,7 @@
       "name": "mfussenegger/nvim-jdtls",
       "owner": "mfussenegger",
       "repo": "nvim-jdtls",
-      "loadOrder": 51,
+      "loadOrder": 50,
       "dependencies": [
         "folke/which-key.nvim"
       ],
@@ -907,7 +908,7 @@
       "name": "mfussenegger/nvim-lint",
       "owner": "mfussenegger",
       "repo": "nvim-lint",
-      "loadOrder": 52,
+      "loadOrder": 51,
       "dependencies": {
       },
       "source_file": "core.linting",
@@ -923,7 +924,7 @@
       "name": "mrcjkb/haskell-snippets.nvim",
       "owner": "mrcjkb",
       "repo": "haskell-snippets.nvim",
-      "loadOrder": 53,
+      "loadOrder": 52,
       "dependencies": [
         "L3MON4D3/LuaSnip"
       ],
@@ -946,7 +947,7 @@
       "name": "mrcjkb/haskell-tools.nvim",
       "owner": "mrcjkb",
       "repo": "haskell-tools.nvim",
-      "loadOrder": 54,
+      "loadOrder": 53,
       "dependencies": {
       },
       "source_file": "extras.lang.haskell",
@@ -969,7 +970,7 @@
       "name": "neovim/nvim-lspconfig",
       "owner": "neovim",
       "repo": "nvim-lspconfig",
-      "loadOrder": 55,
+      "loadOrder": 54,
       "dependencies": [
         "mason-org/mason.nvim",
         "mason-org/mason-lspconfig.nvim"
@@ -988,7 +989,7 @@
       "name": "nvim-lua/plenary.nvim",
       "owner": "nvim-lua",
       "repo": "plenary.nvim",
-      "loadOrder": 56,
+      "loadOrder": 55,
       "dependencies": {
       },
       "source_file": "core.util",
@@ -1005,7 +1006,7 @@
       "name": "nvim-lualine/lualine.nvim",
       "owner": "nvim-lualine",
       "repo": "lualine.nvim",
-      "loadOrder": 57,
+      "loadOrder": 56,
       "dependencies": {
       },
       "source_file": "core.ui",
@@ -1021,7 +1022,7 @@
       "name": "nvim-mini/mini.ai",
       "owner": "nvim-mini",
       "repo": "mini.ai",
-      "loadOrder": 58,
+      "loadOrder": 57,
       "dependencies": {
       },
       "multiModule": {
@@ -1043,7 +1044,7 @@
       "name": "nvim-mini/mini.comment",
       "owner": "nvim-mini",
       "repo": "mini.comment",
-      "loadOrder": 59,
+      "loadOrder": 58,
       "dependencies": {
       },
       "multiModule": {
@@ -1065,7 +1066,7 @@
       "name": "nvim-mini/mini.diff",
       "owner": "nvim-mini",
       "repo": "mini.diff",
-      "loadOrder": 60,
+      "loadOrder": 59,
       "dependencies": {
       },
       "multiModule": {
@@ -1087,7 +1088,7 @@
       "name": "nvim-mini/mini.icons",
       "owner": "nvim-mini",
       "repo": "mini.icons",
-      "loadOrder": 61,
+      "loadOrder": 60,
       "dependencies": {
       },
       "multiModule": {
@@ -1109,7 +1110,7 @@
       "name": "nvim-mini/mini.indentscope",
       "owner": "nvim-mini",
       "repo": "mini.indentscope",
-      "loadOrder": 62,
+      "loadOrder": 61,
       "dependencies": {
       },
       "multiModule": {
@@ -1132,7 +1133,7 @@
       "name": "nvim-mini/mini.move",
       "owner": "nvim-mini",
       "repo": "mini.move",
-      "loadOrder": 63,
+      "loadOrder": 62,
       "dependencies": {
       },
       "multiModule": {
@@ -1154,7 +1155,7 @@
       "name": "nvim-mini/mini.pairs",
       "owner": "nvim-mini",
       "repo": "mini.pairs",
-      "loadOrder": 64,
+      "loadOrder": 63,
       "dependencies": {
       },
       "multiModule": {
@@ -1176,7 +1177,7 @@
       "name": "nvim-mini/mini.starter",
       "owner": "nvim-mini",
       "repo": "mini.starter",
-      "loadOrder": 65,
+      "loadOrder": 64,
       "dependencies": {
       },
       "multiModule": {
@@ -1196,35 +1197,15 @@
       }
     },
     {
-      "name": "nvim-mini/mini.surround",
-      "owner": "nvim-mini",
-      "repo": "mini.surround",
-      "loadOrder": 66,
-      "dependencies": {
-      },
-      "multiModule": {
-        "basePackage": "mini-nvim",
-        "module": "mini.surround",
-        "repository": "nvim-mini/mini.nvim"
-      },
-      "source_file": "extras.editor.leap",
-      "is_core": false,
-      "version_info": {
-        "commit": "5aab42fcdcf31fa010f012771eda5631c077840a",
-        "tag": "v0.16.0",
-        "sha256": "0hsy7ngqz17a663k4gkj9ambbcn24jvqx7010aiv8g4b0gbmzhky",
-        "fetched_at": "2025-10-18T04:20:04Z"
-      }
-    },
-    {
       "name": "nvim-neo-tree/neo-tree.nvim",
       "owner": "nvim-neo-tree",
       "repo": "neo-tree.nvim",
-      "loadOrder": 67,
+      "loadOrder": 65,
       "dependencies": {
       },
-      "source_file": "extras.ui.edgy",
+      "source_file": "extras.editor.neo-tree",
       "is_core": false,
+      "cmd": "Neotree",
       "version_info": {
         "commit": "b529fb2ae9206ca1d84ee72b596deecbc088ac59",
         "tag": "v2.71",
@@ -1236,11 +1217,11 @@
       "name": "nvim-neotest/neotest",
       "owner": "nvim-neotest",
       "repo": "neotest",
-      "loadOrder": 68,
+      "loadOrder": 66,
       "dependencies": [
-        "mrcjkb/neotest-haskell"
+        "nvim-neotest/nvim-nio"
       ],
-      "source_file": "extras.lang.haskell",
+      "source_file": "extras.test.core",
       "is_core": false,
       "version_info": {
         "commit": "7166dc36af2760a76479e021e0521e23f62165f1",
@@ -1250,26 +1231,10 @@
       }
     },
     {
-      "name": "nvim-telescope/telescope.nvim",
-      "owner": "nvim-telescope",
-      "repo": "telescope.nvim",
-      "loadOrder": 69,
-      "dependencies": {
-      },
-      "source_file": "extras.lang.haskell",
-      "is_core": false,
-      "version_info": {
-        "commit": "a0bbec21143c7bc5f8bb02e0005fa0b982edc026",
-        "tag": "0.1.8",
-        "sha256": "15536kary8m35xqhksxkwxgak1b3iwmav41jlqhga8h8rs2sanvv",
-        "fetched_at": "2025-10-18T04:20:10Z"
-      }
-    },
-    {
       "name": "nvim-treesitter/nvim-treesitter",
       "owner": "nvim-treesitter",
       "repo": "nvim-treesitter",
-      "loadOrder": 70,
+      "loadOrder": 67,
       "dependencies": {
       },
       "source_file": "core.treesitter",
@@ -1297,7 +1262,7 @@
       "name": "nvim-treesitter/nvim-treesitter-textobjects",
       "owner": "nvim-treesitter",
       "repo": "nvim-treesitter-textobjects",
-      "loadOrder": 71,
+      "loadOrder": 68,
       "dependencies": {
       },
       "source_file": "core.treesitter",
@@ -1316,7 +1281,7 @@
       "name": "nvimdev/dashboard-nvim",
       "owner": "nvimdev",
       "repo": "dashboard-nvim",
-      "loadOrder": 72,
+      "loadOrder": 69,
       "dependencies": {
       },
       "source_file": "extras.ui.dashboard-nvim",
@@ -1332,11 +1297,13 @@
       "name": "nvimtools/none-ls.nvim",
       "owner": "nvimtools",
       "repo": "none-ls.nvim",
-      "loadOrder": 73,
-      "dependencies": {
-      },
-      "source_file": "extras.lang.markdown",
+      "loadOrder": 70,
+      "dependencies": [
+        "mason-org/mason.nvim"
+      ],
+      "source_file": "extras.lsp.none-ls",
       "is_core": false,
+      "event": "LazyFile",
       "version_info": {
         "commit": "a96172f673f720cd4f3572e1fcd08400ed3eb25d",
         "sha256": "1gsd8bdcghzpc0isdp0s1mny695ppp75ylq8v56d4h7my1bpb2d8",
@@ -1347,7 +1314,7 @@
       "name": "p00f/clangd_extensions.nvim",
       "owner": "p00f",
       "repo": "clangd_extensions.nvim",
-      "loadOrder": 74,
+      "loadOrder": 71,
       "dependencies": {
       },
       "source_file": "extras.lang.clangd",
@@ -1363,7 +1330,7 @@
       "name": "pwntester/octo.nvim",
       "owner": "pwntester",
       "repo": "octo.nvim",
-      "loadOrder": 75,
+      "loadOrder": 72,
       "dependencies": {
       },
       "source_file": "extras.util.octo",
@@ -1375,16 +1342,16 @@
       ],
       "cmd": "Octo",
       "version_info": {
-        "commit": "dcebba0c174cd5fa964cb01a813fdd05677661e4",
-        "sha256": "0ayypw1j2ahnm5zz3fs1qdpl2pjq0i7zr6xkgzkhdqm79cskdsj5",
-        "fetched_at": "2025-10-20T23:02:57Z"
+        "commit": "98eb3c2547af4bb9ab9fd7d325c2c0c464da34b2",
+        "sha256": "0gaf1xm9b1hqb2i5v8pc9sgs8cnqzrxj0lw0ilh2729y2yx4palk",
+        "fetched_at": "2025-10-21T05:02:12Z"
       }
     },
     {
       "name": "qvalentin/helm-ls.nvim",
       "owner": "qvalentin",
       "repo": "helm-ls.nvim",
-      "loadOrder": 76,
+      "loadOrder": 73,
       "dependencies": {
       },
       "source_file": "extras.lang.helm",
@@ -1400,7 +1367,7 @@
       "name": "rcarriga/nvim-dap-ui",
       "owner": "rcarriga",
       "repo": "nvim-dap-ui",
-      "loadOrder": 77,
+      "loadOrder": 74,
       "dependencies": [
         "nvim-neotest/nvim-nio"
       ],
@@ -1414,26 +1381,10 @@
       }
     },
     {
-      "name": "saghen/blink.cmp",
-      "owner": "saghen",
-      "repo": "blink.cmp",
-      "loadOrder": 78,
-      "dependencies": {
-      },
-      "source_file": "extras.ai.copilot-chat",
-      "is_core": false,
-      "version_info": {
-        "commit": "327fff91fe6af358e990be7be1ec8b78037d2138",
-        "tag": "v1.7.0",
-        "sha256": "02527v0lnk5r5dpyb3avh4da081wgkd3sdam351fgdc2dn60xibq",
-        "fetched_at": "2025-10-18T04:19:55Z"
-      }
-    },
-    {
       "name": "scalameta/nvim-metals",
       "owner": "scalameta",
       "repo": "nvim-metals",
-      "loadOrder": 79,
+      "loadOrder": 75,
       "dependencies": [
         "nvim-lua/plenary.nvim"
       ],
@@ -1455,7 +1406,7 @@
       "name": "smjonas/inc-rename.nvim",
       "owner": "smjonas",
       "repo": "inc-rename.nvim",
-      "loadOrder": 80,
+      "loadOrder": 76,
       "dependencies": {
       },
       "source_file": "extras.editor.inc-rename",
@@ -1471,7 +1422,7 @@
       "name": "stevearc/aerial.nvim",
       "owner": "stevearc",
       "repo": "aerial.nvim",
-      "loadOrder": 81,
+      "loadOrder": 77,
       "dependencies": {
       },
       "source_file": "extras.editor.aerial",
@@ -1488,7 +1439,7 @@
       "name": "stevearc/conform.nvim",
       "owner": "stevearc",
       "repo": "conform.nvim",
-      "loadOrder": 82,
+      "loadOrder": 78,
       "dependencies": [
         "mason-org/mason.nvim"
       ],
@@ -1507,7 +1458,7 @@
       "name": "stevearc/overseer.nvim",
       "owner": "stevearc",
       "repo": "overseer.nvim",
-      "loadOrder": 83,
+      "loadOrder": 79,
       "dependencies": {
       },
       "source_file": "extras.editor.overseer",
@@ -1538,7 +1489,7 @@
       "name": "tpope/vim-repeat",
       "owner": "tpope",
       "repo": "vim-repeat",
-      "loadOrder": 84,
+      "loadOrder": 80,
       "dependencies": {
       },
       "source_file": "extras.editor.leap",
@@ -1555,7 +1506,7 @@
       "name": "windwp/nvim-ts-autotag",
       "owner": "windwp",
       "repo": "nvim-ts-autotag",
-      "loadOrder": 85,
+      "loadOrder": 81,
       "dependencies": {
       },
       "source_file": "core.treesitter",
@@ -1571,7 +1522,7 @@
       "name": "xvzc/chezmoi.nvim",
       "owner": "xvzc",
       "repo": "chezmoi.nvim",
-      "loadOrder": 86,
+      "loadOrder": 82,
       "dependencies": {
       },
       "source_file": "extras.util.chezmoi",

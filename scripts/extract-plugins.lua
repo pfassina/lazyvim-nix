@@ -492,6 +492,12 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 				table.insert(plugins, plugin_info)
 			end
 		elseif type(spec) == "table" then
+			-- Skip optional plugins
+			if spec.optional == true then
+				print("    Skipping optional plugin: " .. (spec[1] or spec.name or "unknown"))
+				return
+			end
+
 			-- Handle table spec
 			local name = spec[1] or spec.name
 			if name and type(name) == "string" then
@@ -648,6 +654,12 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 		-- 2. Metadata like "recommended"
 		for _, item in ipairs(result) do
 			if type(item) == "table" and item[1] and type(item[1]) == "string" then
+				-- Skip optional plugins
+				if item.optional == true then
+					print("    Skipping optional plugin: " .. item[1])
+					goto continue
+				end
+
 				-- This is a plugin spec
 				local plugin_name = item[1]
 
@@ -724,6 +736,7 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 					end
 				end
 			end
+			::continue::
 		end
 
 		return plugins
