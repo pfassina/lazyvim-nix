@@ -6,7 +6,7 @@ let
 
   # Load current plugin data for regression testing
   currentPluginData = builtins.fromJSON (builtins.readFile ../../data/plugins.json);
-  currentPluginMappings = import ../../nix/mappings/plugin-mappings.nix;
+  currentPluginMappings = builtins.fromJSON (builtins.readFile ../../data/mappings.json);
 
 in {
   # Test that core LazyVim plugins are always present
@@ -47,7 +47,7 @@ in {
       plugin="''${mapping%%:*}"
       expected="''${mapping##*:}"
 
-      actual=$(nix-instantiate --eval ${../../nix/mappings/plugin-mappings.nix} -A "\"$plugin\"" 2>/dev/null | tr -d '"' || echo "MISSING")
+      actual=$(${pkgs.jq}/bin/jq -r --arg plugin "$plugin" '.[$plugin] // "MISSING"' ${../../data/mappings.json} 2>/dev/null || echo "MISSING")
 
       if [ "$actual" = "$expected" ]; then
         echo "✓ $plugin -> $expected"
@@ -63,13 +63,13 @@ in {
   # Test that multi-module plugins are consistently handled
   test-multi-module-consistency = testLib.runTest "multi-module-consistency" ''
     # Test that all mini.nvim modules map to the same package
-    mini_modules=$(nix-instantiate --eval ${../../nix/mappings/plugin-mappings.nix} --json | ${pkgs.jq}/bin/jq -r '
+    mini_modules=$(${pkgs.jq}/bin/jq -r '
       to_entries |
       map(select(.key | contains("mini."))) |
       map(select(.value | type == "object")) |
       map(.value.package) |
       unique[]
-    ')
+    ' ${../../data/mappings.json})
 
     echo "Mini.nvim modules should all map to mini-nvim package:"
     for package in $mini_modules; do

@@ -13,7 +13,6 @@ on:
       - 'scripts/extract-plugins.lua'
       - 'scripts/suggest-mappings.lua'
       - 'scripts/generate-extras-metadata.lua'
-      - 'scripts/extract-extras-plugins.lua'
       - '.github/workflows/update-plugins.yml'
 
 permissions:
@@ -102,15 +101,17 @@ jobs:
             if grep -q "## ✅ Verified Mappings" data/mapping-analysis-report.md; then
               echo "has_verified_mappings=true" >> $GITHUB_OUTPUT
               
-              # Extract the nix code block with mappings
-              sed -n '/```nix/,/```/p' data/mapping-analysis-report.md | sed '1d;$d' > new-mappings.nix
-              
-              # Apply the mappings to nix/mappings/plugin-mappings.nix
-              if [ -s new-mappings.nix ]; then
-                # Insert before the closing brace
-                sed -i '$ s/}//' nix/mappings/plugin-mappings.nix
-                cat new-mappings.nix >> nix/mappings/plugin-mappings.nix
-                echo "}" >> nix/mappings/plugin-mappings.nix
+              # Extract the JSON code block with mappings
+              sed -n '/```json/,/```/p' data/mapping-analysis-report.md | sed '1d;$d' > new-mappings.json
+
+              # Apply the mappings to data/mappings.json
+              if [ -s new-mappings.json ]; then
+                # Create temporary JSON with new mappings (remove trailing commas)
+                sed 's/,$//' new-mappings.json > new-mappings-clean.json
+
+                # Merge with existing mappings using jq
+                jq -s '.[0] * .[1]' data/mappings.json new-mappings-clean.json > data/mappings.json.tmp
+                mv data/mappings.json.tmp data/mappings.json
                 
                 # Re-run extraction with new mappings
                 nix develop --command ./scripts/update-plugins.sh
@@ -139,7 +140,7 @@ jobs:
             - Updated `data/plugins.json` with latest LazyVim plugin list
             - Updated `data/extras.json` with latest LazyVim extras metadata
             - Version: ${{ steps.check-updates.outputs.latest_version }}
-            ${{ steps.update-plugins.outputs.has_verified_mappings == 'true' && '- Added new verified plugin mappings to `nix/mappings/plugin-mappings.nix`' || '' }}
+            ${{ steps.update-plugins.outputs.has_verified_mappings == 'true' && '- Added new verified plugin mappings to `data/mappings.json`' || '' }}
             ${{ steps.update-plugins.outputs.unmapped_count > 0 && steps.update-plugins.outputs.has_verified_mappings != 'true' && '- ⚠️ Found unmapped plugins that need manual review (see data/mapping-analysis-report.md)' || '' }}
             
             ## Plugin Statistics
@@ -159,7 +160,7 @@ jobs:
           delete-branch: true
           add-paths: |
             data/plugins.json
-            nix/mappings/plugin-mappings.nix
+            data/mappings.json
             data/extras.json
             data/mapping-analysis-report.md
           

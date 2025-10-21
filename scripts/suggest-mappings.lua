@@ -273,11 +273,11 @@ function M.format_report(analysis)
 	if #verified_mappings > 0 then
 		table.insert(report, "## ✅ Verified Mappings")
 		table.insert(report, "")
-		table.insert(report, "Add these to `nix/mappings/plugin-mappings.nix`:")
+		table.insert(report, "Add these to `data/mappings.json`:")
 		table.insert(report, "")
-		table.insert(report, "```nix")
+		table.insert(report, "```json")
 		for _, item in ipairs(verified_mappings) do
-			table.insert(report, string.format('  "%s" = "%s";', item.plugin, item.mapping.name))
+			table.insert(report, string.format('  "%s": "%s",', item.plugin, item.mapping.name))
 		end
 		table.insert(report, "```")
 		table.insert(report, "")

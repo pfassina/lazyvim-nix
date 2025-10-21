@@ -1,0 +1,46 @@
+{
+  "nvim-mini/mini.ai": {
+    "package": "mini-nvim",
+    "module": "mini.ai"
+  },
+  "nvim-mini/mini.bufremove": {
+    "package": "mini-nvim",
+    "module": "mini.bufremove"
+  },
+  "nvim-mini/mini.comment": {
+    "package": "mini-nvim",
+    "module": "mini.comment"
+  },
+  "nvim-mini/mini.diff": {
+    "package": "mini-nvim",
+    "module": "mini.diff"
+  },
+  "nvim-mini/mini.icons": {
+    "package": "mini-nvim",
+    "module": "mini.icons"
+  },
+  "nvim-mini/mini.indentscope": {
+    "package": "mini-nvim",
+    "module": "mini.indentscope"
+  },
+  "nvim-mini/mini.move": {
+    "package": "mini-nvim",
+    "module": "mini.move"
+  },
+  "nvim-mini/mini.pairs": {
+    "package": "mini-nvim",
+    "module": "mini.pairs"
+  },
+  "nvim-mini/mini.starter": {
+    "package": "mini-nvim",
+    "module": "mini.starter"
+  },
+  "nvim-mini/mini.surround": {
+    "package": "mini-nvim",
+    "module": "mini.surround"
+  },
+  "echasnovski/mini.icons": {
+    "package": "mini-nvim",
+    "module": "mini.icons"
+  }
+}

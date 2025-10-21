@@ -47,33 +47,42 @@ local function load_existing_plugins(file_path)
 	return existing_plugins
 end
 
--- Function to parse plugin-mappings.nix
+-- Function to parse plugin mappings from JSON
 local function parse_plugin_mappings(mappings_file)
 	local mappings = {}
 	local multi_module_mappings = {}
 
 	local file = io.open(mappings_file, "r")
 	if not file then
-		print("Warning: Could not open nix/mappings/plugin-mappings.nix, proceeding without existing mappings")
+		print("Warning: Could not open data/mappings.json, proceeding without existing mappings")
 		return mappings, multi_module_mappings
 	end
 
 	local content = file:read("*all")
 	file:close()
 
-	-- Parse standard mappings: "plugin/name" = "nixpkgs-name";
-	for plugin_name, nixpkgs_name in content:gmatch('"([^"]+)"[%s]*=[%s]*"([^"]+)";') do
-		mappings[plugin_name] = nixpkgs_name
+	-- Parse JSON content
+	local success, parsed = pcall(function() return vim.fn.json_decode(content) end)
+	if not success then
+		print("Warning: Could not parse mappings JSON, proceeding without existing mappings")
+		return mappings, multi_module_mappings
 	end
 
-	-- Parse multi-module mappings: "plugin/name" = { package = "pkg"; module = "mod"; };
-	for plugin_name, package, module in
-		content:gmatch('"([^"]+)"[%s]*=[%s]*{[%s]*package[%s]*=[%s]*"([^"]+)";[%s]*module[%s]*=[%s]*"([^"]+)";[%s]*};')
-	do
-		multi_module_mappings[plugin_name] = {
-			package = package,
-			module = module,
-		}
+	-- Separate standard mappings from multi-module mappings
+	for plugin_name, mapping_data in pairs(parsed) do
+		-- Skip the comment field
+		if plugin_name ~= "_comment" then
+			if type(mapping_data) == "string" then
+				-- Standard mapping: "plugin/name": "nixpkgs-name"
+				mappings[plugin_name] = mapping_data
+			elseif type(mapping_data) == "table" and mapping_data.package and mapping_data.module then
+				-- Multi-module mapping: "plugin/name": { "package": "pkg", "module": "mod" }
+				multi_module_mappings[plugin_name] = {
+					package = mapping_data.package,
+					module = mapping_data.module
+				}
+			end
+		end
 	end
 
 	local function count_table(t)
@@ -112,7 +121,7 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit)
 	}
 
 	-- Parse existing plugin mappings
-	local mappings_file = "nix/mappings/plugin-mappings.nix"
+	local mappings_file = "data/mappings.json"
 	local existing_mappings, multi_module_mappings = parse_plugin_mappings(mappings_file)
 
 	-- Load LazyVim's plugin specifications directly

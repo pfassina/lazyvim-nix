@@ -6,7 +6,7 @@ let
   pluginsJsonExists = builtins.pathExists ../../data/plugins.json;
   moduleNixExists = builtins.pathExists ../../nix/module.nix;
   flakeNixExists = builtins.pathExists ../../flake.nix;
-  pluginMappingsExists = builtins.pathExists ../../nix/mappings/plugin-mappings.nix;
+  pluginMappingsExists = builtins.pathExists ../../data/mappings.json;
 
   # Load and parse plugins.json
   pluginsData = if pluginsJsonExists then

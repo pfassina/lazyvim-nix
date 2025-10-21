@@ -4,7 +4,7 @@
 {
   # Test that core files exist
   test-core-files-exist = testLib.runTest "core-files-exist" ''
-    if [ -f "${../../flake.nix}" ] && [ -f "${../../nix/module.nix}" ] && [ -f "${../../data/plugins.json}" ] && [ -f "${../../nix/mappings/plugin-mappings.nix}" ]; then
+    if [ -f "${../../flake.nix}" ] && [ -f "${../../nix/module.nix}" ] && [ -f "${../../data/plugins.json}" ] && [ -f "${../../data/mappings.json}" ]; then
       echo "Core files exist"
     else
       echo "Missing core files"
@@ -58,22 +58,17 @@
     echo "Core plugins present"
   '';
 
-  # Test that plugin mappings file is valid Nix
+  # Test that plugin mappings file is valid JSON
   test-plugin-mappings-valid = testLib.runTest "plugin-mappings-valid" ''
     # Test that the file exists
-    if [ ! -f "${../../nix/mappings/plugin-mappings.nix}" ]; then
-      echo "plugin-mappings.nix not found"
+    if [ ! -f "${../../data/mappings.json}" ]; then
+      echo "mappings.json not found"
       exit 1
     fi
 
-    # Basic syntax check - file should start with { and end with }
-    if ! head -1 ${../../nix/mappings/plugin-mappings.nix} | grep -q '^{'; then
-      echo "plugin-mappings.nix doesn't start with {"
-      exit 1
-    fi
-
-    if ! tail -1 ${../../nix/mappings/plugin-mappings.nix} | grep -q '}'; then
-      echo "plugin-mappings.nix doesn't end with }"
+    # Validate JSON syntax
+    if ! ${pkgs.jq}/bin/jq empty ${../../data/mappings.json} 2>/dev/null; then
+      echo "mappings.json is not valid JSON"
       exit 1
     fi
 

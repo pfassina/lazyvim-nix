@@ -228,7 +228,7 @@ local function main()
   print(json_output)
 
   -- Write to file
-  local output_file = "nix/mappings/treesitter-mappings.json"
+  local output_file = "data/treesitter.json"
   local file = io.open(output_file, "w")
   if file then
     file:write(json_output)

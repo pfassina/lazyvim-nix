@@ -121,13 +121,13 @@ in {
     # Test that core files exist and are valid
     [ -f "${../flake.nix}" ] && echo "✓ flake.nix exists"
     [ -f "${../data/plugins.json}" ] && echo "✓ data/plugins.json exists"
-    [ -f "${../nix/mappings/plugin-mappings.nix}" ] && echo "✓ nix/mappings/plugin-mappings.nix exists"
+    [ -f "${../data/mappings.json}" ] && echo "✓ data/mappings.json exists"
 
     # Test JSON validity
     ${pkgs.jq}/bin/jq . ${../data/plugins.json} > /dev/null && echo "✓ data/plugins.json is valid JSON"
 
     # Test mappings file exists (simplified for smoke test)
-    [ -f "${../nix/mappings/plugin-mappings.nix}" ] && echo "✓ nix/mappings/plugin-mappings.nix exists"
+    [ -f "${../data/mappings.json}" ] && echo "✓ data/mappings.json exists"
 
     echo
     echo "🎉 Smoke test passed!"

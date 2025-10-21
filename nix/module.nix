@@ -7,13 +7,13 @@ let
 
   # Load plugin data and mappings
   pluginData = pkgs.lazyvimPluginData or (builtins.fromJSON (builtins.readFile ../data/plugins.json));
-  pluginMappings = pkgs.lazyvimPluginMappings or (import ./mappings/plugin-mappings.nix);
+  pluginMappings = pkgs.lazyvimPluginMappings or (builtins.fromJSON (builtins.readFile ../data/mappings.json));
 
   # Load extras metadata
   extrasMetadata = pkgs.lazyvimExtrasMetadata or (builtins.fromJSON (builtins.readFile ../data/extras.json));
 
   # Load treesitter parser mappings
-  treesitterMappings = pkgs.lazyvimTreesitterMappings or (builtins.fromJSON (builtins.readFile ./mappings/treesitter-mappings.json));
+  treesitterMappings = pkgs.lazyvimTreesitterMappings or (builtins.fromJSON (builtins.readFile ../data/treesitter.json));
 
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
@@ -70,30 +70,6 @@ let
   else
     map extractLang cfg.treesitterParsers;
 
-  # Function to scan extras plugins - following the same pattern as scanUserPlugins
-  scanExtrasPlugins = enabledExtrasFiles:
-    let
-      # Use a temporary LazyVim checkout - same pattern as the extraction scripts use
-      scanResult = pkgs.runCommand "scan-extras-plugins" {
-        buildInputs = [ pkgs.lua pkgs.git ];
-      } ''
-        # Clone LazyVim to get extras files - use git like other scripts
-        git clone --depth 1 https://github.com/LazyVim/LazyVim /tmp/LazyVim
-
-        # Copy our extraction script
-        cp ${./scripts/extract-extras-plugins.lua} extract-extras-plugins.lua
-
-        # Run the extraction
-        lua extract-extras-plugins.lua \
-          /tmp/LazyVim/lua/lazyvim/plugins/extras \
-          $out \
-          ${lib.concatStringsSep " " enabledExtrasFiles} || echo "[]" > $out
-      '';
-
-      extrasPluginsJson = builtins.readFile scanResult;
-      extrasPluginsList = if extrasPluginsJson == "[]" then [] else builtins.fromJSON extrasPluginsJson;
-    in
-      extrasPluginsList;
 
 
   # Helper function to build a vim plugin from source

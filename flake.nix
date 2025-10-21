@@ -38,7 +38,7 @@
 
       overlays.default = final: prev: {
         lazyvimPluginData = builtins.fromJSON (builtins.readFile ./data/plugins.json);
-        lazyvimPluginMappings = import ./nix/mappings/plugin-mappings.nix;
+        lazyvimPluginMappings = builtins.fromJSON (builtins.readFile ./data/mappings.json);
         lazyvimExtrasMetadata = builtins.fromJSON (builtins.readFile ./data/extras.json);
         lazyvimOverrides = import ./nix/overrides/default.nix { pkgs = final; };
       };

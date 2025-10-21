@@ -78,7 +78,7 @@ in {
         # Simulate rust extra being enabled
         enabledExtras = ["lang.rust"];
         rustParsers = ["rust" "ron"];
-        allParsers = ${builtins.toJSON testTreesitterMappings.core} ++ rustParsers;
+        allParsers = [ "bash" "c" "diff" "html" "javascript" "jsdoc" "json" "jsonc" "lua" "luadoc" "luap" "markdown" "markdown_inline" "printf" "python" "query" "regex" "toml" "tsx" "typescript" "vim" "vimdoc" "xml" "yaml" ] ++ rustParsers;
         hasRust = builtins.elem "rust" allParsers;
         hasRon = builtins.elem "ron" allParsers;
       in hasRust && hasRon
@@ -227,8 +227,8 @@ in {
         emptyExtras = {};
         enabledNames = [];
         # Should only have core parsers
-        result = ${builtins.toJSON testTreesitterMappings.core} ++ [];
-        onlyCore = builtins.length result == ${toString (builtins.length testTreesitterMappings.core)};
+        result = [ "bash" "c" "diff" "html" "javascript" "jsdoc" "json" "jsonc" "lua" "luadoc" "luap" "markdown" "markdown_inline" "printf" "python" "query" "regex" "toml" "tsx" "typescript" "vim" "vimdoc" "xml" "yaml" ];
+        onlyCore = builtins.length result == 24;
       in onlyCore
     ''
     "true";

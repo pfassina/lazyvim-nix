@@ -96,7 +96,7 @@ lua scripts/extract-treesitter.lua "$TEMP_DIR/LazyVim" || {
 }
 
 # Validate the generated treesitter mappings JSON
-if ! jq . "$REPO_ROOT/nix/mappings/treesitter-mappings.json" > /dev/null 2>&1; then
+if ! jq . "$REPO_ROOT/data/treesitter.json" > /dev/null 2>&1; then
     echo "Error: Generated treesitter-mappings.json is not valid JSON"
     exit 1
 fi
@@ -141,8 +141,8 @@ fi
 mv "$REPO_ROOT/data/plugins.json.tmp" "$REPO_ROOT/data/plugins.json"
 
 # Get treesitter stats
-CORE_PARSERS=$(jq '.core | length' "$REPO_ROOT/nix/mappings/treesitter-mappings.json")
-EXTRA_PARSERS=$(jq '[.extras | values[]] | length' "$REPO_ROOT/nix/mappings/treesitter-mappings.json")
+CORE_PARSERS=$(jq '.core | length' "$REPO_ROOT/data/treesitter.json")
+EXTRA_PARSERS=$(jq '[.extras | values[]] | length' "$REPO_ROOT/data/treesitter.json")
 
 echo "==> Successfully updated plugins.json and treesitter-mappings.json"
 echo "    Version: $LAZYVIM_VERSION"
@@ -151,11 +151,11 @@ echo "    Core parsers: $CORE_PARSERS"
 echo "    Extra parsers: $EXTRA_PARSERS"
 
 # Generate a summary of changes
-if git diff --quiet data/plugins.json nix/mappings/treesitter-mappings.json 2>/dev/null; then
+if git diff --quiet data/plugins.json data/treesitter.json 2>/dev/null; then
     echo "==> No changes detected"
 else
     echo "==> Changes detected:"
-    git diff --stat data/plugins.json nix/mappings/treesitter-mappings.json 2>/dev/null || true
+    git diff --stat data/plugins.json data/treesitter.json 2>/dev/null || true
 fi
 
 # Remind about next steps if there are unmapped plugins
@@ -165,7 +165,7 @@ if [ "$UNMAPPED_COUNT" -gt 0 ]; then
     echo "1. Review mapping-analysis-report.md"
     echo "2. Update plugin-mappings.nix with approved mappings"
     echo "3. Re-run this script to regenerate plugins.json"
-    echo "4. Commit both data/plugins.json and nix/mappings/plugin-mappings.nix together"
+    echo "4. Commit both data/plugins.json and data/mappings.json together"
 fi
 
 # Note: Version information is now fetched during extraction
