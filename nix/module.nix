@@ -890,13 +890,13 @@ in {
 
     installCoreDependencies = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = ''
         Whether to automatically install core LazyVim dependencies.
 
         Core dependencies include: git, ripgrep, fd, lazygit, fzf, curl.
 
-        When false (default), you must manually provide these tools via extraPackages
+        When false, you must manually provide these tools via extraPackages
         or ensure they're available in your system PATH.
       '';
     };
