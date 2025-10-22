@@ -18,6 +18,17 @@ let
   # Load consolidated dependencies
   dependencies = pkgs.lazyvimDependencies or (builtins.fromJSON (builtins.readFile ../data/dependencies.json));
 
+  # Helper to extract language name from treesitter parser packages
+  extractLang = pkg:
+    let
+      pname = pkg.pname or "";
+    in
+      # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
+      if lib.hasPrefix "tree-sitter-" pname then
+        lib.removePrefix "tree-sitter-" pname
+      else
+        pname;  # For nvim-treesitter.grammarPlugins packages
+
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
     let

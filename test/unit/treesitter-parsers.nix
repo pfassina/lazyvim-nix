@@ -232,4 +232,155 @@ in {
       in onlyCore
     ''
     "true";
+
+  # Test extractLang function with tree-sitter-grammars packages
+  test-extract-lang-tree-sitter-grammars = testLib.testNixExpr
+    "extract-lang-tree-sitter-grammars"
+    ''
+      let
+        lib = (import <nixpkgs> {}).lib;
+        # Helper to extract language name from treesitter parser packages
+        extractLang = pkg:
+          let
+            pname = pkg.pname or "";
+          in
+            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
+            if lib.hasPrefix "tree-sitter-" pname then
+              lib.removePrefix "tree-sitter-" pname
+            else
+              pname;
+
+        # Test with tree-sitter-grammars packages
+        mockPackage1 = { pname = "tree-sitter-rust"; };
+        mockPackage2 = { pname = "tree-sitter-python"; };
+        mockPackage3 = { pname = "tree-sitter-go"; };
+
+        extracted1 = extractLang mockPackage1;
+        extracted2 = extractLang mockPackage2;
+        extracted3 = extractLang mockPackage3;
+      in
+        extracted1 == "rust" &&
+        extracted2 == "python" &&
+        extracted3 == "go"
+    ''
+    "true";
+
+  # Test extractLang function with nvim-treesitter.grammarPlugins packages
+  test-extract-lang-nvim-treesitter = testLib.testNixExpr
+    "extract-lang-nvim-treesitter"
+    ''
+      let
+        lib = (import <nixpkgs> {}).lib;
+        # Helper to extract language name from treesitter parser packages
+        extractLang = pkg:
+          let
+            pname = pkg.pname or "";
+          in
+            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
+            if lib.hasPrefix "tree-sitter-" pname then
+              lib.removePrefix "tree-sitter-" pname
+            else
+              pname;
+
+        # Test with nvim-treesitter.grammarPlugins packages (no prefix)
+        mockPackage1 = { pname = "wgsl"; };
+        mockPackage2 = { pname = "templ"; };
+        mockPackage3 = { pname = "json5"; };
+
+        extracted1 = extractLang mockPackage1;
+        extracted2 = extractLang mockPackage2;
+        extracted3 = extractLang mockPackage3;
+      in
+        extracted1 == "wgsl" &&
+        extracted2 == "templ" &&
+        extracted3 == "json5"
+    ''
+    "true";
+
+  # Test extractLang with mixed packages
+  test-extract-lang-mixed = testLib.testNixExpr
+    "extract-lang-mixed"
+    ''
+      let
+        lib = (import <nixpkgs> {}).lib;
+        # Helper to extract language name from treesitter parser packages
+        extractLang = pkg:
+          let
+            pname = pkg.pname or "";
+          in
+            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
+            if lib.hasPrefix "tree-sitter-" pname then
+              lib.removePrefix "tree-sitter-" pname
+            else
+              pname;
+
+        # Test with a mix of both package types
+        packages = [
+          { pname = "tree-sitter-bash"; }
+          { pname = "wgsl"; }
+          { pname = "tree-sitter-vim"; }
+          { pname = "templ"; }
+        ];
+
+        extractedNames = map extractLang packages;
+        expected = [ "bash" "wgsl" "vim" "templ" ];
+      in
+        extractedNames == expected
+    ''
+    "true";
+
+  # Test extractLang handles missing pname gracefully
+  test-extract-lang-missing-pname = testLib.testNixExpr
+    "extract-lang-missing-pname"
+    ''
+      let
+        lib = (import <nixpkgs> {}).lib;
+        # Helper to extract language name from treesitter parser packages
+        extractLang = pkg:
+          let
+            pname = pkg.pname or "";
+          in
+            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
+            if lib.hasPrefix "tree-sitter-" pname then
+              lib.removePrefix "tree-sitter-" pname
+            else
+              pname;
+
+        # Test with package missing pname
+        mockPackage = { };
+        extracted = extractLang mockPackage;
+      in
+        extracted == ""
+    ''
+    "true";
+
+  # Test extractLang with edge cases
+  test-extract-lang-edge-cases = testLib.testNixExpr
+    "extract-lang-edge-cases"
+    ''
+      let
+        lib = (import <nixpkgs> {}).lib;
+        # Helper to extract language name from treesitter parser packages
+        extractLang = pkg:
+          let
+            pname = pkg.pname or "";
+          in
+            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
+            if lib.hasPrefix "tree-sitter-" pname then
+              lib.removePrefix "tree-sitter-" pname
+            else
+              pname;
+
+        # Test edge cases
+        case1 = extractLang { pname = "tree-sitter-"; }; # Just the prefix
+        case2 = extractLang { pname = "tree-sitter-c-sharp"; }; # Hyphenated language name
+        case3 = extractLang { pname = "c_sharp"; }; # Underscore in name
+        case4 = extractLang { pname = "tree-sitter-tsx"; }; # Short name
+      in
+        case1 == "" &&
+        case2 == "c-sharp" &&
+        case3 == "c_sharp" &&
+        case4 == "tsx"
+    ''
+    "true";
 }
