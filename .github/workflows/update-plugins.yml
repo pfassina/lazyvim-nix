@@ -11,6 +11,7 @@ on:
     paths:
       - 'scripts/update-plugins.sh'
       - 'scripts/extract-plugins.lua'
+      - 'scripts/extract-dependencies.lua'
       - 'scripts/suggest-mappings.lua'
       - 'scripts/generate-extras-metadata.lua'
       - '.github/workflows/update-plugins.yml'
@@ -81,6 +82,9 @@ jobs:
 
           # Update extras metadata
           ./scripts/generate-extras-metadata.lua
+
+          # Update dependency mappings
+          nix develop --command ./scripts/extract-dependencies.lua /tmp/lazyvim-temp /tmp/mason-registry data/dependencies.json
           
           # Check if there are unmapped plugins
           UNMAPPED_COUNT=$(jq '.extraction_report.unmapped_plugins // 0' data/plugins.json)
@@ -162,6 +166,8 @@ jobs:
             data/plugins.json
             data/mappings.json
             data/extras.json
+            data/dependencies.json
+            data/dependencies-verification-report.json
             data/mapping-analysis-report.md
           
   test-flake:
