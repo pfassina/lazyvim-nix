@@ -347,4 +347,4 @@ in {
 
     echo "Concurrent evaluation test passed"
   '';
-}
+} // (import ./dependency-edge-cases.nix { inherit pkgs testLib; })

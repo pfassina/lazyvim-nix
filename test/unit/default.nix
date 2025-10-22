@@ -261,4 +261,4 @@ in devPathTests // treesitterTests // {
       in telescopeCorrect && cmpCorrect
     ''
     "true";
-}
+} // (import ./dependency-resolution.nix { inherit pkgs testLib; })

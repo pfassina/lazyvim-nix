@@ -288,4 +288,4 @@ in {
       exit 1
     fi
   '';
-}
+} // (import ./dependency-compatibility.nix { inherit pkgs testLib; })

@@ -513,4 +513,4 @@ in {
 
     echo "$result" | grep -q "does not exist"
   '';
-}
+} // (import ./dependency-system.nix { inherit pkgs testLib; moduleUnderTest = ../nix/module.nix; })
