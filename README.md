@@ -45,13 +45,21 @@ programs.lazyvim = {
 
   extras = {
     lang.nix.enable = true;
-    lang.python.enable = true;
+    lang.python = {
+      enable = true;
+      installDependencies = true;        # Install ruff
+      installRuntimeDependencies = true; # Install python3
+    };
+    lang.go = {
+      enable = true;
+      installDependencies = true;        # Install gopls, gofumpt, etc.
+      installRuntimeDependencies = true; # Install go compiler
+    };
   };
 
-  # Language servers, formatters, linters (since Mason is disabled)
+  # Additional packages (optional)
   extraPackages = with pkgs; [
     nixd       # Nix LSP
-    pyright    # Python LSP
     alejandra  # Nix formatter
   ];
 
@@ -63,7 +71,32 @@ programs.lazyvim = {
 };
 ```
 
-**Note:** Treesitter grammars are [installed automatically](https://github.com/pfassina/lazyvim-nix/wiki/Configuration-Reference#treesitterparsers) based on enabled language extras. 
+**Note:** Treesitter grammars are [installed automatically](https://github.com/pfassina/lazyvim-nix/wiki/Configuration-Reference#treesitterparsers) based on enabled language extras.
+
+### Dependency Control
+
+Control which packages get installed automatically:
+
+```nix
+programs.lazyvim = {
+  enable = true;
+
+  # Core LazyVim dependencies (git, ripgrep, fd, etc.)
+  installCoreDependencies = true;  # default: true
+
+  extras = {
+    lang.typescript = {
+      enable = true;
+      installDependencies = false;        # Skip typescript tools
+      installRuntimeDependencies = true;  # But install nodejs
+    };
+  };
+};
+```
+
+**Note:** Dependencies are opt-in per language. Set to `false` to manage packages manually via `extraPackages`.
+
+**⚠️ Experimental:** Automatic dependency installation is experimental and might not cover all required packages. Use `extraPackages` for missing dependencies.
 
 ### Custom Configuration
 
