@@ -87,6 +87,33 @@ if ! jq . "$REPO_ROOT/data/plugins.json.tmp" > /dev/null 2>&1; then
     exit 1
 fi
 
+echo "==> Extracting system dependencies with runtime mappings..."
+# Clone Mason registry for runtime dependency extraction
+MASON_TEMP_DIR=$(mktemp -d)
+echo "Cloning Mason registry..."
+git clone --depth 1 https://github.com/mason-org/mason-registry.git "$MASON_TEMP_DIR" &>/dev/null || {
+    echo "Warning: Failed to clone Mason registry, continuing without runtime dependencies"
+    MASON_TEMP_DIR=""
+}
+
+# Extract consolidated dependencies from LazyVim with optional Mason integration
+cd "$REPO_ROOT"
+lua scripts/extract-dependencies.lua "$TEMP_DIR/LazyVim" "$MASON_TEMP_DIR" "data/dependencies.json" || {
+    echo "Error: Failed to extract system dependencies"
+    exit 1
+}
+
+# Clean up Mason registry if it was cloned
+if [ -n "$MASON_TEMP_DIR" ] && [ -d "$MASON_TEMP_DIR" ]; then
+    rm -rf "$MASON_TEMP_DIR"
+fi
+
+# Validate the generated dependencies JSON
+if ! jq . "$REPO_ROOT/data/dependencies.json" > /dev/null 2>&1; then
+    echo "Error: Generated dependencies.json is not valid JSON"
+    exit 1
+fi
+
 echo "==> Extracting treesitter parser mappings..."
 # Extract treesitter mappings from LazyVim
 cd "$REPO_ROOT"
@@ -140,22 +167,32 @@ fi
 # Move the temporary file to the final location
 mv "$REPO_ROOT/data/plugins.json.tmp" "$REPO_ROOT/data/plugins.json"
 
+# Get dependency stats
+CORE_DEPS=$(jq '.core | length' "$REPO_ROOT/data/dependencies.json")
+EXTRAS_WITH_DEPS=$(jq '.extras | keys | length' "$REPO_ROOT/data/dependencies.json")
+RESOLVED_DEPS=$(jq '.auto | keys | length' "$REPO_ROOT/data/dependency-mappings.json")
+FAILED_DEPS=$(jq '.failed | length' "$REPO_ROOT/data/dependency-mappings.json")
+
 # Get treesitter stats
 CORE_PARSERS=$(jq '.core | length' "$REPO_ROOT/data/treesitter.json")
 EXTRA_PARSERS=$(jq '[.extras | values[]] | length' "$REPO_ROOT/data/treesitter.json")
 
-echo "==> Successfully updated plugins.json and treesitter-mappings.json"
+echo "==> Successfully updated plugins.json, dependencies.json, dependency-mappings.json, and treesitter-mappings.json"
 echo "    Version: $LAZYVIM_VERSION"
 echo "    Plugins: $PLUGIN_COUNT"
+echo "    Core dependencies: $CORE_DEPS"
+echo "    Extras with dependencies: $EXTRAS_WITH_DEPS"
+echo "    Resolved dependencies: $RESOLVED_DEPS"
+echo "    Failed dependencies: $FAILED_DEPS"
 echo "    Core parsers: $CORE_PARSERS"
 echo "    Extra parsers: $EXTRA_PARSERS"
 
 # Generate a summary of changes
-if git diff --quiet data/plugins.json data/treesitter.json 2>/dev/null; then
+if git diff --quiet data/plugins.json data/dependencies.json data/dependency-mappings.json data/treesitter.json 2>/dev/null; then
     echo "==> No changes detected"
 else
     echo "==> Changes detected:"
-    git diff --stat data/plugins.json data/treesitter.json 2>/dev/null || true
+    git diff --stat data/plugins.json data/dependencies.json data/dependency-mappings.json data/treesitter.json 2>/dev/null || true
 fi
 
 # Remind about next steps if there are unmapped plugins

@@ -40,6 +40,7 @@
         lazyvimPluginData = builtins.fromJSON (builtins.readFile ./data/plugins.json);
         lazyvimPluginMappings = builtins.fromJSON (builtins.readFile ./data/mappings.json);
         lazyvimExtrasMetadata = builtins.fromJSON (builtins.readFile ./data/extras.json);
+        lazyvimDependencies = builtins.fromJSON (builtins.readFile ./data/dependencies.json);
         lazyvimOverrides = import ./nix/overrides/default.nix { pkgs = final; };
       };
     };

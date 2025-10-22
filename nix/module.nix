@@ -15,6 +15,9 @@ let
   # Load treesitter parser mappings
   treesitterMappings = pkgs.lazyvimTreesitterMappings or (builtins.fromJSON (builtins.readFile ../data/treesitter.json));
 
+  # Load consolidated dependencies
+  dependencies = pkgs.lazyvimDependencies or (builtins.fromJSON (builtins.readFile ../data/dependencies.json));
+
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
     let
@@ -69,6 +72,93 @@ let
       allParsers
   else
     map extractLang cfg.treesitterParsers;
+
+  # Calculate system dependencies based on enabled features
+  systemPackages = if cfg.enable then
+    let
+      # Get enabled extra names in "category.name" format for lookup
+      enabledExtraNames = lib.flatten (lib.mapAttrsToList (category: extras:
+        lib.mapAttrsToList (name: extraConfig:
+          lib.optional (extraConfig.enable or false) "${category}.${name}"
+        ) extras
+      ) (cfg.extras or {}));
+
+      # Helper function to resolve a package name to nixpkgs package
+      resolvePackage = pkgName:
+        if pkgs ? ${pkgName} then pkgs.${pkgName}
+        else builtins.trace "Warning: Package '${pkgName}' not found in nixpkgs" null;
+
+      # Helper function to warn about unmapped tools
+      warnUnmappedTool = toolName: extraName:
+        builtins.trace ''
+          Warning: Tool '${toolName}' in extra '${extraName}' has no nixpkgs mapping.
+
+          This tool will be skipped during installation. To resolve this:
+          1. Manually install the tool via extraPackages, or
+          2. Consider contributing a nixpkgs mapping at:
+             https://github.com/user/lazyvim-nix/issues
+
+          Include the tool name '${toolName}' and suggest a nixpkgs package name.
+        '' null;
+
+      # Get core packages (only if installCoreDependencies is enabled)
+      corePackages = if cfg.installCoreDependencies then
+        lib.filter (pkg: pkg != null) (map (tool:
+          if tool ? nixpkg then resolvePackage tool.nixpkg else null
+        ) (dependencies.core or []))
+      else [];
+
+      # Get packages for enabled extras based on installation options
+      extraPackages = lib.flatten (map (extraName:
+        let
+          # Split "category.name" into parts to access cfg.extras
+          parts = lib.splitString "." extraName;
+          category = lib.head parts;
+          name = lib.last parts;
+          extraConfig = cfg.extras.${category}.${name} or {};
+          extraTools = dependencies.extras.${extraName} or [];
+
+          # Check installation options
+          shouldInstallDependencies = extraConfig.installDependencies or false;
+          shouldInstallRuntimeDependencies = extraConfig.installRuntimeDependencies or false;
+        in
+          if extraTools != [] then
+            let
+              # Get tool packages (only if installDependencies is enabled)
+              toolPackages = if shouldInstallDependencies then
+                lib.filter (pkg: pkg != null) (map (tool:
+                  if tool ? nixpkg then
+                    resolvePackage tool.nixpkg
+                  else
+                    warnUnmappedTool tool.name extraName
+                ) extraTools)
+              else [];
+
+              # Get runtime dependency packages (only if installRuntimeDependencies is enabled)
+              runtimeDependencyPackages = if shouldInstallRuntimeDependencies then
+                lib.unique (lib.flatten (map (tool:
+                  if tool ? runtime_dependencies then map (dep:
+                    if dep ? nixpkg then
+                      resolvePackage dep.nixpkg
+                    else
+                      builtins.trace "Info: Runtime dependency '${dep.name}' for tool '${tool.name}' in '${extraName}' has no nixpkg mapping (may be a package manager like pip/npm)" null
+                  ) tool.runtime_dependencies else []
+                ) extraTools))
+              else [];
+
+              # Filter out nulls from runtime dependency packages
+              validRuntimeDependencyPackages = lib.filter (pkg: pkg != null) runtimeDependencyPackages;
+            in
+              toolPackages ++ validRuntimeDependencyPackages
+          else []
+      ) enabledExtraNames);
+
+      # Combine and deduplicate all packages
+      allPackages = lib.unique (corePackages ++ extraPackages);
+    in
+      allPackages
+  else
+    [];
 
 
 
@@ -777,13 +867,26 @@ in {
       '';
       description = ''
         List of Treesitter parser packages to install.
-        
+
         Empty by default - add parsers based on languages you use.
         These should be packages from pkgs.tree-sitter-grammars.
-        
+
         NOTE: Parser compatibility issues may occur if there's a version mismatch
-        between nvim-treesitter and the parsers. If you see "Invalid node type" 
+        between nvim-treesitter and the parsers. If you see "Invalid node type"
         errors, try using a matching nixpkgs channel or pinning versions.
+      '';
+    };
+
+    installCoreDependencies = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to automatically install core LazyVim dependencies.
+
+        Core dependencies include: git, ripgrep, fd, lazygit, fzf, curl.
+
+        When false (default), you must manually provide these tools via extraPackages
+        or ensure they're available in your system PATH.
       '';
     };
 
@@ -869,6 +972,29 @@ in {
         options = {
           enable = mkEnableOption "this LazyVim extra";
 
+          installDependencies = mkOption {
+            type = types.bool;
+            default = false;
+            description = ''
+              Whether to install the main tools for this extra.
+
+              For example, for lang.python this would install tools like 'ruff'.
+              When false (default), tools must be provided via extraPackages.
+            '';
+          };
+
+          installRuntimeDependencies = mkOption {
+            type = types.bool;
+            default = false;
+            description = ''
+              Whether to install runtime dependencies for this extra's tools.
+
+              For example, for lang.python this would install python3 and pip.
+              When false (default), runtime dependencies must be available in PATH
+              or provided via extraPackages.
+            '';
+          };
+
           config = mkOption {
             type = types.str;
             default = "";
@@ -892,6 +1018,18 @@ in {
                 },
               }
             ''';
+          };
+
+          lang.python = {
+            enable = true;
+            installDependencies = true;        # Install ruff
+            installRuntimeDependencies = true; # Install python3, pip
+          };
+
+          lang.go = {
+            enable = true;
+            installDependencies = true;        # Install gopls, gofumpt, etc.
+            installRuntimeDependencies = true; # Install go compiler
           };
 
           lang.nix = {
@@ -974,14 +1112,7 @@ in {
       withRuby = false;
       
       # Add all required packages
-      extraPackages = cfg.extraPackages ++ (with pkgs; [
-        # Required by LazyVim
-        git
-        ripgrep
-        fd
-        
-        # Language servers and tools can be added by the user
-      ]);
+      extraPackages = cfg.extraPackages ++ systemPackages;
       
       # Add lazy.nvim as a plugin
       plugins = [ pkgs.vimPlugins.lazy-nvim ];

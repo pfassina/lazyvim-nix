@@ -1,0 +1,239 @@
+{
+  "_comment": "Nixpkgs package verification report for LazyVim dependencies",
+  "failed_verification": [
+    {
+      "suggested": "rubyPackages.erb_formatter",
+      "tool": "erb-formatter"
+    },
+    {
+      "suggested": "nodePackages.markdown_toc",
+      "tool": "markdown-toc"
+    },
+    {
+      "suggested": "python3Packages.cmakelang",
+      "tool": "cmakelang"
+    },
+    {
+      "suggested": "python3Packages.cmakelint",
+      "tool": "cmakelint"
+    }
+  ],
+  "generated": "2025-10-21 15:19:39",
+  "no_mapping": [
+    "gem",
+    "erb-lint",
+    "npm",
+    "fsautocomplete",
+    "csharpier",
+    "netcoredbg",
+    "fantomas",
+    "zls",
+    "pip",
+    "tailwindcss",
+    "haskell-debug-adapter",
+    "java-debug-adapter",
+    "java-test",
+    "jsonls",
+    "js-debug-adapter",
+    "biome",
+    "elm-format",
+    "pplatex",
+    "bacon",
+    "prisma",
+    "twigcs",
+    "twig-cs-fixer",
+    "composer",
+    "thriftls",
+    "phpcs",
+    "php-cs-fixer"
+  ],
+  "summary": {
+    "failed_verifications": 4,
+    "no_mapping_strategy": 26,
+    "success_rate": "71.4%",
+    "total_tools": 63,
+    "verified_mappings": 45
+  },
+  "verified": [
+    {
+      "nixpkg": "git",
+      "tool": "git"
+    },
+    {
+      "nixpkg": "ripgrep",
+      "tool": "rg"
+    },
+    {
+      "nixpkg": "fd",
+      "tool": "fd"
+    },
+    {
+      "nixpkg": "fd",
+      "tool": "fdfind"
+    },
+    {
+      "nixpkg": "lazygit",
+      "tool": "lazygit"
+    },
+    {
+      "nixpkg": "fzf",
+      "tool": "fzf"
+    },
+    {
+      "nixpkg": "curl",
+      "tool": "curl"
+    },
+    {
+      "nixpkg": "nodePackages.eslint",
+      "tool": "eslint"
+    },
+    {
+      "nixpkg": "ruby",
+      "tool": "ruby"
+    },
+    {
+      "nixpkg": "kubernetes-helm",
+      "tool": "helm"
+    },
+    {
+      "nixpkg": "gleam",
+      "tool": "gleam"
+    },
+    {
+      "nixpkg": "nodePackages.prettier",
+      "tool": "prettier"
+    },
+    {
+      "nixpkg": "nodejs",
+      "tool": "nodejs"
+    },
+    {
+      "nixpkg": "dotnet-sdk",
+      "tool": "dotnet-sdk"
+    },
+    {
+      "nixpkg": "python3Packages.ruff",
+      "tool": "ruff"
+    },
+    {
+      "nixpkg": "python3",
+      "tool": "python3"
+    },
+    {
+      "nixpkg": "nodePackages.markdownlint-cli2",
+      "tool": "markdownlint-cli2"
+    },
+    {
+      "nixpkg": "ansible-lint",
+      "tool": "ansible-lint"
+    },
+    {
+      "nixpkg": "haskell-language-server",
+      "tool": "haskell-language-server"
+    },
+    {
+      "nixpkg": "gitui",
+      "tool": "gitui"
+    },
+    {
+      "nixpkg": "shellcheck",
+      "tool": "shellcheck"
+    },
+    {
+      "nixpkg": "sqlfluff",
+      "tool": "sqlfluff"
+    },
+    {
+      "nixpkg": "hadolint",
+      "tool": "hadolint"
+    },
+    {
+      "nixpkg": "ktlint",
+      "tool": "ktlint"
+    },
+    {
+      "nixpkg": "gopls",
+      "tool": "gopls"
+    },
+    {
+      "nixpkg": "go",
+      "tool": "go"
+    },
+    {
+      "nixpkg": "gofumpt",
+      "tool": "gofumpt"
+    },
+    {
+      "nixpkg": "go",
+      "tool": "goimports"
+    },
+    {
+      "nixpkg": "gomodifytags",
+      "tool": "gomodifytags"
+    },
+    {
+      "nixpkg": "impl",
+      "tool": "impl"
+    },
+    {
+      "nixpkg": "golangci-lint",
+      "tool": "golangci-lint"
+    },
+    {
+      "nixpkg": "delve",
+      "tool": "delve"
+    },
+    {
+      "nixpkg": "terraform",
+      "tool": "terraform"
+    },
+    {
+      "nixpkg": "tflint",
+      "tool": "tflint"
+    },
+    {
+      "nixpkg": "taplo",
+      "tool": "taplo"
+    },
+    {
+      "nixpkg": "delta",
+      "tool": "delta"
+    },
+    {
+      "nixpkg": "python3Packages.black",
+      "tool": "black"
+    },
+    {
+      "nixpkg": "regols",
+      "tool": "regols"
+    },
+    {
+      "nixpkg": "rust-analyzer",
+      "tool": "rust-analyzer"
+    },
+    {
+      "nixpkg": "vscode-extensions.vadimcn.vscode-lldb",
+      "tool": "codelldb"
+    },
+    {
+      "nixpkg": "cargo",
+      "tool": "cargo"
+    },
+    {
+      "nixpkg": "rustc",
+      "tool": "rustc"
+    },
+    {
+      "nixpkg": "clang-tools",
+      "tool": "clangd"
+    },
+    {
+      "nixpkg": "php",
+      "tool": "php"
+    },
+    {
+      "nixpkg": "tinymist",
+      "tool": "tinymist"
+    }
+  ]
+}
