@@ -566,16 +566,10 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 			target.mode = "head"
 			target.commit = remote_info.head
 		else
-			target.mode = "auto"
-			local latest_tag, latest_commit = select_latest_tag(remote_info.tags)
-			if latest_tag and latest_commit then
-				target.tag = latest_tag
-				target.latest_tag = latest_tag
-				target.commit = latest_commit
-			else
-				target.mode = "head"
-				target.commit = remote_info.head
-			end
+			-- Default to HEAD for unspecified versions (like fresh plugin installs)
+			-- This mirrors how users actually install plugins - they get latest unless pinned
+			target.mode = "head"
+			target.commit = remote_info.head
 		end
 
 		if not target.commit then
@@ -611,9 +605,17 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 
 				local target = determine_target(plugin, remote_info)
 
-				version_info.lazyvim_version = target.lazyvim_version
-				version_info.lazyvim_version_type = target.lazyvim_version_type
-				version_info.branch = target.branch
+				-- For branch-type versions, store the resolved commit as lazyvim_version
+				-- This ensures reproducible builds by pinning to a specific commit
+				if target.lazyvim_version_type == "branch" and target.commit then
+					version_info.lazyvim_version = target.commit
+					version_info.lazyvim_version_type = "commit"
+					version_info.branch = target.branch  -- Keep original branch name for reference
+				else
+					version_info.lazyvim_version = target.lazyvim_version
+					version_info.lazyvim_version_type = target.lazyvim_version_type
+					version_info.branch = target.branch
+				end
 				version_info.tag = target.tag
 				version_info.latest_tag = target.latest_tag
 				if target.commit then

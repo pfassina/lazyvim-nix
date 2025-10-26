@@ -35,6 +35,36 @@
       {
         "name": "delta",
         "nixpkg": "delta"
+      },
+      {
+        "name": "jump1"
+      },
+      {
+        "name": "ignore_current_line"
+      },
+      {
+        "name": "has"
+      }
+    ],
+    "editor.inc-rename": [
+      {
+        "name": "inc_rename"
+      },
+      {
+        "name": "expr"
+      },
+      {
+        "name": "has"
+      }
+    ],
+    "editor.snacks_picker": [
+      {
+        "name": "has"
+      }
+    ],
+    "editor.telescope": [
+      {
+        "name": "reuse_win"
       }
     ],
     "formatting.biome": [
@@ -504,7 +534,7 @@
       }
     ]
   },
-  "generated": "2025-10-24 09:52:10",
-  "lazyvim_path": "/tmp/tmp.SXntdj7Ouq/LazyVim",
+  "generated": "2025-10-26 13:03:19",
+  "lazyvim_path": "/tmp/nix-shell.jURBzP/tmp.8FKq8gBRg5/LazyVim",
   "mason_path": "/home/mead/code/lazyvim-nix/tmp/update-cache/mason-registry"
 }

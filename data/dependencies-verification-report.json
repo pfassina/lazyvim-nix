@@ -2,56 +2,62 @@
   "_comment": "Nixpkgs package verification report for LazyVim dependencies",
   "failed_verification": [
     {
-      "suggested": "rubyPackages.erb_formatter",
-      "tool": "erb-formatter"
-    },
-    {
-      "suggested": "nodePackages.markdown_toc",
-      "tool": "markdown-toc"
-    },
-    {
       "suggested": "python3Packages.cmakelang",
       "tool": "cmakelang"
     },
     {
       "suggested": "python3Packages.cmakelint",
       "tool": "cmakelint"
+    },
+    {
+      "suggested": "rubyPackages.erb_formatter",
+      "tool": "erb-formatter"
+    },
+    {
+      "suggested": "nodePackages.markdown_toc",
+      "tool": "markdown-toc"
     }
   ],
-  "generated": "2025-10-24 09:52:21",
+  "generated": "2025-10-26 13:03:30",
   "no_mapping": [
-    "pip",
-    "biome",
-    "npm",
     "elm-format",
-    "java-debug-adapter",
-    "java-test",
-    "js-debug-adapter",
-    "jsonls",
-    "gem",
-    "erb-lint",
-    "bacon",
+    "npm",
+    "pip",
     "tailwindcss",
-    "zls",
+    "js-debug-adapter",
     "phpcs",
     "php-cs-fixer",
     "pplatex",
+    "prisma",
+    "thriftls",
+    "jump1",
+    "ignore_current_line",
+    "has",
+    "haskell-debug-adapter",
+    "zls",
+    "twigcs",
+    "twig-cs-fixer",
+    "composer",
+    "reuse_win",
     "fsautocomplete",
     "csharpier",
     "netcoredbg",
     "fantomas",
-    "twigcs",
-    "twig-cs-fixer",
-    "composer",
-    "prisma",
-    "thriftls",
-    "haskell-debug-adapter"
+    "inc_rename",
+    "expr",
+    "jsonls",
+    "gem",
+    "erb-lint",
+    "bacon",
+    "biome",
+    "java-debug-adapter",
+    "java-test"
   ],
   "summary": {
     "failed_verifications": 4,
-    "no_mapping_strategy": 26,
-    "success_rate": "71.4%",
-    "total_tools": 63,
+    "no_mapping_strategy": 32,
+    "success_rate": "65.2%",
+    "total_tools": 69,
     "verified_mappings": 45
   },
   "verified": [
@@ -84,92 +90,28 @@
       "tool": "curl"
     },
     {
-      "nixpkg": "python3Packages.ruff",
-      "tool": "ruff"
-    },
-    {
-      "nixpkg": "python3",
-      "tool": "python3"
-    },
-    {
       "nixpkg": "nodejs",
       "tool": "nodejs"
-    },
-    {
-      "nixpkg": "kubernetes-helm",
-      "tool": "helm"
-    },
-    {
-      "nixpkg": "regols",
-      "tool": "regols"
-    },
-    {
-      "nixpkg": "go",
-      "tool": "go"
-    },
-    {
-      "nixpkg": "python3Packages.black",
-      "tool": "black"
-    },
-    {
-      "nixpkg": "ruby",
-      "tool": "ruby"
-    },
-    {
-      "nixpkg": "tinymist",
-      "tool": "tinymist"
-    },
-    {
-      "nixpkg": "delta",
-      "tool": "delta"
-    },
-    {
-      "nixpkg": "rust-analyzer",
-      "tool": "rust-analyzer"
-    },
-    {
-      "nixpkg": "vscode-extensions.vadimcn.vscode-lldb",
-      "tool": "codelldb"
-    },
-    {
-      "nixpkg": "cargo",
-      "tool": "cargo"
-    },
-    {
-      "nixpkg": "rustc",
-      "tool": "rustc"
     },
     {
       "nixpkg": "ansible-lint",
       "tool": "ansible-lint"
     },
     {
-      "nixpkg": "gleam",
-      "tool": "gleam"
-    },
-    {
-      "nixpkg": "ktlint",
-      "tool": "ktlint"
-    },
-    {
-      "nixpkg": "clang-tools",
-      "tool": "clangd"
-    },
-    {
-      "nixpkg": "nodePackages.markdownlint-cli2",
-      "tool": "markdownlint-cli2"
+      "nixpkg": "python3",
+      "tool": "python3"
     },
     {
       "nixpkg": "sqlfluff",
       "tool": "sqlfluff"
     },
     {
-      "nixpkg": "nodePackages.eslint",
-      "tool": "eslint"
+      "nixpkg": "clang-tools",
+      "tool": "clangd"
     },
     {
-      "nixpkg": "shellcheck",
-      "tool": "shellcheck"
+      "nixpkg": "vscode-extensions.vadimcn.vscode-lldb",
+      "tool": "codelldb"
     },
     {
       "nixpkg": "terraform",
@@ -180,24 +122,20 @@
       "tool": "tflint"
     },
     {
-      "nixpkg": "hadolint",
-      "tool": "hadolint"
+      "nixpkg": "tinymist",
+      "tool": "tinymist"
     },
     {
-      "nixpkg": "gitui",
-      "tool": "gitui"
-    },
-    {
-      "nixpkg": "dotnet-sdk",
-      "tool": "dotnet-sdk"
-    },
-    {
-      "nixpkg": "php",
-      "tool": "php"
+      "nixpkg": "gleam",
+      "tool": "gleam"
     },
     {
       "nixpkg": "gopls",
       "tool": "gopls"
+    },
+    {
+      "nixpkg": "go",
+      "tool": "go"
     },
     {
       "nixpkg": "gofumpt",
@@ -224,16 +162,84 @@
       "tool": "delve"
     },
     {
-      "nixpkg": "nodePackages.prettier",
-      "tool": "prettier"
+      "nixpkg": "delta",
+      "tool": "delta"
+    },
+    {
+      "nixpkg": "haskell-language-server",
+      "tool": "haskell-language-server"
+    },
+    {
+      "nixpkg": "python3Packages.ruff",
+      "tool": "ruff"
     },
     {
       "nixpkg": "taplo",
       "tool": "taplo"
     },
     {
-      "nixpkg": "haskell-language-server",
-      "tool": "haskell-language-server"
+      "nixpkg": "kubernetes-helm",
+      "tool": "helm"
+    },
+    {
+      "nixpkg": "php",
+      "tool": "php"
+    },
+    {
+      "nixpkg": "nodePackages.eslint",
+      "tool": "eslint"
+    },
+    {
+      "nixpkg": "shellcheck",
+      "tool": "shellcheck"
+    },
+    {
+      "nixpkg": "nodePackages.prettier",
+      "tool": "prettier"
+    },
+    {
+      "nixpkg": "dotnet-sdk",
+      "tool": "dotnet-sdk"
+    },
+    {
+      "nixpkg": "ruby",
+      "tool": "ruby"
+    },
+    {
+      "nixpkg": "hadolint",
+      "tool": "hadolint"
+    },
+    {
+      "nixpkg": "gitui",
+      "tool": "gitui"
+    },
+    {
+      "nixpkg": "nodePackages.markdownlint-cli2",
+      "tool": "markdownlint-cli2"
+    },
+    {
+      "nixpkg": "python3Packages.black",
+      "tool": "black"
+    },
+    {
+      "nixpkg": "rust-analyzer",
+      "tool": "rust-analyzer"
+    },
+    {
+      "nixpkg": "cargo",
+      "tool": "cargo"
+    },
+    {
+      "nixpkg": "rustc",
+      "tool": "rustc"
+    },
+    {
+      "nixpkg": "regols",
+      "tool": "regols"
+    },
+    {
+      "nixpkg": "ktlint",
+      "tool": "ktlint"
     }
   ]
 }
