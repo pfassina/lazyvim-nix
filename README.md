@@ -187,4 +187,3 @@ home-manager switch       # Apply changes
 ## License
 
 MIT
-# Force cache refresh
