@@ -819,14 +819,31 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 			table.concat(quoted, " ")
 		)
 
-		local result = vim.fn.system({ "nix", "eval", "--json", "--impure", "--expr", expr })
+		-- Redirect stderr to a temp file to prevent JSON contamination
+		local stderr_file = vim.fn.tempname()
+		local cmd = string.format("nix eval --json --impure --expr '%s' 2>%s", expr:gsub("'", "'\\''"), stderr_file)
+		local result = vim.fn.system(cmd)
+		local stderr_content = vim.fn.readfile(stderr_file)
+		vim.fn.delete(stderr_file)
+
 		if vim.v.shell_error ~= 0 then
-			error("Failed to evaluate nix attribute presence: " .. result)
+			error(string.format(
+				"Failed to evaluate nix expression (exit code %d)\nExpression: %s\nStdout: %s\nStderr: %s",
+				vim.v.shell_error,
+				expr,
+				result,
+				table.concat(stderr_content, "\n")
+			))
 		end
 
 		local ok, decoded = pcall(vim.json.decode, result)
 		if not ok then
-			error("Could not decode nix eval output")
+			error(string.format(
+				"Failed to parse nix eval JSON output\nRaw output: %s\nParse error: %s\nStderr: %s",
+				result,
+				tostring(decoded),
+				table.concat(stderr_content, "\n")
+			))
 		end
 
 		return decoded
