@@ -1,0 +1,132 @@
+name: Tag LazyVim Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/plugins.json'
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if LazyVim update commit
+        id: check-update
+        run: |
+          # Get the commit message
+          COMMIT_MSG=$(git log -1 --pretty=%s)
+          echo "Commit message: $COMMIT_MSG"
+
+          # Check if this is a LazyVim update commit
+          if echo "$COMMIT_MSG" | grep -qE "^(chore|fix|feat): [Uu]pdate LazyVim plugins to v[0-9]+\.[0-9]+\.[0-9]+"; then
+            # Extract version from commit message
+            VERSION=$(echo "$COMMIT_MSG" | grep -oE "v[0-9]+\.[0-9]+\.[0-9]+")
+            echo "Found LazyVim update to version: $VERSION"
+            echo "is_update=true" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            # Also check if plugins.json version changed
+            CURRENT_VERSION=$(jq -r '.version' data/plugins.json)
+            PREVIOUS_VERSION=$(git show HEAD~1:data/plugins.json 2>/dev/null | jq -r '.version' 2>/dev/null || echo "none")
+
+            if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ] && [ "$CURRENT_VERSION" != "null" ] && [ "$PREVIOUS_VERSION" != "none" ]; then
+              echo "LazyVim version changed from $PREVIOUS_VERSION to $CURRENT_VERSION"
+              echo "is_update=true" >> $GITHUB_OUTPUT
+              echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+            else
+              echo "Not a LazyVim update commit"
+              echo "is_update=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Check if tag exists
+        if: steps.check-update.outputs.is_update == 'true'
+        id: check-tag
+        run: |
+          VERSION="${{ steps.check-update.outputs.version }}"
+          if git ls-remote --tags origin | grep -q "refs/tags/$VERSION"; then
+            echo "Tag $VERSION already exists"
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $VERSION does not exist"
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.check-update.outputs.is_update == 'true' && steps.check-tag.outputs.tag_exists == 'false'
+        run: |
+          VERSION="${{ steps.check-update.outputs.version }}"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create annotated tag
+          git tag -a "$VERSION" -m "LazyVim $VERSION
+
+          This release tracks LazyVim $VERSION with all plugins and configurations
+          available at the time of that LazyVim release.
+
+          To use this version in your flake:
+          lazyvim.url = \"github:pfassina/lazyvim-nix/$VERSION\";
+          "
+
+          # Push the tag
+          git push origin "$VERSION"
+
+          echo "Successfully created and pushed tag $VERSION"
+
+      - name: Create GitHub Release
+        if: steps.check-update.outputs.is_update == 'true' && steps.check-tag.outputs.tag_exists == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.check-update.outputs.version }}"
+
+          # Extract plugin statistics from plugins.json
+          TOTAL_PLUGINS=$(jq '.extraction_report.total_plugins // 0' data/plugins.json)
+          MAPPED_PLUGINS=$(jq '.extraction_report.mapped_plugins // 0' data/plugins.json)
+          UNMAPPED_PLUGINS=$(jq '.extraction_report.unmapped_plugins // 0' data/plugins.json)
+
+          # Create release notes
+          RELEASE_NOTES="## LazyVim $VERSION
+
+          This release follows [LazyVim $VERSION](https://github.com/LazyVim/LazyVim/releases/tag/$VERSION).
+
+          ### Plugin Statistics
+          - Total plugins: $TOTAL_PLUGINS
+          - Mapped to nixpkgs: $MAPPED_PLUGINS
+          - Built from source: $UNMAPPED_PLUGINS
+
+          ### Usage
+          Pin your flake to this version:
+          \`\`\`nix
+          {
+            inputs.lazyvim.url = \"github:pfassina/lazyvim-nix/$VERSION\";
+          }
+          \`\`\`
+
+          ### What's Included
+          - LazyVim core at $VERSION
+          - All LazyVim extras and language support
+          - Plugin versions as specified by LazyVim $VERSION
+          - Treesitter parser mappings
+
+          For changes in LazyVim itself, see the [upstream release notes](https://github.com/LazyVim/LazyVim/releases/tag/$VERSION).
+          "
+
+          # Create GitHub release
+          gh release create "$VERSION" \
+            --title "LazyVim $VERSION" \
+            --notes "$RELEASE_NOTES" \
+            --target main

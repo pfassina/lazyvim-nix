@@ -35,6 +35,13 @@ Enable in your home-manager configuration:
 
 That's it! Open `nvim` and enjoy LazyVim.
 
+### Version Pinning
+
+Pin to a specific LazyVim release:
+```nix
+lazyvim.url = "github:pfassina/lazyvim-nix/v15.13.0";  # Pin to v15.13.0
+```
+
 ## Basic Configuration
 
 ### Language Support
