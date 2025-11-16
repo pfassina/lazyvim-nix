@@ -217,6 +217,21 @@ in {
       }
     ) scannedFiles.pluginFiles)
     # Generate extras config override files
-    // extrasConfigFiles;
+    // extrasConfigFiles
+    # Add default plugin file when no plugins are defined to prevent LazyVim error
+    // (
+      let
+        hasUserPlugins = cfg.plugins != {} || scannedFiles.pluginFiles != {};
+      in
+        optionalAttrs (!hasUserPlugins) {
+          "nvim/lua/plugins/_lazyvim_nix_default.lua" = {
+            text = ''
+              -- Default plugin specification to ensure plugins directory is valid
+              -- This prevents "No specs found for module 'plugins'" error
+              return {}
+            '';
+          };
+        }
+    );
   };
 }
