@@ -72,7 +72,7 @@ let
 
   # Scan for user plugins from the default LazyVim config directory
   userPlugins = if cfg.enable then
-    fileLib.scanUserPlugins "${config.home.homeDirectory}/.config/nvim"
+    fileLib.scanUserPlugins "${config.home.homeDirectory}/.config/${cfg.appName}"
   else [];
 
   # Filter plugins by category: only build core plugins by default
@@ -115,10 +115,10 @@ let
   lazyConfig = configLib.lazyConfig devPath extrasImportSpecs availableDevSpecs;
 
   # Generate extras config override files
-  extrasConfigFiles = configLib.extrasConfigFiles enabledExtras;
+  extrasConfigFiles = configLib.extrasConfigFiles enabledExtras cfg.appName;
 
   # Scan config files if provided
-  scannedFiles = fileLib.scanConfigFiles cfg.configFiles;
+  scannedFiles = fileLib.scanConfigFiles cfg.configFiles cfg.appName;
 
   # Detect conflicts and ensure no conflicts exist
   conflictChecks = fileLib.detectConflicts cfg scannedFiles;
@@ -150,15 +150,15 @@ in {
 
     # Create LazyVim configuration
     xdg.configFile = {
-      "nvim/init.lua".text = lazyConfig;
+      "${cfg.appName}/init.lua".text = lazyConfig;
 
       # Link treesitter parsers only if parsers are configured
-      "nvim/parser" = mkIf (automaticTreesitterParsers != []) {
+      "${cfg.appName}/parser" = mkIf (automaticTreesitterParsers != []) {
         source = "${treesitterGrammars}/parser";
       };
 
       # LazyVim config files - use configFiles if available, otherwise use string options
-      "nvim/lua/config/autocmds.lua" = mkIf (
+      "${cfg.appName}/lua/config/autocmds.lua" = mkIf (
         scannedFiles.configFiles ? autocmds || cfg.config.autocmds != ""
       ) (
         if scannedFiles.configFiles ? autocmds then
@@ -172,7 +172,7 @@ in {
           }
       );
 
-      "nvim/lua/config/keymaps.lua" = mkIf (
+      "${cfg.appName}/lua/config/keymaps.lua" = mkIf (
         scannedFiles.configFiles ? keymaps || cfg.config.keymaps != ""
       ) (
         if scannedFiles.configFiles ? keymaps then
@@ -186,7 +186,7 @@ in {
           }
       );
 
-      "nvim/lua/config/options.lua" = mkIf (
+      "${cfg.appName}/lua/config/options.lua" = mkIf (
         scannedFiles.configFiles ? options || cfg.config.options != ""
       ) (
         if scannedFiles.configFiles ? options then
@@ -203,7 +203,7 @@ in {
     }
     # Generate plugin configuration files from both sources
     // (lib.mapAttrs' (name: content:
-      lib.nameValuePair "nvim/lua/plugins/${name}.lua" {
+      lib.nameValuePair "${cfg.appName}/lua/plugins/${name}.lua" {
         text = ''
           -- Plugin configuration for ${name} (configured via Nix)
           ${content}
@@ -224,7 +224,7 @@ in {
         hasUserPlugins = cfg.plugins != {} || scannedFiles.pluginFiles != {};
       in
         optionalAttrs (!hasUserPlugins) {
-          "nvim/lua/plugins/_lazyvim_nix_default.lua" = {
+          "${cfg.appName}/lua/plugins/_lazyvim_nix_default.lua" = {
             text = ''
               -- Default plugin specification to ensure plugins directory is valid
               -- This prevents "No specs found for module 'plugins'" error

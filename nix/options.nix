@@ -6,6 +6,16 @@ with lib;
 {
   enable = mkEnableOption "LazyVim - A Neovim configuration framework";
 
+  appName = mkOption {
+    type = types.str;
+    default = "nvim";
+    example = "lazyvim";
+    description = ''
+      The app name for Neovim's NVIM_APPNAME environment variable.
+      This determines the config directory under ~/.config/ (e.g., "lazyvim" → ~/.config/lazyvim/).
+    '';
+  };
+
   pluginSource = mkOption {
     type = types.enum [ "latest" "nixpkgs" ];
     default = "latest";
