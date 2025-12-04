@@ -57,7 +57,7 @@
       userPluginsList;
 
   # Helper function to scan config files from a directory
-  scanConfigFiles = configPath:
+  scanConfigFiles = configPath: appName:
     if configPath == null then
       { configFiles = {}; pluginFiles = {}; }
     else if !builtins.pathExists configPath then
@@ -88,16 +88,16 @@
             targetPath =
               if lib.hasPrefix "lua/" relPath then
                 # Already has lua/ prefix, use as-is
-                "nvim/${relPath}"
+                "${appName}/${relPath}"
               else if lib.hasPrefix "config/" relPath then
                 # config/ at root, add lua/ prefix
-                "nvim/lua/${relPath}"
+                "${appName}/lua/${relPath}"
               else if lib.hasPrefix "plugins/" relPath then
                 # plugins/ at root, add lua/ prefix
-                "nvim/lua/${relPath}"
+                "${appName}/lua/${relPath}"
               else
                 # Other structure - put under lua/
-                "nvim/lua/${relPath}";
+                "${appName}/lua/${relPath}";
 
             # Determine file category for conflict detection
             category =
