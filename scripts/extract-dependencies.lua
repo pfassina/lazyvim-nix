@@ -399,6 +399,7 @@ local function resolve_package_name(dep_name)
         delta = "delta",
         rust_analyzer = "rust-analyzer",
         ["rust-analyzer"] = "rust-analyzer",
+        bacon = "bacon",
         shellcheck = "shellcheck",
         hadolint = "hadolint",
         gitui = "gitui",

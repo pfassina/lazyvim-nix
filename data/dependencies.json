@@ -424,6 +424,7 @@
       },
       {
         "name": "bacon",
+        "nixpkg": "bacon",
         "runtime_dependencies": [
           {
             "name": "cargo",
@@ -534,7 +535,7 @@
       }
     ]
   },
-  "generated": "2025-11-02 08:47:01",
-  "lazyvim_path": "/tmp/nix-shell.UXpbT8/tmp.QC2AdfLoND/LazyVim",
+  "generated": "2025-12-07 17:23:41",
+  "lazyvim_path": "/tmp/nix-shell.golooK/tmp.yDIBXEPIww/LazyVim",
   "mason_path": "/home/mead/code/lazyvim-nix/tmp/update-cache/mason-registry"
 }
