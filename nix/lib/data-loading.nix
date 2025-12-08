@@ -19,10 +19,15 @@
   extractLang = pkg:
     let
       pname = pkg.pname or "";
-    in
       # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
-      if lib.hasPrefix "tree-sitter-" pname then
+      withoutPrefix = if lib.hasPrefix "tree-sitter-" pname then
         lib.removePrefix "tree-sitter-" pname
       else
-        pname;  # For nvim-treesitter.grammarPlugins packages
+        pname;
+    in
+      # Also remove "-grammar" suffix if present (tree-sitter-grammars use pnames like "tree-sitter-css-grammar")
+      if lib.hasSuffix "-grammar" withoutPrefix then
+        lib.removeSuffix "-grammar" withoutPrefix
+      else
+        withoutPrefix;
 }
