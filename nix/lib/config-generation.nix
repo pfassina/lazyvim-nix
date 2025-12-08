@@ -7,13 +7,13 @@
     map (extra: ''{ import = "${extra.import}" },'') enabledExtras;
 
   # Generate extras config override files for extras with custom config
-  extrasConfigFiles = enabledExtras:
+  extrasConfigFiles = enabledExtras: appName:
     let
       extrasWithConfig = lib.filter (extra: extra.hasConfig) enabledExtras;
     in
       lib.listToAttrs (map (extra:
         lib.nameValuePair
-          "nvim/lua/plugins/extras-${extra.category}-${extra.name}.lua"
+          "${appName}/lua/plugins/extras-${extra.category}-${extra.name}.lua"
           {
             text = ''
               -- Extra configuration override for ${extra.category}/${extra.name} (configured via Nix)
