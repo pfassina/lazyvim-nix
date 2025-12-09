@@ -455,7 +455,8 @@ local function resolve_package_name(dep_name)
     local toplevel_tools = {
         ["ansible-lint"] = "ansible-lint",  -- Top-level package
         ["tflint"] = "tflint",
-        ["ktlint"] = "ktlint"
+        ["ktlint"] = "ktlint",
+        ["markdown-toc"] = "markdown-toc"
     }
     for tool, nixpkg_name in pairs(toplevel_tools) do
         if dep_name == tool then
@@ -476,8 +477,7 @@ local function resolve_package_name(dep_name)
 
     -- Strategy 5: Node packages (with verified names)
     local node_tools = {
-        ["markdownlint-cli2"] = "markdownlint-cli2",  -- Use hyphens, not underscores
-        ["markdown-toc"] = "markdown_toc"
+        ["markdownlint-cli2"] = "markdownlint-cli2"  -- Use hyphens, not underscores
     }
     for tool, nixpkg_name in pairs(node_tools) do
         if dep_name == tool then

@@ -139,6 +139,7 @@
     "lang.cmake": [
       {
         "name": "cmakelang",
+        "nixpkg": "python3Packages.cmakelang",
         "runtime_dependencies": [
           {
             "name": "python3",
@@ -151,6 +152,7 @@
       },
       {
         "name": "cmakelint",
+        "nixpkg": "python3Packages.cmakelint",
         "runtime_dependencies": [
           {
             "name": "python3",
@@ -336,6 +338,7 @@
       },
       {
         "name": "markdown-toc",
+        "nixpkg": "markdown-toc",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -390,6 +393,7 @@
     "lang.ruby": [
       {
         "name": "erb-formatter",
+        "nixpkg": "rubyPackages.erb_formatter",
         "runtime_dependencies": [
           {
             "name": "ruby",
@@ -535,7 +539,7 @@
       }
     ]
   },
-  "generated": "2025-12-07 17:23:41",
-  "lazyvim_path": "/tmp/nix-shell.golooK/tmp.yDIBXEPIww/LazyVim",
+  "generated": "2025-12-08 18:49:17",
+  "lazyvim_path": "/tmp/nix-shell.otFjM7/tmp.OrBfZerFBL/LazyVim",
   "mason_path": "/home/mead/code/lazyvim-nix/tmp/update-cache/mason-registry"
 }
