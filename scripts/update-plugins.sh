@@ -14,10 +14,12 @@ LAZYVIM_REPO="https://github.com/LazyVim/LazyVim.git"
 
 CACHE_DIR="$REPO_ROOT/tmp/update-cache"
 LAZYVIM_CACHE="$CACHE_DIR/LazyVim"
+STARTER_CACHE="$CACHE_DIR/starter"
 MASON_CACHE="$CACHE_DIR/mason-registry"
 EXTRAS_CACHE_ROOT="$CACHE_DIR/extras"
 RELEASE_CACHE_ROOT="$CACHE_DIR/releases"
 CACHE_SCHEMA_VERSION="2"
+STARTER_REPO="https://github.com/LazyVim/starter.git"
 
 mkdir -p "$CACHE_DIR"
 mkdir -p "$RELEASE_CACHE_ROOT"
@@ -96,6 +98,35 @@ LAZYVIM_VERSION="$LATEST_TAG"
 
 echo "    Version: $LAZYVIM_VERSION"
 echo "    Commit: $LAZYVIM_COMMIT"
+
+# Fetch LazyVim starter configuration
+echo "==> Fetching LazyVim starter..."
+if [ ! -d "$STARTER_CACHE/.git" ]; then
+    git clone --filter=blob:none "$STARTER_REPO" "$STARTER_CACHE" >/dev/null 2>&1 || {
+        echo "Error: Failed to clone LazyVim starter"
+        exit 1
+    }
+fi
+
+git -C "$STARTER_CACHE" fetch --force --prune --depth 1 origin main >/dev/null 2>&1 || {
+    echo "Error: Failed to update LazyVim starter cache"
+    exit 1
+}
+
+git -C "$STARTER_CACHE" reset --hard FETCH_HEAD >/dev/null 2>&1
+
+STARTER_COMMIT=$(git -C "$STARTER_CACHE" rev-parse HEAD)
+echo "    Starter commit: $STARTER_COMMIT"
+
+# Copy starter lazy.lua to data directory
+if [ -f "$STARTER_CACHE/lua/config/lazy.lua" ]; then
+    cp "$STARTER_CACHE/lua/config/lazy.lua" "$REPO_ROOT/data/starter-lazy.lua"
+    echo "$STARTER_COMMIT" > "$REPO_ROOT/data/starter-version.txt"
+    echo "    Copied starter lazy.lua"
+else
+    echo "Error: Could not find lua/config/lazy.lua in starter repository"
+    exit 1
+fi
 
 if [ -z "${LAZYVIM_FORCE_REGEN:-}" ] \
     && [ -f "$RELEASE_CACHE_DIR/plugins.json" ] \
@@ -244,11 +275,11 @@ echo "    Core parsers: $CORE_PARSERS"
 echo "    Extra parsers: $EXTRA_PARSERS"
 
 # Generate a summary of changes
-if git diff --quiet data/plugins.json data/dependencies.json data/treesitter.json 2>/dev/null; then
+if git diff --quiet data/plugins.json data/dependencies.json data/treesitter.json data/starter-lazy.lua data/starter-version.txt 2>/dev/null; then
     echo "==> No changes detected"
 else
     echo "==> Changes detected:"
-    git diff --stat data/plugins.json data/dependencies.json data/treesitter.json 2>/dev/null || true
+    git diff --stat data/plugins.json data/dependencies.json data/treesitter.json data/starter-lazy.lua data/starter-version.txt 2>/dev/null || true
 fi
 
 # Remind about next steps if there are unmapped plugins

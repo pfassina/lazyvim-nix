@@ -15,6 +15,10 @@
   # Load consolidated dependencies
   dependencies = pkgs.lazyvimDependencies or (builtins.fromJSON (builtins.readFile ../../data/dependencies.json));
 
+  # Load LazyVim starter configuration (raw lua content and version)
+  starterLua = builtins.readFile ../../data/starter-lazy.lua;
+  starterVersion = lib.trim (builtins.readFile ../../data/starter-version.txt);
+
   # Helper to extract language name from treesitter parser packages
   extractLang = pkg:
     let

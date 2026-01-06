@@ -111,8 +111,12 @@ let
   # Treesitter configuration
   treesitterGrammars = treesitterLib.treesitterGrammars automaticTreesitterParsers;
 
-  # Generate lazy.nvim configuration
-  lazyConfig = configLib.lazyConfig devPath extrasImportSpecs availableDevSpecs;
+  # Generate lazy.nvim configuration by patching the official LazyVim starter
+  lazyConfig = configLib.lazyConfig {
+    starterLua = dataLib.starterLua;
+    starterVersion = dataLib.starterVersion;
+    inherit devPath extrasImportSpecs availableDevSpecs;
+  };
 
   # Generate extras config override files
   extrasConfigFiles = configLib.extrasConfigFiles enabledExtras cfg.appName;

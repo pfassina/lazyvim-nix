@@ -66,9 +66,20 @@ jobs:
           echo "Current version: $CURRENT_VERSION ($CURRENT_COMMIT)"
           echo "Latest version: $LATEST_VERSION ($LATEST_COMMIT)"
 
-          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+          # Check starter version
+          if [ -f data/starter-version.txt ]; then
+            CURRENT_STARTER=$(cat data/starter-version.txt)
+          else
+            CURRENT_STARTER="none"
+          fi
+          LATEST_STARTER=$(git ls-remote https://github.com/LazyVim/starter HEAD | cut -f1)
+          echo "Current starter: $CURRENT_STARTER"
+          echo "Latest starter: $LATEST_STARTER"
+
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ] || [ "$CURRENT_STARTER" != "$LATEST_STARTER" ]; then
             echo "update_needed=true" >> $GITHUB_OUTPUT
             echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+            echo "latest_starter=${LATEST_STARTER:0:7}" >> $GITHUB_OUTPUT
           else
             echo "update_needed=false" >> $GITHUB_OUTPUT
           fi
@@ -140,7 +151,9 @@ jobs:
             ## Changes
             - Updated `data/plugins.json` with latest LazyVim plugin list
             - Updated `data/extras.json` with latest LazyVim extras metadata
-            - Version: ${{ steps.check-updates.outputs.latest_version }}
+            - Updated `data/starter-lazy.lua` with latest LazyVim starter config
+            - LazyVim version: ${{ steps.check-updates.outputs.latest_version }}
+            - Starter commit: ${{ steps.check-updates.outputs.latest_starter }}
             ${{ steps.update-plugins.outputs.has_verified_mappings == 'true' && '- Added new verified plugin mappings to `data/mappings.json`' || '' }}
             ${{ steps.update-plugins.outputs.unmapped_count > 0 && steps.update-plugins.outputs.has_verified_mappings != 'true' && '- ⚠️ Found unmapped plugins that need manual review (see data/mapping-analysis-report.md)' || '' }}
             
@@ -166,6 +179,8 @@ jobs:
             data/dependencies.json
             data/dependencies-verification-report.json
             data/mapping-analysis-report.md
+            data/starter-lazy.lua
+            data/starter-version.txt
           
   test-flake:
     runs-on: ubuntu-latest
