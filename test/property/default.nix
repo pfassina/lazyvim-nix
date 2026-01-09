@@ -264,10 +264,10 @@ in {
             nixd alejandra stylua prettier
           ];
 
-          treesitterParsers = with (import <nixpkgs> {}).tree-sitter-grammars; [
-            tree-sitter-lua tree-sitter-rust tree-sitter-go
-            tree-sitter-typescript tree-sitter-python tree-sitter-nix
-            tree-sitter-bash tree-sitter-json tree-sitter-yaml
+          treesitterParsers = with (import <nixpkgs> {}).vimPlugins.nvim-treesitter-parsers; [
+            lua rust go
+            typescript python nix
+            bash json yaml
           ];
 
           plugins = builtins.listToAttrs (map (i: {

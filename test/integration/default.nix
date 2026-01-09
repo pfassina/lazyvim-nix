@@ -33,10 +33,10 @@ let
           fd
         ];
 
-        treesitterParsers = with pkgs.tree-sitter-grammars; [
-          tree-sitter-lua
-          tree-sitter-rust
-          tree-sitter-nix
+        treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
+          lua
+          rust
+          nix
         ];
 
         config = {

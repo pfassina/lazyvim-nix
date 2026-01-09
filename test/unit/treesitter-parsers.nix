@@ -233,27 +233,31 @@ in {
     ''
     "true";
 
-  # Test extractLang function with tree-sitter-grammars packages
-  test-extract-lang-tree-sitter-grammars = testLib.testNixExpr
-    "extract-lang-tree-sitter-grammars"
+  # Test extractLang function with nvim-treesitter-parsers (grammarName attribute)
+  test-extract-lang-grammar-plugins = testLib.testNixExpr
+    "extract-lang-grammar-plugins"
     ''
       let
         lib = (import <nixpkgs> {}).lib;
-        # Helper to extract language name from treesitter parser packages
+        # Updated extractLang supporting grammarName, language with associatedQuery, and detecting deprecated packages
         extractLang = pkg:
           let
+            grammarName = pkg.grammarName or null;
+            language = pkg.language or null;
             pname = pkg.pname or "";
+            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
           in
-            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
-            if lib.hasPrefix "tree-sitter-" pname then
-              lib.removePrefix "tree-sitter-" pname
+            if grammarName != null then grammarName
+            else if language != null && hasAssociatedQuery then language
+            else if language != null && lib.hasPrefix "tree-sitter-" pname then
+              abort "tree-sitter-grammars is deprecated"
             else
-              pname;
+              abort "Unknown package format";
 
-        # Test with tree-sitter-grammars packages
-        mockPackage1 = { pname = "tree-sitter-rust"; };
-        mockPackage2 = { pname = "tree-sitter-python"; };
-        mockPackage3 = { pname = "tree-sitter-go"; };
+        # Test with nvim-treesitter-parsers / grammarPlugins packages (have grammarName)
+        mockPackage1 = { grammarName = "rust"; name = "vimplugin-nvim-treesitter-grammar-rust"; };
+        mockPackage2 = { grammarName = "python"; name = "vimplugin-nvim-treesitter-grammar-python"; };
+        mockPackage3 = { grammarName = "css"; name = "vimplugin-nvim-treesitter-grammar-css"; };
 
         extracted1 = extractLang mockPackage1;
         extracted2 = extractLang mockPackage2;
@@ -261,65 +265,92 @@ in {
       in
         extracted1 == "rust" &&
         extracted2 == "python" &&
-        extracted3 == "go"
+        extracted3 == "css"
     ''
     "true";
 
-  # Test extractLang function with nvim-treesitter.grammarPlugins packages
-  test-extract-lang-nvim-treesitter = testLib.testNixExpr
-    "extract-lang-nvim-treesitter"
+  # Test extractLang function with allGrammars/builtGrammars (language + associatedQuery)
+  test-extract-lang-all-grammars = testLib.testNixExpr
+    "extract-lang-all-grammars"
     ''
       let
         lib = (import <nixpkgs> {}).lib;
-        # Helper to extract language name from treesitter parser packages
+        # Updated extractLang supporting grammarName, language with associatedQuery, and detecting deprecated packages
         extractLang = pkg:
           let
+            grammarName = pkg.grammarName or null;
+            language = pkg.language or null;
             pname = pkg.pname or "";
+            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
           in
-            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
-            if lib.hasPrefix "tree-sitter-" pname then
-              lib.removePrefix "tree-sitter-" pname
+            if grammarName != null then grammarName
+            else if language != null && hasAssociatedQuery then language
+            else if language != null && lib.hasPrefix "tree-sitter-" pname then
+              abort "tree-sitter-grammars is deprecated"
             else
-              pname;
+              abort "Unknown package format";
 
-        # Test with nvim-treesitter.grammarPlugins packages (no prefix)
-        mockPackage1 = { pname = "wgsl"; };
-        mockPackage2 = { pname = "templ"; };
-        mockPackage3 = { pname = "json5"; };
+        # Test with allGrammars/builtGrammars packages (have language + passthru.associatedQuery)
+        mockPackage1 = { language = "ada"; pname = "tree-sitter-ada"; name = "tree-sitter-ada-0.0.0"; passthru.associatedQuery = {}; };
+        mockPackage2 = { language = "zig"; pname = "tree-sitter-zig"; name = "tree-sitter-zig-0.0.0"; passthru.associatedQuery = {}; };
+        mockPackage3 = { language = "wgsl"; pname = "tree-sitter-wgsl"; name = "tree-sitter-wgsl-0.0.0"; passthru.associatedQuery = {}; };
 
         extracted1 = extractLang mockPackage1;
         extracted2 = extractLang mockPackage2;
         extracted3 = extractLang mockPackage3;
       in
-        extracted1 == "wgsl" &&
-        extracted2 == "templ" &&
-        extracted3 == "json5"
+        extracted1 == "ada" &&
+        extracted2 == "zig" &&
+        extracted3 == "wgsl"
     ''
     "true";
 
-  # Test extractLang with mixed packages
+  # Test extractLang prefers grammarName over language
+  test-extract-lang-grammarname-priority = testLib.testNixExpr
+    "extract-lang-grammarname-priority"
+    ''
+      let
+        lib = (import <nixpkgs> {}).lib;
+        extractLang = pkg:
+          let
+            grammarName = pkg.grammarName or null;
+            language = pkg.language or null;
+            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
+          in
+            if grammarName != null then grammarName
+            else if language != null && hasAssociatedQuery then language
+            else abort "no grammarName or valid language";
+
+        # Package with both attributes - grammarName should win
+        mockPackage = { grammarName = "correct"; language = "wrong"; passthru.associatedQuery = {}; };
+        extracted = extractLang mockPackage;
+      in
+        extracted == "correct"
+    ''
+    "true";
+
+  # Test extractLang with mixed package types
   test-extract-lang-mixed = testLib.testNixExpr
     "extract-lang-mixed"
     ''
       let
         lib = (import <nixpkgs> {}).lib;
-        # Helper to extract language name from treesitter parser packages
         extractLang = pkg:
           let
-            pname = pkg.pname or "";
+            grammarName = pkg.grammarName or null;
+            language = pkg.language or null;
+            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
           in
-            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
-            if lib.hasPrefix "tree-sitter-" pname then
-              lib.removePrefix "tree-sitter-" pname
-            else
-              pname;
+            if grammarName != null then grammarName
+            else if language != null && hasAssociatedQuery then language
+            else abort "unsupported package";
 
-        # Test with a mix of both package types
+        # Test with a mix of package types
         packages = [
-          { pname = "tree-sitter-bash"; }
-          { pname = "wgsl"; }
-          { pname = "tree-sitter-vim"; }
-          { pname = "templ"; }
+          { grammarName = "bash"; }                                        # grammarPlugins style
+          { language = "wgsl"; passthru.associatedQuery = {}; }            # allGrammars style
+          { grammarName = "vim"; }                                         # grammarPlugins style
+          { language = "templ"; passthru.associatedQuery = {}; }           # allGrammars style
         ];
 
         extractedNames = map extractLang packages;
@@ -329,58 +360,61 @@ in {
     ''
     "true";
 
-  # Test extractLang handles missing pname gracefully
-  test-extract-lang-missing-pname = testLib.testNixExpr
-    "extract-lang-missing-pname"
+  # Test that deprecated tree-sitter-grammars throws an error
+  test-extract-lang-deprecated-throws = testLib.testNixExpr
+    "extract-lang-deprecated-throws"
     ''
       let
         lib = (import <nixpkgs> {}).lib;
-        # Helper to extract language name from treesitter parser packages
         extractLang = pkg:
           let
+            grammarName = pkg.grammarName or null;
+            language = pkg.language or null;
             pname = pkg.pname or "";
+            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
+            isTreeSitterGrammar = lib.hasPrefix "tree-sitter-" pname;
           in
-            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
-            if lib.hasPrefix "tree-sitter-" pname then
-              lib.removePrefix "tree-sitter-" pname
+            if grammarName != null then grammarName
+            else if language != null && hasAssociatedQuery then language
+            else if language != null && isTreeSitterGrammar then
+              "DEPRECATED_ERROR"  # In real code this throws
             else
-              pname;
+              "UNKNOWN_ERROR";
 
-        # Test with package missing pname
-        mockPackage = { };
-        extracted = extractLang mockPackage;
+        # Test with deprecated tree-sitter-grammars package (has language but no associatedQuery)
+        deprecatedPackage = { language = "rust"; pname = "tree-sitter-rust"; name = "tree-sitter-rust"; passthru.updateScript = {}; };
+        result = extractLang deprecatedPackage;
       in
-        extracted == ""
+        result == "DEPRECATED_ERROR"
     ''
     "true";
 
-  # Test extractLang with edge cases
+  # Test extractLang with edge cases in names
   test-extract-lang-edge-cases = testLib.testNixExpr
     "extract-lang-edge-cases"
     ''
       let
         lib = (import <nixpkgs> {}).lib;
-        # Helper to extract language name from treesitter parser packages
         extractLang = pkg:
           let
-            pname = pkg.pname or "";
+            grammarName = pkg.grammarName or null;
+            language = pkg.language or null;
+            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
           in
-            # Remove "tree-sitter-" prefix if present (for tree-sitter-grammars)
-            if lib.hasPrefix "tree-sitter-" pname then
-              lib.removePrefix "tree-sitter-" pname
-            else
-              pname;
+            if grammarName != null then grammarName
+            else if language != null && hasAssociatedQuery then language
+            else abort "unsupported package";
 
         # Test edge cases
-        case1 = extractLang { pname = "tree-sitter-"; }; # Just the prefix
-        case2 = extractLang { pname = "tree-sitter-c-sharp"; }; # Hyphenated language name
-        case3 = extractLang { pname = "c_sharp"; }; # Underscore in name
-        case4 = extractLang { pname = "tree-sitter-tsx"; }; # Short name
+        case1 = extractLang { grammarName = "c_sharp"; };                                           # Underscore in name
+        case2 = extractLang { grammarName = "tsx"; };                                               # Short name
+        case3 = extractLang { language = "markdown_inline"; passthru.associatedQuery = {}; };       # Underscore in language
+        case4 = extractLang { grammarName = "json5"; };                                             # Number in name
       in
-        case1 == "" &&
-        case2 == "c-sharp" &&
-        case3 == "c_sharp" &&
-        case4 == "tsx"
+        case1 == "c_sharp" &&
+        case2 == "tsx" &&
+        case3 == "markdown_inline" &&
+        case4 == "json5"
     ''
     "true";
 }

@@ -46,29 +46,27 @@ with lib;
     type = types.listOf types.package;
     default = [];
     example = literalExpression ''
-      with pkgs.tree-sitter-grammars; [
-        # Minimal for LazyVim itself
-        tree-sitter-lua
-        tree-sitter-vim
-        tree-sitter-query
-
-        # Common languages
-        tree-sitter-rust
-        tree-sitter-go
-        tree-sitter-typescript
-        tree-sitter-tsx
-        tree-sitter-python
+      with pkgs.vimPlugins.nvim-treesitter-parsers; [
+        # Additional parsers beyond what LazyVim extras provide
+        wgsl    # WebGPU Shading Language
+        templ   # Go templ files
+        zig
       ]
     '';
     description = ''
-      List of Treesitter parser packages to install.
+      Additional Treesitter parser packages to install.
 
-      Empty by default - add parsers based on languages you use.
-      These should be packages from pkgs.tree-sitter-grammars.
+      Most parsers are automatically installed when you enable LazyVim extras
+      (e.g., lang.rust enables rust parser, lang.go enables go parser).
+      Only add parsers here for languages not covered by your enabled extras.
 
-      NOTE: Parser compatibility issues may occur if there's a version mismatch
-      between nvim-treesitter and the parsers. If you see "Invalid node type"
-      errors, try using a matching nixpkgs channel or pinning versions.
+      Supported package sources:
+        - pkgs.vimPlugins.nvim-treesitter-parsers.* (recommended)
+        - pkgs.vimPlugins.nvim-treesitter.grammarPlugins.*
+        - pkgs.vimPlugins.nvim-treesitter.allGrammars (for all 324 parsers)
+
+      DEPRECATED: pkgs.tree-sitter-grammars is no longer supported.
+      It has fewer grammars (131 vs 324) and may have compatibility issues.
     '';
   };
 

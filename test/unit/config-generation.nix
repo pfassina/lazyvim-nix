@@ -204,8 +204,8 @@ require("lazy").setup({
     result=$(nix-instantiate --eval --expr '
       let
         pkgs = import <nixpkgs> {};
-        # Mock treesitter parsers list
-        parsers = [ pkgs.tree-sitter-grammars.tree-sitter-lua pkgs.tree-sitter-grammars.tree-sitter-nix ];
+        # Mock treesitter parsers list using nvim-treesitter-parsers
+        parsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [ lua nix ];
         # This should create a symlinked directory
         treesitterGrammars = pkgs.symlinkJoin {
           name = "treesitter-parsers";

@@ -90,10 +90,10 @@ in {
           fd
         ];
 
-        treesitterParsers = with pkgs.tree-sitter-grammars; [
-          tree-sitter-lua
-          tree-sitter-rust
-          tree-sitter-nix
+        treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
+          lua
+          rust
+          nix
         ];
 
         config = {
@@ -256,10 +256,10 @@ in {
             git curl wget htop btop tree jq yq
           ];
 
-          treesitterParsers = with (import <nixpkgs> {}).tree-sitter-grammars; [
-            tree-sitter-lua tree-sitter-rust tree-sitter-go tree-sitter-typescript
-            tree-sitter-python tree-sitter-nix tree-sitter-bash tree-sitter-json
-            tree-sitter-yaml tree-sitter-toml tree-sitter-markdown
+          treesitterParsers = with (import <nixpkgs> {}).vimPlugins.nvim-treesitter-parsers; [
+            lua rust go typescript
+            python nix bash json
+            yaml toml markdown
           ];
 
           plugins = builtins.listToAttrs (map (i: {
@@ -311,9 +311,9 @@ in {
         home.stateVersion = "23.11";
         programs.lazyvim = {
           enable = true;
-          treesitterParsers = with (import <nixpkgs> {}).tree-sitter-grammars; [
-            tree-sitter-lua
-            tree-sitter-nix
+          treesitterParsers = with (import <nixpkgs> {}).vimPlugins.nvim-treesitter-parsers; [
+            lua
+            nix
           ];
         };
       };

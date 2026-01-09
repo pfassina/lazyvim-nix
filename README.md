@@ -70,8 +70,8 @@ programs.lazyvim = {
     alejandra  # Nix formatter
   ];
 
-  # Only needed for languages not covered by LazyVim
-  treesitterParsers = with pkgs.vimPlugins.nvim-treesitter.grammarPlugins; [
+  # Only needed for languages not covered by LazyVim extras
+  treesitterParsers = with pkgs.vimPlugins.nvim-treesitter-parsers; [
     wgsl      # WebGPU Shading Language
     templ     # Go templ files
   ];
