@@ -152,14 +152,17 @@ in {
       plugins = [ pkgs.vimPlugins.lazy-nvim ];
     };
 
+    # Link treesitter parsers to the correct data directory
+    # nvim-treesitter expects parsers at stdpath('data')/site/parser
+    xdg.dataFile = {
+      "${cfg.appName}/site/parser" = mkIf (automaticTreesitterParsers != []) {
+        source = "${treesitterGrammars}/parser";
+      };
+    };
+
     # Create LazyVim configuration
     xdg.configFile = {
       "${cfg.appName}/init.lua".text = lazyConfig;
-
-      # Link treesitter parsers only if parsers are configured
-      "${cfg.appName}/parser" = mkIf (automaticTreesitterParsers != []) {
-        source = "${treesitterGrammars}/parser";
-      };
 
       # LazyVim config files - use configFiles if available, otherwise use string options
       "${cfg.appName}/lua/config/autocmds.lua" = mkIf (
@@ -236,6 +239,28 @@ in {
             '';
           };
         }
-    );
+    )
+    # Disable LazyVim's treesitter healthcheck - Nix provides pre-built parsers
+    // {
+      "${cfg.appName}/lua/plugins/_lazyvim_nix_healthcheck.lua" = {
+        text = ''
+          -- [NIX] Disable treesitter healthcheck - parsers are pre-built by Nix
+          -- LazyVim's healthcheck expects tree-sitter CLI and C compiler which aren't needed
+          vim.api.nvim_create_autocmd("User", {
+            pattern = "VeryLazy",
+            once = true,
+            callback = function()
+              local ok, ts = pcall(require, "lazyvim.util.treesitter")
+              if ok and ts then
+                ts.check = function()
+                  return true, { ["nix"] = true }
+                end
+              end
+            end,
+          })
+          return {}
+        '';
+      };
+    };
   };
 }
