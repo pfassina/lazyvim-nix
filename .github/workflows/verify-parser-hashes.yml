@@ -1,0 +1,151 @@
+name: Verify Parser Hashes
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC (after update-plugins at 2 AM)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  verify-hashes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Nix cache
+        uses: cachix/cachix-action@v12
+        with:
+          name: nix-community
+          skipPush: true
+
+      - name: Verify all parser hashes
+        id: verify
+        run: |
+          echo "Verifying parser hashes..."
+
+          # Create a Nix expression to verify all parsers
+          cat > verify-parsers.nix << 'EOF'
+          let
+            pkgs = import <nixpkgs> {};
+            revisions = builtins.fromJSON (builtins.readFile ./data/parser-revisions.json);
+
+            fetchParser = name: parser: pkgs.fetchgit {
+              url = parser.url;
+              rev = parser.revision;
+              sha256 = parser.sha256;
+            };
+
+            parsers = pkgs.lib.mapAttrs fetchParser revisions.parsers;
+          in pkgs.runCommand "verify-all-parsers" {} (
+            "echo 'Verifying ${toString (builtins.length (builtins.attrNames parsers))} parsers...'\n" +
+            builtins.concatStringsSep "\n" (builtins.attrValues (pkgs.lib.mapAttrs (n: v: "echo '${n}: OK'") parsers)) +
+            "\ntouch $out"
+          )
+          EOF
+
+          # Try to build - if it fails, we need to fix hashes
+          if nix-build --no-out-link verify-parsers.nix 2>&1; then
+            echo "All parser hashes verified successfully"
+            echo "needs_fix=false" >> $GITHUB_OUTPUT
+          else
+            echo "Some parser hashes are invalid"
+            echo "needs_fix=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fix broken hashes
+        if: steps.verify.outputs.needs_fix == 'true'
+        id: fix
+        run: |
+          echo "Identifying and fixing broken hashes..."
+
+          # Create a script to check each parser individually and fix broken ones
+          cat > fix-hashes.sh << 'SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          REVISIONS_FILE="data/parser-revisions.json"
+          FIXED_PARSERS=""
+
+          # Get list of parser names
+          PARSERS=$(jq -r '.parsers | keys[]' "$REVISIONS_FILE")
+
+          for parser in $PARSERS; do
+            url=$(jq -r ".parsers[\"$parser\"].url" "$REVISIONS_FILE")
+            rev=$(jq -r ".parsers[\"$parser\"].revision" "$REVISIONS_FILE")
+            old_hash=$(jq -r ".parsers[\"$parser\"].sha256" "$REVISIONS_FILE")
+
+            echo "Checking $parser..."
+
+            # Try to fetch with current hash
+            if ! nix-build --no-out-link -E "
+              let pkgs = import <nixpkgs> {};
+              in pkgs.fetchgit {
+                url = \"$url\";
+                rev = \"$rev\";
+                sha256 = \"$old_hash\";
+              }
+            " 2>/dev/null; then
+              echo "  Hash mismatch for $parser, fetching correct hash..."
+
+              # Fetch with empty hash to get the correct one
+              NEW_HASH=$(nix-prefetch-git --url "$url" --rev "$rev" 2>/dev/null | jq -r '.sha256')
+
+              if [ -n "$NEW_HASH" ] && [ "$NEW_HASH" != "null" ]; then
+                echo "  Updating $parser hash: $old_hash -> $NEW_HASH"
+
+                # Update the hash in the JSON file
+                jq ".parsers[\"$parser\"].sha256 = \"$NEW_HASH\"" "$REVISIONS_FILE" > tmp.json
+                mv tmp.json "$REVISIONS_FILE"
+
+                FIXED_PARSERS="$FIXED_PARSERS $parser"
+              else
+                echo "  ERROR: Could not determine correct hash for $parser"
+                exit 1
+              fi
+            else
+              echo "  OK"
+            fi
+          done
+
+          echo "fixed_parsers=$FIXED_PARSERS" >> $GITHUB_OUTPUT
+          SCRIPT
+
+          chmod +x fix-hashes.sh
+          ./fix-hashes.sh
+
+      - name: Create Pull Request
+        if: steps.verify.outputs.needs_fix == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "fix: update broken tree-sitter parser hashes"
+          title: "Fix broken tree-sitter parser hashes"
+          body: |
+            This PR fixes tree-sitter parser hashes that no longer match their upstream content.
+
+            This can happen when GitHub regenerates archive tarballs or when repositories with
+            submodules have their submodule content change.
+
+            ## Fixed Parsers
+            ${{ steps.fix.outputs.fixed_parsers || 'See commit diff for details' }}
+
+            ## Verification
+            - [ ] Flake check passes
+            - [ ] Parser builds succeed
+
+            ---
+            *This pull request was automatically generated by the hash verification workflow.*
+          branch: fix-parser-hashes
+          delete-branch: true
+          add-paths: |
+            data/parser-revisions.json
