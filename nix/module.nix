@@ -109,7 +109,14 @@ let
   extrasImportSpecs = configLib.extrasImportSpecs enabledExtras;
 
   # Treesitter configuration
-  treesitterGrammars = treesitterLib.treesitterGrammars automaticTreesitterParsers;
+  # Select grammar source based on pluginSource strategy:
+  # - "latest": Build parsers from source to match nvim-treesitter version
+  # - "nixpkgs": Use nixpkgs grammarPlugins (current behavior)
+  treesitterGrammars =
+    if cfg.pluginSource == "latest" && treesitterLib.hasParserRevisions then
+      treesitterLib.treesitterGrammarsFromSource automaticTreesitterParsers
+    else
+      treesitterLib.treesitterGrammars automaticTreesitterParsers;
 
   # Generate lazy.nvim configuration by patching the official LazyVim starter
   lazyConfig = configLib.lazyConfig {
