@@ -30,6 +30,7 @@ let
               url = spec.url;
               rev = spec.revision;
               sha256 = spec.sha256;
+              fetchSubmodules = false;
             };
           } // lib.optionalAttrs (spec.location or null != null) {
             # Some parsers have the grammar in a subdirectory
