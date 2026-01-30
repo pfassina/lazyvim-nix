@@ -64,16 +64,16 @@ jobs:
           # Phase 2: re-fetch each parser with --check to verify hashes
           # against current upstream content (detects archive regeneration)
           for parser in $PARSERS; do
-            if ! nix-build --check --no-out-link verify-parsers.nix -A "$parser" 2>/dev/null; then
+            CHECK_OUTPUT=$(nix-build --check --no-out-link verify-parsers.nix -A "$parser" 2>&1) || true
+            if echo "$CHECK_OUTPUT" | grep -q "hash mismatch"; then
               echo "MISMATCH: $parser"
-
-              url=$(jq -r ".parsers[\"$parser\"].url" "$REVISIONS_FILE")
-              rev=$(jq -r ".parsers[\"$parser\"].revision" "$REVISIONS_FILE")
               old_hash=$(jq -r ".parsers[\"$parser\"].sha256" "$REVISIONS_FILE")
 
-              NEW_HASH=$(nix-prefetch-git --url "$url" --rev "$rev" 2>/dev/null | jq -r '.sha256')
+              # Extract the correct hash from the --check error output and convert to nix32
+              GOT_SRI=$(echo "$CHECK_OUTPUT" | grep "got:" | awk '{print $2}')
+              NEW_HASH=$(nix hash convert --hash-algo sha256 --to nix32 "$GOT_SRI")
 
-              if [ -n "$NEW_HASH" ] && [ "$NEW_HASH" != "null" ]; then
+              if [ -n "$NEW_HASH" ]; then
                 echo "  Fixed $parser: $old_hash -> $NEW_HASH"
                 jq ".parsers[\"$parser\"].sha256 = \"$NEW_HASH\"" "$REVISIONS_FILE" > tmp.json
                 mv tmp.json "$REVISIONS_FILE"
