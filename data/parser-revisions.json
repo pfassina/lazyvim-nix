@@ -194,7 +194,7 @@
 },"yaml":{
   "url":"https://github.com/tree-sitter-grammars/tree-sitter-yaml",
     "revision":"7708026449bed86239b1cd5bce6e3c34dbca6415",
-    "sha256":"0624w2zdalzfrmgggz8sfx725j9c9lw1svidk3zap5l7bk83dp5k"
+    "sha256":"BX6TOfAZLW+0h2TNsgsLC9K2lfirraCWlBN2vCKiXQ4"
 },"gosum":{
   "url":"https://github.com/tree-sitter-grammars/tree-sitter-go-sum",
     "revision":"27816eb6b7315746ae9fcf711e4e1396dc1cf237",
