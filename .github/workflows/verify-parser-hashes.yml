@@ -56,31 +56,44 @@ jobs:
 
           echo "Verifying $TOTAL parsers..."
 
-          # Phase 1: populate store paths from cache (fast)
+          fix_hash() {
+            local parser="$1"
+            local output="$2"
+            local old_hash
+            old_hash=$(jq -r ".parsers[\"$parser\"].sha256" "$REVISIONS_FILE")
+
+            # Extract the correct hash from the error output and convert to nix32
+            local got_sri
+            got_sri=$(echo "$output" | grep "got:" | awk '{print $2}')
+            local new_hash
+            new_hash=$(nix hash convert --hash-algo sha256 --to nix32 "$got_sri")
+
+            if [ -n "$new_hash" ]; then
+              echo "  Fixed $parser: $old_hash -> $new_hash"
+              jq ".parsers[\"$parser\"].sha256 = \"$new_hash\"" "$REVISIONS_FILE" > tmp.json
+              mv tmp.json "$REVISIONS_FILE"
+              FIXED_PARSERS="$FIXED_PARSERS $parser"
+            else
+              echo "  ERROR: Could not determine correct hash for $parser"
+            fi
+          }
+
+          # Phase 1: build each parser, catching any hash mismatches on fresh builds
           for parser in $PARSERS; do
-            nix-build --no-out-link verify-parsers.nix -A "$parser" 2>/dev/null || true
+            BUILD_OUTPUT=$(nix-build --no-out-link verify-parsers.nix -A "$parser" 2>&1) || true
+            if echo "$BUILD_OUTPUT" | grep -q "hash mismatch"; then
+              echo "MISMATCH (build): $parser"
+              fix_hash "$parser" "$BUILD_OUTPUT"
+            fi
           done
 
-          # Phase 2: re-fetch each parser with --check to verify hashes
-          # against current upstream content (detects archive regeneration)
+          # Phase 2: re-fetch parsers that built successfully with --check to detect
+          # stale cached store paths (upstream archive regeneration)
           for parser in $PARSERS; do
             CHECK_OUTPUT=$(nix-build --check --no-out-link verify-parsers.nix -A "$parser" 2>&1) || true
             if echo "$CHECK_OUTPUT" | grep -q "hash mismatch"; then
-              echo "MISMATCH: $parser"
-              old_hash=$(jq -r ".parsers[\"$parser\"].sha256" "$REVISIONS_FILE")
-
-              # Extract the correct hash from the --check error output and convert to nix32
-              GOT_SRI=$(echo "$CHECK_OUTPUT" | grep "got:" | awk '{print $2}')
-              NEW_HASH=$(nix hash convert --hash-algo sha256 --to nix32 "$GOT_SRI")
-
-              if [ -n "$NEW_HASH" ]; then
-                echo "  Fixed $parser: $old_hash -> $NEW_HASH"
-                jq ".parsers[\"$parser\"].sha256 = \"$NEW_HASH\"" "$REVISIONS_FILE" > tmp.json
-                mv tmp.json "$REVISIONS_FILE"
-                FIXED_PARSERS="$FIXED_PARSERS $parser"
-              else
-                echo "  ERROR: Could not determine correct hash for $parser"
-              fi
+              echo "MISMATCH (stale cache): $parser"
+              fix_hash "$parser" "$CHECK_OUTPUT"
             fi
           done
 
