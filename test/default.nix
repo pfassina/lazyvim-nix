@@ -73,7 +73,8 @@ let
                      import ./integration/issue33-fix.nix { inherit pkgs testLib moduleUnderTest; };
   propertyTests = import ./property/simple.nix { inherit pkgs testLib moduleUnderTest; };
   regressionTests = import ./regression/simple.nix { inherit pkgs testLib moduleUnderTest; } //
-                    import ./regression/lazyvim-compliance.nix { inherit pkgs testLib moduleUnderTest; };
+                    import ./regression/lazyvim-compliance.nix { inherit pkgs testLib moduleUnderTest; } //
+                    import ./regression/fetchgit-hashes.nix { inherit pkgs testLib moduleUnderTest; };
   e2eTests = import ./e2e/simple.nix { inherit pkgs testLib moduleUnderTest; };
 
   # Combine all tests

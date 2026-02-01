@@ -22,11 +22,11 @@ let
               versionInfo.commit
             else "HEAD";
 
-      # SHA256 hash is required for fetchFromGitHub
+      # SHA256 hash is required for fetchgit
       sha256 = versionInfo.sha256 or null;
 
       # For latest/HEAD, use fetchGit which doesn't require a hash
-      # For pinned versions with sha256, use fetchFromGitHub
+      # For pinned versions with sha256, use fetchgit (content-addressed, immune to GitHub tarball regeneration)
       src = if rev == "HEAD" || sha256 == null then
         builtins.fetchGit ({
           url = "https://github.com/${owner}/${repo}";
@@ -35,8 +35,10 @@ let
           ref = rev;
         })
       else
-        pkgs.fetchFromGitHub {
-          inherit owner repo rev sha256;
+        pkgs.fetchgit {
+          url = "https://github.com/${owner}/${repo}";
+          inherit rev sha256;
+          fetchSubmodules = false;
         };
     in
       if owner != null && repo != null then
