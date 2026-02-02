@@ -77,16 +77,53 @@ end
 local function extract_parsers_from_content(content)
   local parsers = {}
 
-  local treesitter_pattern = '"nvim%-treesitter/nvim%-treesitter"[^}]-}'
-  local treesitter_block = content:match(treesitter_pattern)
-
-  if not treesitter_block then
+  -- Match the full treesitter plugin block including nested braces
+  -- First find the start, then match to the closing brace of the outer table
+  local block_start = content:find('"nvim%-treesitter/nvim%-treesitter"')
+  if not block_start then
     return parsers
   end
 
+  -- Find the opening brace of the plugin spec that contains this string
+  -- Walk backwards to find the enclosing `{`
+  local brace_start = block_start
+  local depth = 0
+  for i = block_start, 1, -1 do
+    local ch = content:sub(i, i)
+    if ch == "}" then depth = depth + 1 end
+    if ch == "{" then
+      if depth == 0 then
+        brace_start = i
+        break
+      end
+      depth = depth - 1
+    end
+  end
+
+  -- Now find the matching closing brace
+  depth = 0
+  local brace_end = #content
+  for i = brace_start, #content do
+    local ch = content:sub(i, i)
+    if ch == "{" then depth = depth + 1 end
+    if ch == "}" then
+      depth = depth - 1
+      if depth == 0 then
+        brace_end = i
+        break
+      end
+    end
+  end
+
+  local treesitter_block = content:sub(brace_start, brace_end)
+
   local patterns = {
+    -- Static opts: opts = { ensure_installed = { ... } }
     'opts%s*=%s*{[^}]*ensure_installed%s*=%s*{%s*([^}]-)%s*}',
-    'opts%s*=%s*function%(%).-ensure_installed%s*=%s*{%s*([^}]-)%s*}'
+    -- Function opts with ensure_installed assignment: opts = function(...) ... ensure_installed = { ... }
+    'opts%s*=%s*function%s*%(.-%).-ensure_installed%s*=%s*{%s*([^}]-)%s*}',
+    -- vim.list_extend pattern: vim.list_extend(opts.ensure_installed, { ... })
+    'vim%.list_extend%s*%(%s*opts%.ensure_installed%s*,%s*{%s*([^}]-)%s*}',
   }
 
   for _, pattern in ipairs(patterns) do

@@ -49,6 +49,11 @@
       "c_sharp",
       "fsharp"
     ],
+    "lang.elixir": [
+      "elixir",
+      "heex",
+      "eex"
+    ],
     "lang.elm": [
       "elm"
     ],
@@ -101,6 +106,9 @@
     "lang.nushell": [
       "nu"
     ],
+    "lang.ocaml": [
+      "ocaml"
+    ],
     "lang.php": [
       "php"
     ],
@@ -140,6 +148,10 @@
     "lang.terraform": [
       "terraform",
       "hcl"
+    ],
+    "lang.tex": [
+      "bibtex",
+      "latex"
     ],
     "lang.twig": [
       "twig"
