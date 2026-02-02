@@ -99,6 +99,17 @@ let
   # Resolve all plugins using the smart resolver
   resolvedPlugins = map (pluginLib.resolvePlugin cfg) allPluginSpecs;
 
+  # Extract the resolved nvim-treesitter plugin for query file linking
+  # Must come from the same resolved list to match the parser strategy
+  resolvedTreesitterPlugin =
+    let
+      tsPlugins = lib.zipListsWith (spec: plugin:
+        if spec.name == "nvim-treesitter/nvim-treesitter" then plugin else null
+      ) allPluginSpecs resolvedPlugins;
+      found = lib.findFirst (p: p != null) null tsPlugins;
+    in
+      if found != null then found else pkgs.vimPlugins.nvim-treesitter;
+
   # Create the dev path with proper symlinks
   devPath = devPathLib.createDevPath allPluginSpecs resolvedPlugins;
 
@@ -164,6 +175,9 @@ in {
     xdg.dataFile = {
       "${cfg.appName}/site/parser" = mkIf (automaticTreesitterParsers != []) {
         source = "${treesitterGrammars}/parser";
+      };
+      "${cfg.appName}/site/queries" = mkIf (automaticTreesitterParsers != []) {
+        source = "${resolvedTreesitterPlugin}/runtime/queries";
       };
     };
 
