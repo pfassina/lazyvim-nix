@@ -276,9 +276,12 @@ function M.format_report(analysis)
 		table.insert(report, "Add these to `data/mappings.json`:")
 		table.insert(report, "")
 		table.insert(report, "```json")
-		for _, item in ipairs(verified_mappings) do
-			table.insert(report, string.format('  "%s": "%s",', item.plugin, item.mapping.name))
+		table.insert(report, "{")
+		for i, item in ipairs(verified_mappings) do
+			local comma = i < #verified_mappings and "," or ""
+			table.insert(report, string.format('  "%s": "%s"%s', item.plugin, item.mapping.name, comma))
 		end
+		table.insert(report, "}")
 		table.insert(report, "```")
 		table.insert(report, "")
 	end

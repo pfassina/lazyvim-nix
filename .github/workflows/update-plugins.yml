@@ -117,12 +117,9 @@ jobs:
               sed -n '/```json/,/```/p' data/mapping-analysis-report.md | sed '1d;$d' > new-mappings.json
 
               # Apply the mappings to data/mappings.json
-              if [ -s new-mappings.json ]; then
-                # Create temporary JSON with new mappings (remove trailing commas)
-                sed 's/,$//' new-mappings.json > new-mappings-clean.json
-
+              if [ -s new-mappings.json ] && jq . new-mappings.json > /dev/null 2>&1; then
                 # Merge with existing mappings using jq
-                jq -s '.[0] * .[1]' data/mappings.json new-mappings-clean.json > data/mappings.json.tmp
+                jq -s '.[0] * .[1]' data/mappings.json new-mappings.json > data/mappings.json.tmp
                 mv data/mappings.json.tmp data/mappings.json
                 
                 # Re-run extraction with new mappings
