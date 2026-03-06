@@ -48,5 +48,8 @@
     "module": "mini.surround"
   },
   "RRethy/vim-illuminate": "vimPlugins.vim-illuminate",
-  "tpope/vim-repeat": "vimPlugins.vim-repeat"
+  "tpope/vim-repeat": "vimPlugins.vim-repeat",
+  "tpope/vim-dadbod": "vim-dadbod",
+  "kristijanhusak/vim-dadbod-completion": "vim-dadbod-completion",
+  "kristijanhusak/vim-dadbod-ui": "vim-dadbod-ui"
 }
