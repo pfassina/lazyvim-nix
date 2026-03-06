@@ -25,18 +25,21 @@ let
       # SHA256 hash is required for fetchgit
       sha256 = versionInfo.sha256 or null;
 
+      # Use source_url from plugin spec when available (e.g., Codeberg-hosted plugins)
+      fetchUrl = pluginSpec.source_url or "https://github.com/${owner}/${repo}";
+
       # For latest/HEAD, use fetchGit which doesn't require a hash
       # For pinned versions with sha256, use fetchgit (content-addressed, immune to GitHub tarball regeneration)
       src = if rev == "HEAD" || sha256 == null then
         builtins.fetchGit ({
-          url = "https://github.com/${owner}/${repo}";
+          url = fetchUrl;
           shallow = true;
         } // lib.optionalAttrs (rev != "HEAD") {
           ref = rev;
         })
       else
         pkgs.fetchgit {
-          url = "https://github.com/${owner}/${repo}";
+          url = fetchUrl;
           inherit rev sha256;
           fetchSubmodules = false;
         };
@@ -49,7 +52,7 @@ let
           doCheck = false;  # Disable require checks that may fail
           meta = {
             description = "LazyVim plugin: ${pluginSpec.name}";
-            homepage = "https://github.com/${owner}/${repo}";
+            homepage = fetchUrl;
           };
         }
       else

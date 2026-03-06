@@ -208,7 +208,8 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 	end
 
 	local function enqueue_prefetch(plugin_info, target, existing_info)
-		local url = string.format("https://github.com/%s/%s", plugin_info.owner, plugin_info.repo)
+		local url = plugin_info.source_url
+			or string.format("https://github.com/%s/%s", plugin_info.owner, plugin_info.repo)
 		local args = { "--quiet", "--url", url }
 		if target.prefetch_rev then
 			table.insert(args, "--rev")
@@ -1029,6 +1030,63 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 
 				table.insert(plugins, plugin_info)
 			end
+		elseif spec.url and type(spec.url) == "string" then
+				-- Handle URL-only specs (e.g., Codeberg-hosted plugins)
+				local url = spec.url:gsub("%.git$", "")
+				local owner, repo = url:match("https?://[^/]+/([^/]+)/([^/]+)$")
+				if owner and repo then
+					local normalized = owner .. "/" .. repo
+					if not seen[normalized] then
+						seen[normalized] = true
+
+						local deps = normalize_deps(spec.dependencies)
+
+						local plugin_info = {
+							name = normalized,
+							owner = owner,
+							repo = repo,
+							source_url = url,
+							dependencies = deps,
+							event = spec.event,
+							cmd = spec.cmd,
+							ft = spec.ft,
+							enabled = spec.enabled,
+							lazy = spec.lazy,
+							priority = spec.priority,
+							source_file = source_module or "table_spec",
+							is_core = is_core_plugin or false,
+							version_info = {
+								lazyvim_version = spec.branch and spec.branch
+									or (spec.version ~= nil and spec.version)
+									or spec.tag or spec.commit
+									or nil,
+								lazyvim_version_type = spec.branch and "branch"
+									or (spec.version ~= nil and "version")
+									or (spec.tag and "tag")
+									or (spec.commit and "commit")
+									or nil,
+								commit = nil,
+								branch = nil,
+								tag = nil,
+								nixpkgs_version = nil,
+								sha256 = nil,
+								fetched_at = nil,
+							},
+						}
+
+						local repo_key = owner .. "/" .. repo
+						repo_index[repo_key] = {
+							owner = owner,
+							repo = repo,
+							url = url,
+						}
+
+						table.insert(plugins, plugin_info)
+						print(string.format("    Found URL-only plugin: %s (%s)", normalized, url))
+					end
+				else
+					print(string.format("    Warning: could not parse URL-only spec: %s", spec.url))
+				end
 		end
 
 			-- Recursively process nested specs
@@ -1227,6 +1285,66 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 
 						table.insert(plugins, plugin_info)
 					end
+				end
+			elseif type(item) == "table" and item.url and type(item.url) == "string" then
+				-- Handle URL-only specs (e.g., Codeberg-hosted plugins)
+				if item.optional == true then
+					print("    Skipping optional URL plugin: " .. item.url)
+					goto continue
+				end
+
+				local url = item.url:gsub("%.git$", "")
+				local owner, repo = url:match("https?://[^/]+/([^/]+)/([^/]+)$")
+				if owner and repo then
+					local normalized = owner .. "/" .. repo
+					if not seen[normalized] then
+						seen[normalized] = true
+
+						local source_file = "extras." .. relative_path:gsub("/", "."):gsub("%.lua$", "")
+
+						local plugin_info = {
+							name = normalized,
+							owner = owner,
+							repo = repo,
+							source_url = url,
+							dependencies = normalize_deps(item.dependencies),
+							event = item.event,
+							cmd = item.cmd,
+							ft = item.ft,
+							enabled = item.enabled,
+							lazy = item.lazy,
+							priority = item.priority,
+							source_file = source_file,
+							is_core = false,
+							version_info = {
+								lazyvim_version = item.version ~= nil and item.version
+									or item.tag or item.commit or item.branch,
+								lazyvim_version_type = item.version ~= nil and "version"
+									or item.tag and "tag"
+									or item.commit and "commit"
+									or item.branch and "branch"
+									or nil,
+								commit = nil,
+								branch = nil,
+								tag = nil,
+								nixpkgs_version = nil,
+								sha256 = nil,
+								fetched_at = nil,
+							},
+						}
+
+						local repo_key = owner .. "/" .. repo
+						repo_index[repo_key] = {
+							owner = owner,
+							repo = repo,
+							url = url,
+						}
+
+						table.insert(plugins, plugin_info)
+						print(string.format("    Found URL-only plugin: %s (%s)", normalized, url))
+					end
+				else
+					print(string.format("    Warning: could not parse URL-only spec: %s", item.url))
 				end
 			end
 			::continue::
@@ -1427,6 +1545,7 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 					"name",
 					"owner",
 					"repo",
+					"source_url",
 					"loadOrder",
 					"dependencies",
 					"multiModule",
