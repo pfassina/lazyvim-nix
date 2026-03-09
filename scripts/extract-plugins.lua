@@ -1202,6 +1202,12 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 			return {}
 		end
 
+		-- Handle single plugin spec (not wrapped in array)
+		-- Some extras return { "owner/repo", opts = ... } instead of { { "owner/repo", opts = ... } }
+		if type(result[1]) == "string" then
+			result = { result }
+		end
+
 		local plugins = {}
 
 		-- Extract plugin specs from the result

@@ -1,33 +1,18 @@
 # Plugin Mapping Analysis Report
-Generated: 2026-03-06 19:14:10
+Generated: 2026-03-09 13:52:25
 Total unmapped plugins: 9
-Package verification: ENABLED
+Package verification: DISABLED (use --verify to enable)
 
-## ✅ Verified Mappings
+## Suggested Mappings (Unverified)
 
-Add these to `data/mappings.json`:
+Run with `--verify` to check which packages exist in nixpkgs.
 
-```json
-{
-  "tpope/vim-dadbod": "vim-dadbod",
-  "kristijanhusak/vim-dadbod-completion": "vim-dadbod-completion",
-  "kristijanhusak/vim-dadbod-ui": "vim-dadbod-ui"
-}
-```
-
-## ❌ Failed Mappings
-
-These plugins could not be automatically mapped:
-
-- **zbirenbaum/copilot.lua**
-  - Tried: copilot.lua
-- **nvim-mini/mini.snippets**
-  - Tried: mini.snippets
-- **R-nvim/R.nvim**
-  - Tried: R-nvim, R.nvim
-- **nvim-mini/mini.animate**
-  - Tried: mini.animate
-- **alker0/chezmoi.vim**
-  - Tried: chezmoi.vim
-- **xvzc/chezmoi.nvim**
-  - Tried: chezmoi-nvim, chezmoi.nvim
+  "zbirenbaum/copilot.lua" = "copilot.lua";
+  "nvim-mini/mini.snippets" = "mini.snippets";
+  "nvim-mini/mini.files" = "mini.files";
+  "R-nvim/R.nvim" = "R-nvim";
+  "nvim-mini/mini.animate" = "mini.animate";
+  "alker0/chezmoi.vim" = "chezmoi.vim";
+  "xvzc/chezmoi.nvim" = "chezmoi-nvim";
+  "nvim-mini/mini.hipatterns" = "mini.hipatterns";
+  "dstein64/vim-startuptime" = "vim-startuptime";

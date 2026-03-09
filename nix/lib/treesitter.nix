@@ -23,15 +23,33 @@ let
       else
         let
           # Build the grammar from source
+          revShort = builtins.substring 0 7 spec.revision;
           grammar = pkgs.tree-sitter.buildGrammar ({
             language = parserName;
-            version = "0.0.0+rev-${builtins.substring 0 7 spec.revision}";
+            version = "0.0.0+rev-${revShort}";
             src = pkgs.fetchgit {
               url = spec.url;
               rev = spec.revision;
               sha256 = spec.sha256;
               fetchSubmodules = false;
             };
+            # Add tree-sitter + nodejs for grammars that need parser generation
+            generate = true;
+            # Only generate when src/parser.c is not checked into the repo
+            preBuild = ''
+              if [[ ! -e src/parser.c ]]; then
+                tree-sitter generate
+              fi
+            '';
+            # Patch tree-sitter.json version to match our derivation version
+            # so buildGrammar's configurePhase version check passes.
+            # We build from a pinned commit, not a release, so versions won't match.
+            preConfigure = ''
+              if [[ -e tree-sitter.json ]]; then
+                ${pkgs.jq}/bin/jq '.metadata.version = "0.0.0"' tree-sitter.json > tree-sitter.json.tmp
+                mv tree-sitter.json.tmp tree-sitter.json
+              fi
+            '';
           } // lib.optionalAttrs (spec.location or null != null) {
             # Some parsers have the grammar in a subdirectory
             location = spec.location;

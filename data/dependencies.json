@@ -539,7 +539,7 @@
       }
     ]
   },
-  "generated": "2026-03-06 19:14:10",
-  "lazyvim_path": "/tmp/nix-shell.utR1EA/tmp.ZxaNOMBkWu/LazyVim",
-  "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
+  "generated": "2026-03-09 13:52:25",
+  "lazyvim_path": "/tmp/nix-shell.V1D3Zm/tmp.xp4SfhNgrN/LazyVim",
+  "mason_path": "/home/mead/code/lazyvim-nix/tmp/update-cache/mason-registry"
 }
