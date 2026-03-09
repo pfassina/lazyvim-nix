@@ -42,7 +42,9 @@ let
         in
           lib.mapAttrsToList (extraName: extraConfig:
             let
-              metadata = dataLib.extrasMetadata.${categoryName}.${extraName} or null;
+              # Normalize hyphens to underscores to match extras.json keys
+              normalizedName = builtins.replaceStrings ["-"] ["_"] extraName;
+              metadata = dataLib.extrasMetadata.${categoryName}.${normalizedName} or null;
             in
               if metadata != null then {
                 inherit (metadata) name category import;
