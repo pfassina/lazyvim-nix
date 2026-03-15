@@ -35,24 +35,26 @@ let
             };
             # Add tree-sitter + nodejs for grammars that need parser generation
             generate = true;
+            # Override configurePhase for cross-nixpkgs compatibility:
+            # - nixpkgs 24.11: its configurePhase runs tree-sitter generate
+            #   unconditionally, which fails for monorepo grammars whose grammar.js
+            #   depends on sibling packages not available in the sandbox (e.g. tsx
+            #   depends on tree-sitter-javascript)
+            # - nixpkgs unstable: its configurePhase has tree-sitter.json version
+            #   checks that fail for pinned-commit builds
+            # Subdirectory navigation (cd) replaces the location attribute to avoid
+            # conflicts with nixpkgs' setSourceRoot mechanism.
+            configurePhase = ''
+              runHook preConfigure
+              ${lib.optionalString (spec.location or null != null) "cd ${spec.location}"}
+              runHook postConfigure
+            '';
             # Only generate when src/parser.c is not checked into the repo
             preBuild = ''
               if [[ ! -e src/parser.c ]]; then
                 tree-sitter generate
               fi
             '';
-            # Patch tree-sitter.json version to match our derivation version
-            # so buildGrammar's configurePhase version check passes.
-            # We build from a pinned commit, not a release, so versions won't match.
-            preConfigure = ''
-              if [[ -e tree-sitter.json ]]; then
-                ${pkgs.jq}/bin/jq '.metadata.version = "0.0.0"' tree-sitter.json > tree-sitter.json.tmp
-                mv tree-sitter.json.tmp tree-sitter.json
-              fi
-            '';
-          } // lib.optionalAttrs (spec.location or null != null) {
-            # Some parsers have the grammar in a subdirectory
-            location = spec.location;
           });
 
           # Wrap the grammar as a vim plugin with the parser in the right location
