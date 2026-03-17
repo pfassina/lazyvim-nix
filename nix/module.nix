@@ -131,6 +131,43 @@ let
     else
       treesitterLib.treesitterGrammars automaticTreesitterParsers;
 
+  # Filter queries to only include languages with installed parsers (plus
+  # virtual base directories needed for `; inherits:` resolution). Without
+  # filtering, nvim-treesitter's health check considers every language with a
+  # query directory as "installed" and tries to validate its queries against a
+  # parser that may not exist, producing thousands of false errors.
+  filteredQueries = pkgs.runCommand "treesitter-queries" {} ''
+    mkdir -p $out
+    querySrc="${resolvedTreesitterPlugin}/runtime/queries"
+    parserDir="${treesitterGrammars}/parser"
+
+    # Link query directories for each installed parser
+    for parser_so in "$parserDir"/*.so; do
+      lang="$(basename "$parser_so" .so)"
+      if [ -d "$querySrc/$lang" ]; then
+        ln -s "$querySrc/$lang" "$out/$lang"
+      fi
+    done
+
+    # Transitively add query directories referenced by ; inherits: directives
+    changed=1
+    while [ "$changed" -eq 1 ]; do
+      changed=0
+      for linked_dir in "$out"/*/; do
+        [ -d "$linked_dir" ] || continue
+        for scm in "$linked_dir"/*.scm; do
+          [ -f "$scm" ] || continue
+          while IFS= read -r inherit; do
+            if [ -n "$inherit" ] && [ -d "$querySrc/$inherit" ] && [ ! -e "$out/$inherit" ]; then
+              ln -s "$querySrc/$inherit" "$out/$inherit"
+              changed=1
+            fi
+          done < <(grep '^; inherits:' "$scm" | sed 's/^; inherits: *//' | tr ',' '\n' | tr -d ' ')
+        done
+      done
+    done
+  '';
+
   # Generate lazy.nvim configuration by patching the official LazyVim starter
   lazyConfig = configLib.lazyConfig {
     starterLua = dataLib.starterLua;
@@ -179,7 +216,7 @@ in {
         source = "${treesitterGrammars}/parser";
       };
       "${cfg.appName}/site/queries" = mkIf (automaticTreesitterParsers != []) {
-        source = "${resolvedTreesitterPlugin}/runtime/queries";
+        source = "${filteredQueries}";
       };
     };
 
