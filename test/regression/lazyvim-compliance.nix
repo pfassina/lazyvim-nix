@@ -45,16 +45,22 @@ let
         plugin ? version_info &&
         plugin.version_info ? lazyvim_version;
 
+      # Check branch field (preserved by extraction script after branch→commit resolution)
+      hasBranch = plugin != null &&
+        plugin ? version_info &&
+        plugin.version_info ? branch;
+
       lazyvimVersionMatches = if !hasLazyVimSpec then false else
         let
           lazyvimVersion = plugin.version_info.lazyvim_version;
           lazyvimVersionType = plugin.version_info.lazyvim_version_type or "unknown";
+          branch = if hasBranch then plugin.version_info.branch else null;
         in
           if expectedData.expectedSpec == "branch=main,version=false" then
-            lazyvimVersionType == "branch" && lazyvimVersion == "main" ||
+            branch == "main" ||
             lazyvimVersionType == "boolean" && lazyvimVersion == false
           else if expectedData.expectedSpec == "branch=main" then
-            lazyvimVersionType == "branch" && lazyvimVersion == "main"
+            branch == "main"
           else
             true; # For other specs, just check we have valid data
     in {
