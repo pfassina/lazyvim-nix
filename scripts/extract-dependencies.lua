@@ -427,9 +427,9 @@ local function resolve_package_name(dep_name)
         ruff = "python3Packages.ruff",
         sqlfluff = "sqlfluff",  -- Top-level package
 
-        -- Node packages (with correct names)
-        prettier = "nodePackages.prettier",
-        eslint = "nodePackages.eslint",
+        -- Node packages (top-level in nixpkgs)
+        prettier = "prettier",
+        eslint = "eslint",
 
         -- Debug adapters
         codelldb = "vscode-extensions.vadimcn.vscode-lldb",
@@ -475,13 +475,13 @@ local function resolve_package_name(dep_name)
         end
     end
 
-    -- Strategy 5: Node packages (with verified names)
+    -- Strategy 5: Node tools (top-level in nixpkgs)
     local node_tools = {
-        ["markdownlint-cli2"] = "markdownlint-cli2"  -- Use hyphens, not underscores
+        ["markdownlint-cli2"] = "markdownlint-cli2"
     }
     for tool, nixpkg_name in pairs(node_tools) do
         if dep_name == tool then
-            return "nodePackages." .. nixpkg_name
+            return nixpkg_name
         end
     end
 
