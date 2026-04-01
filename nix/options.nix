@@ -33,7 +33,7 @@ with lib;
       with pkgs; [
         rust-analyzer
         gopls
-        nodePackages.typescript-language-server
+        typescript-language-server
       ]
     '';
     description = ''
