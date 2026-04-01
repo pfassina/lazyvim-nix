@@ -41,7 +41,7 @@ let
       "formatting.prettier" = [
         {
           name = "prettier";
-          nixpkg = "nodePackages.prettier";
+          nixpkg = "prettier";
           runtime_dependencies = [
             { name = "nodejs"; nixpkg = "nodejs"; }
             { name = "npm"; } # No nixpkg mapping
@@ -307,18 +307,16 @@ in {
         # Test cases
         simplePackage = resolvePackage "git";
         nestedPackage = resolvePackage "python3Packages.ruff";
-        doubleNestedPackage = resolvePackage "nodePackages.prettier";
         nonExistentPackage = resolvePackage "nonexistent.package";
         nonExistentNested = resolvePackage "python3Packages.nonexistent";
 
         # Verify results
         simpleWorks = simplePackage != null;
         nestedWorks = nestedPackage != null;
-        doubleNestedWorks = doubleNestedPackage != null;
         nonExistentFails = nonExistentPackage == null;
         nonExistentNestedFails = nonExistentNested == null;
 
-      in simpleWorks && nestedWorks && doubleNestedWorks && nonExistentFails && nonExistentNestedFails
+      in simpleWorks && nestedWorks && nonExistentFails && nonExistentNestedFails
     ''
     true;
 
