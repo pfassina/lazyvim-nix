@@ -193,11 +193,6 @@
     }
   },
   "formatting": {
-    "biome": {
-      "category": "formatting",
-      "import": "lazyvim.plugins.extras.formatting.biome",
-      "name": "biome"
-    },
     "black": {
       "category": "formatting",
       "import": "lazyvim.plugins.extras.formatting.black",
@@ -425,15 +420,15 @@
       "import": "lazyvim.plugins.extras.lang.toml",
       "name": "toml"
     },
-    "twig": {
-      "category": "lang",
-      "import": "lazyvim.plugins.extras.lang.twig",
-      "name": "twig"
-    },
     "typescript": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.typescript",
       "name": "typescript"
+    },
+    "twig": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.twig",
+      "name": "twig"
     },
     "typst": {
       "category": "lang",

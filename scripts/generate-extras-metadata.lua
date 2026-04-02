@@ -59,6 +59,27 @@ local function main()
         }
         total_count = total_count + 1
       end
+
+      -- Handle subdirectory extras (e.g., lang/typescript/ with init.lua)
+      local subdirs = vim.fn.glob(category_path .. "/*", false, true)
+      table.sort(subdirs)
+
+      for _, subdir in ipairs(subdirs) do
+        if vim.fn.isdirectory(subdir) == 1 then
+          local init_file = subdir .. "/init.lua"
+          if vim.fn.filereadable(init_file) == 1 then
+            local extra_name = vim.fn.fnamemodify(subdir, ":t")
+            local key_name = extra_name:gsub("-", "_")
+
+            extras_data[category][key_name] = {
+              name = extra_name,
+              category = category,
+              import = string.format("lazyvim.plugins.extras.%s.%s", category, extra_name)
+            }
+            total_count = total_count + 1
+          end
+        end
+      end
     end
   end
 
