@@ -1,27 +1,17 @@
-name: Claude Code Review
+name: Review Plugin Update PR
 
 on:
   pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    types: [opened, synchronize]
+    branches: [main]
 
 jobs:
-  claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-
+  review:
+    if: startsWith(github.head_ref, 'update-lazyvim-plugins')
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
       id-token: write
 
@@ -29,16 +19,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
-      - name: Run Claude Code Review
-        id: claude-review
+      - name: Review plugin update
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
-          plugins: 'code-review@claude-code-plugins'
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
+          prompt: |
+            Review this LazyVim plugin update PR. Analyze the full diff and report:
 
+            1. **Version**: What version is LazyVim being updated to?
+            2. **Plugin changes**: Plugins added or removed, with count changes
+            3. **Notable changes**: Event changes, source file restructuring, mapping updates
+            4. **Extras consistency**: Whether extras.json matches upstream (check for missing extras from subdirectory restructuring like lang/typescript/)
+            5. **Build artifacts**: Flag any new files that look like build artifacts and shouldn't be committed (e.g., verification reports, files with timestamps or CI runner paths)
+            6. **Mappings**: Whether mappings.json changes are correct and verified
+            7. **Unmapped plugins**: Count and status of unmapped plugins
+            8. **Concerns**: Any issues that should be resolved before merging
+
+            Post your findings as a single PR comment.
