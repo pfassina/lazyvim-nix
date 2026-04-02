@@ -420,6 +420,11 @@
       "import": "lazyvim.plugins.extras.lang.toml",
       "name": "toml"
     },
+    "typescript": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.typescript",
+      "name": "typescript"
+    },
     "twig": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.twig",
