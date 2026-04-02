@@ -51,5 +51,6 @@
   "tpope/vim-repeat": "vimPlugins.vim-repeat",
   "tpope/vim-dadbod": "vim-dadbod",
   "kristijanhusak/vim-dadbod-completion": "vim-dadbod-completion",
-  "kristijanhusak/vim-dadbod-ui": "vim-dadbod-ui"
+  "kristijanhusak/vim-dadbod-ui": "vim-dadbod-ui",
+  "dstein64/vim-startuptime": "vim-startuptime"
 }

@@ -67,20 +67,6 @@
         "name": "reuse_win"
       }
     ],
-    "formatting.biome": [
-      {
-        "name": "biome",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
     "formatting.black": [
       {
         "name": "black",
@@ -504,9 +490,80 @@
         ]
       }
     ],
-    "lang.typescript": [
+    "lang.typescript.biome": [
+      {
+        "name": "biome",
+        "runtime_dependencies": [
+          {
+            "name": "nodejs",
+            "nixpkg": "nodejs"
+          },
+          {
+            "name": "npm"
+          }
+        ]
+      }
+    ],
+    "lang.typescript.init": [
       {
         "name": "js-debug-adapter"
+      }
+    ],
+    "lang.typescript.oxc": [
+      {
+        "name": "oxlint",
+        "runtime_dependencies": [
+          {
+            "name": "nodejs",
+            "nixpkg": "nodejs"
+          },
+          {
+            "name": "npm"
+          }
+        ]
+      },
+      {
+        "name": "fixKind"
+      },
+      {
+        "name": "oxfmt",
+        "runtime_dependencies": [
+          {
+            "name": "nodejs",
+            "nixpkg": "nodejs"
+          },
+          {
+            "name": "npm"
+          }
+        ]
+      }
+    ],
+    "lang.typescript.tsgo": [
+      {
+        "name": "tsgo",
+        "runtime_dependencies": [
+          {
+            "name": "nodejs",
+            "nixpkg": "nodejs"
+          },
+          {
+            "name": "npm"
+          }
+        ]
+      }
+    ],
+    "lang.typescript.vtsls": [
+      {
+        "name": "vtsls",
+        "runtime_dependencies": [
+          {
+            "name": "nodejs",
+            "nixpkg": "nodejs"
+          },
+          {
+            "name": "npm"
+          }
+        ]
       }
     ],
     "lang.typst": [
@@ -539,7 +596,7 @@
       }
     ]
   },
-  "generated": "2026-03-09 13:52:25",
-  "lazyvim_path": "/tmp/nix-shell.V1D3Zm/tmp.xp4SfhNgrN/LazyVim",
-  "mason_path": "/home/mead/code/lazyvim-nix/tmp/update-cache/mason-registry"
+  "generated": "2026-04-02 17:28:42",
+  "lazyvim_path": "/tmp/nix-shell.hvlVn7/tmp.R8IWoDhTGv/LazyVim",
+  "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
 }

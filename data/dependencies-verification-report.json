@@ -1,0 +1,253 @@
+{
+  "_comment": "Nixpkgs package verification report for LazyVim dependencies",
+  "failed_verification": [
+    {
+      "suggested": "rubyPackages.erb_formatter",
+      "tool": "erb-formatter"
+    },
+    {
+      "suggested": "python3Packages.cmakelang",
+      "tool": "cmakelang"
+    },
+    {
+      "suggested": "python3Packages.cmakelint",
+      "tool": "cmakelint"
+    }
+  ],
+  "generated": "2026-04-02 17:29:09",
+  "no_mapping": [
+    "jump1",
+    "ignore_current_line",
+    "has",
+    "fsautocomplete",
+    "csharpier",
+    "netcoredbg",
+    "fantomas",
+    "npm",
+    "biome",
+    "inc_rename",
+    "expr",
+    "gem",
+    "erb-lint",
+    "js-debug-adapter",
+    "pip",
+    "oxlint",
+    "fixKind",
+    "oxfmt",
+    "phpcs",
+    "php-cs-fixer",
+    "haskell-debug-adapter",
+    "prisma",
+    "java-debug-adapter",
+    "java-test",
+    "zls",
+    "vtsls",
+    "jsonls",
+    "tailwindcss",
+    "tsgo",
+    "twigcs",
+    "twig-cs-fixer",
+    "composer",
+    "elm-format",
+    "reuse_win",
+    "pplatex",
+    "thriftls"
+  ],
+  "summary": {
+    "failed_verifications": 3,
+    "no_mapping_strategy": 36,
+    "success_rate": "63.5%",
+    "total_tools": 74,
+    "verified_mappings": 47
+  },
+  "verified": [
+    {
+      "nixpkg": "git",
+      "tool": "git"
+    },
+    {
+      "nixpkg": "ripgrep",
+      "tool": "rg"
+    },
+    {
+      "nixpkg": "fd",
+      "tool": "fd"
+    },
+    {
+      "nixpkg": "fd",
+      "tool": "fdfind"
+    },
+    {
+      "nixpkg": "lazygit",
+      "tool": "lazygit"
+    },
+    {
+      "nixpkg": "fzf",
+      "tool": "fzf"
+    },
+    {
+      "nixpkg": "curl",
+      "tool": "curl"
+    },
+    {
+      "nixpkg": "ktlint",
+      "tool": "ktlint"
+    },
+    {
+      "nixpkg": "delta",
+      "tool": "delta"
+    },
+    {
+      "nixpkg": "hadolint",
+      "tool": "hadolint"
+    },
+    {
+      "nixpkg": "taplo",
+      "tool": "taplo"
+    },
+    {
+      "nixpkg": "shellcheck",
+      "tool": "shellcheck"
+    },
+    {
+      "nixpkg": "dotnet-sdk",
+      "tool": "dotnet-sdk"
+    },
+    {
+      "nixpkg": "markdownlint-cli2",
+      "tool": "markdownlint-cli2"
+    },
+    {
+      "nixpkg": "nodejs",
+      "tool": "nodejs"
+    },
+    {
+      "nixpkg": "markdown-toc",
+      "tool": "markdown-toc"
+    },
+    {
+      "nixpkg": "regols",
+      "tool": "regols"
+    },
+    {
+      "nixpkg": "go",
+      "tool": "go"
+    },
+    {
+      "nixpkg": "ruby",
+      "tool": "ruby"
+    },
+    {
+      "nixpkg": "python3Packages.black",
+      "tool": "black"
+    },
+    {
+      "nixpkg": "python3",
+      "tool": "python3"
+    },
+    {
+      "nixpkg": "rust-analyzer",
+      "tool": "rust-analyzer"
+    },
+    {
+      "nixpkg": "vscode-extensions.vadimcn.vscode-lldb",
+      "tool": "codelldb"
+    },
+    {
+      "nixpkg": "bacon",
+      "tool": "bacon"
+    },
+    {
+      "nixpkg": "cargo",
+      "tool": "cargo"
+    },
+    {
+      "nixpkg": "rustc",
+      "tool": "rustc"
+    },
+    {
+      "nixpkg": "prettier",
+      "tool": "prettier"
+    },
+    {
+      "nixpkg": "haskell-language-server",
+      "tool": "haskell-language-server"
+    },
+    {
+      "nixpkg": "kubernetes-helm",
+      "tool": "helm"
+    },
+    {
+      "nixpkg": "sqlfluff",
+      "tool": "sqlfluff"
+    },
+    {
+      "nixpkg": "tinymist",
+      "tool": "tinymist"
+    },
+    {
+      "nixpkg": "gitui",
+      "tool": "gitui"
+    },
+    {
+      "nixpkg": "eslint",
+      "tool": "eslint"
+    },
+    {
+      "nixpkg": "php",
+      "tool": "php"
+    },
+    {
+      "nixpkg": "gleam",
+      "tool": "gleam"
+    },
+    {
+      "nixpkg": "gopls",
+      "tool": "gopls"
+    },
+    {
+      "nixpkg": "gofumpt",
+      "tool": "gofumpt"
+    },
+    {
+      "nixpkg": "go",
+      "tool": "goimports"
+    },
+    {
+      "nixpkg": "gomodifytags",
+      "tool": "gomodifytags"
+    },
+    {
+      "nixpkg": "impl",
+      "tool": "impl"
+    },
+    {
+      "nixpkg": "golangci-lint",
+      "tool": "golangci-lint"
+    },
+    {
+      "nixpkg": "delve",
+      "tool": "delve"
+    },
+    {
+      "nixpkg": "terraform",
+      "tool": "terraform"
+    },
+    {
+      "nixpkg": "tflint",
+      "tool": "tflint"
+    },
+    {
+      "nixpkg": "python3Packages.ruff",
+      "tool": "ruff"
+    },
+    {
+      "nixpkg": "clang-tools",
+      "tool": "clangd"
+    },
+    {
+      "nixpkg": "ansible-lint",
+      "tool": "ansible-lint"
+    }
+  ]
+}
