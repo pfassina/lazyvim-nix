@@ -99,7 +99,7 @@
     "formatting.prettier": [
       {
         "name": "prettier",
-        "nixpkg": "nodePackages.prettier",
+        "nixpkg": "prettier",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -325,7 +325,7 @@
     "lang.markdown": [
       {
         "name": "markdownlint-cli2",
-        "nixpkg": "nodePackages.markdownlint-cli2",
+        "nixpkg": "markdownlint-cli2",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -523,7 +523,7 @@
     "linting.eslint": [
       {
         "name": "eslint",
-        "nixpkg": "nodePackages.eslint"
+        "nixpkg": "eslint"
       }
     ],
     "util.dot": [
