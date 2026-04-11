@@ -16,6 +16,36 @@ let
     else
       { parsers = { }; };
 
+  parserRequires =
+    parserName:
+    let
+      spec = parserManifest.parsers.${parserName} or null;
+      requires = if spec == null then [ ] else spec.requires or [ ];
+    in
+    # Some upstream `requires` entries are query-only namespaces like `html_tags`
+    # or `ecma`, not standalone buildable parsers. Only expand dependencies that
+    # exist as real manifest-backed parser entries.
+    lib.filter (requiredParser: builtins.hasAttr requiredParser parserManifest.parsers) requires;
+
+  expandParserDependencies =
+    parserNames:
+    let
+      go =
+        seen: pending:
+        if pending == [ ] then
+          seen
+        else
+          let
+            parserName = builtins.head pending;
+            rest = builtins.tail pending;
+          in
+          if builtins.elem parserName seen then
+            go seen rest
+          else
+            go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
+    in
+    go [ ] parserNames;
+
   # Build a single parser from source using tree-sitter.buildGrammar
   buildParserFromSource =
     parserName:
@@ -100,12 +130,13 @@ in
           map (extraName: treesitterMappings.extras.${extraName} or [ ]) enabledExtraNames
         );
 
-        # Combine and deduplicate all parsers (keep as names, not packages)
-        allParsers = lib.unique (coreParsers ++ extraParsers ++ (map extractLang cfg.treesitterParsers));
+        requestedParsers = lib.unique (
+          coreParsers ++ extraParsers ++ (map extractLang cfg.treesitterParsers)
+        );
       in
-      allParsers
+      expandParserDependencies requestedParsers
     else
-      map extractLang cfg.treesitterParsers;
+      expandParserDependencies (map extractLang cfg.treesitterParsers);
 
   # Treesitter configuration - use nvim-treesitter's grammar plugins directly (for "nixpkgs" strategy)
   treesitterGrammars =
@@ -173,4 +204,6 @@ in
 
   # Check if parser manifest is available
   hasParserManifest = parserManifestExists && (parserManifest.parsers or { }) != { };
+
+  inherit expandParserDependencies;
 }

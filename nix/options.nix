@@ -24,7 +24,7 @@ with lib;
     default = "latest";
     description = ''
       Plugin source strategy:
-      - "latest": Build plugins/parsers to match LazyVim's pinned upstream sources and fail clearly when a parser is unavailable in the generated manifest
+      - "latest": Build plugins/parsers to match LazyVim's pinned upstream sources; manual treesitter parser selections must resolve to languages present in the generated parser manifest, and evaluation fails clearly when a requested parser is unavailable there
       - "nixpkgs": Prefer nixpkgs versions, fallback to source if unavailable
     '';
   };
@@ -67,6 +67,12 @@ with lib;
         - pkgs.vimPlugins.nvim-treesitter-parsers.* (recommended)
         - pkgs.vimPlugins.nvim-treesitter.grammarPlugins.*
         - pkgs.vimPlugins.nvim-treesitter.allGrammars (for all 324 parsers)
+
+      The package values are used to identify parser languages. When
+      programs.lazyvim.pluginSource = "latest", lazyvim-nix builds the actual
+      parser artifacts from data/parser-manifest.json so they stay aligned with
+      LazyVim's pinned nvim-treesitter queries. In that mode, manual parser
+      selections must resolve to languages that exist in the generated manifest.
 
       DEPRECATED: pkgs.tree-sitter-grammars is no longer supported.
       It has fewer grammars (131 vs 324) and may have compatibility issues.

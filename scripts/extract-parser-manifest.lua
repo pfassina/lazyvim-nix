@@ -3,7 +3,7 @@
 --        path to existing parser-manifest.json for caching (arg[2])
 --        output file path (arg[3])
 --        nvim-treesitter commit (arg[4])
--- Output: JSON file with parser name -> {url, revision, sha256, location?} mappings
+-- Output: JSON file with parser name -> {url, revision, sha256, location?, requires?} mappings
 
 local function read_file(path)
     local file = io.open(path, "r")
@@ -162,7 +162,25 @@ local function load_existing_manifest(path)
     return data
 end
 
-local function can_reuse_entry(existing, nvim_ts_commit, parser_name, expected_revision, expected_url, expected_location)
+local function arrays_equal(a, b)
+    if a == nil and b == nil then
+        return true
+    end
+    if type(a) ~= "table" or type(b) ~= "table" then
+        return false
+    end
+    if #a ~= #b then
+        return false
+    end
+    for i = 1, #a do
+        if a[i] ~= b[i] then
+            return false
+        end
+    end
+    return true
+end
+
+local function can_reuse_entry(existing, nvim_ts_commit, parser_name, expected_revision, expected_url, expected_location, expected_requires)
     if not existing then
         return false
     end
@@ -177,14 +195,19 @@ local function can_reuse_entry(existing, nvim_ts_commit, parser_name, expected_r
     return cached.revision == expected_revision
         and cached.url == expected_url
         and cached.location == expected_location
+        and arrays_equal(cached.requires, expected_requires)
         and cached.sha256 ~= nil
 end
 
 local function prefetch_parser(url, revision)
+    local quoted_url = string.format("%q", url)
+    local quoted_revision = string.format("%q", revision)
     local cmd = string.format(
-        "nix-prefetch-git --quiet --url '%s' --rev '%s' 2>/dev/null",
-        url,
-        revision
+        "sh -c 'if command -v nix-prefetch-git >/dev/null 2>&1; then exec nix-prefetch-git --quiet --url %s --rev %s 2>/dev/null; else exec nix run --quiet nixpkgs#nix-prefetch-git -- --quiet --url %s --rev %s 2>/dev/null; fi'",
+        quoted_url,
+        quoted_revision,
+        quoted_url,
+        quoted_revision
     )
 
     local handle = io.popen(cmd)
@@ -243,13 +266,15 @@ local function main()
         local url = info and info.url or nil
         local revision = info and info.revision or nil
         local location = info and info.location or nil
+        local requires = spec and spec.requires or nil
 
         if url and revision then
-            if can_reuse_entry(existing, nvim_ts_commit, parser_name, revision, url, location) then
+            if can_reuse_entry(existing, nvim_ts_commit, parser_name, revision, url, location, requires) then
                 result.parsers[parser_name] = existing.parsers[parser_name]
                 reusable_count = reusable_count + 1
             else
                 table.insert(prefetch_queue, {
+                    requires = requires,
                     location = location,
                     name = parser_name,
                     revision = revision,
@@ -280,6 +305,9 @@ local function main()
                 }
                 if task.location ~= nil then
                     result.parsers[task.name].location = task.location
+                end
+                if task.requires ~= nil and #task.requires > 0 then
+                    result.parsers[task.name].requires = task.requires
                 end
             else
                 error(string.format("Failed to prefetch parser '%s': %s", task.name, err or "unknown error"))

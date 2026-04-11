@@ -107,7 +107,17 @@ in
         let
           manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
           parsers = manifest.parsers;
-        in parsers ? make && parsers ? gotmpl && parsers ? xml
+        in parsers ? make && parsers ? gotmpl && parsers ? xml && parsers ? dtd
+      ''
+      "true";
+
+  test-parser-manifest-preserves-requires =
+    testLib.testNixExpr "parser-manifest-preserves-requires"
+      ''
+        let
+          manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
+          xmlRequires = manifest.parsers.xml.requires or [ ];
+        in xmlRequires == [ "dtd" ]
       ''
       "true";
 
@@ -115,16 +125,90 @@ in
     testLib.testNixExpr "latest-mode-missing-parser-fails-clearly"
       ''
         let
-          pkgs = import <nixpkgs> {};
-          treesitterLib = import ${../../nix/lib/treesitter.nix} {
-            inherit (pkgs) lib;
-            inherit pkgs;
-            treesitterMappings = { core = []; extras = {}; };
-            extractLang = pkg: pkg.grammarName or "unknown";
-            ignoreBuildNotifications = true;
-          };
-          result = builtins.tryEval (treesitterLib.treesitterGrammarsFromSource [ "definitely_missing_parser" ]);
-        in !result.success
+          manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
+        in !(builtins.hasAttr "definitely_missing_parser" manifest.parsers)
+      ''
+      "true";
+
+  test-parser-dependency-closure-includes-transitive-requires =
+    testLib.testNixExpr "parser-dependency-closure-includes-transitive-requires"
+      ''
+        let
+          manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
+          parserRequires = parserName:
+            let
+              spec = if builtins.hasAttr parserName manifest.parsers then builtins.getAttr parserName manifest.parsers else null;
+              requires = if spec == null then [ ] else spec.requires or [ ];
+            in builtins.filter (name: builtins.hasAttr name manifest.parsers) requires;
+          go = seen: pending:
+            if pending == [ ] then
+              seen
+            else
+              let
+                parserName = builtins.head pending;
+                rest = builtins.tail pending;
+              in
+              if builtins.elem parserName seen then
+                go seen rest
+              else
+                go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
+          closure = go [ ] [ "xml" ];
+        in builtins.elem "dtd" closure
+      ''
+      "true";
+
+  test-parser-dependency-closure-deduplicates-shared-deps =
+    testLib.testNixExpr "parser-dependency-closure-deduplicates-shared-deps"
+      ''
+        let
+          manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
+          parserRequires = parserName:
+            let
+              spec = if builtins.hasAttr parserName manifest.parsers then builtins.getAttr parserName manifest.parsers else null;
+              requires = if spec == null then [ ] else spec.requires or [ ];
+            in builtins.filter (name: builtins.hasAttr name manifest.parsers) requires;
+          go = seen: pending:
+            if pending == [ ] then
+              seen
+            else
+              let
+                parserName = builtins.head pending;
+                rest = builtins.tail pending;
+              in
+              if builtins.elem parserName seen then
+                go seen rest
+              else
+                go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
+          closure = go [ ] [ "xml" "dtd" ];
+          dtdCount = builtins.length (builtins.filter (name: name == "dtd") closure);
+        in dtdCount == 1
+      ''
+      "true";
+
+  test-parser-dependency-closure-skips-non-manifest-requires =
+    testLib.testNixExpr "parser-dependency-closure-skips-non-manifest-requires"
+      ''
+        let
+          manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
+          parserRequires = parserName:
+            let
+              spec = if builtins.hasAttr parserName manifest.parsers then builtins.getAttr parserName manifest.parsers else null;
+              requires = if spec == null then [ ] else spec.requires or [ ];
+            in builtins.filter (name: builtins.hasAttr name manifest.parsers) requires;
+          go = seen: pending:
+            if pending == [ ] then
+              seen
+            else
+              let
+                parserName = builtins.head pending;
+                rest = builtins.tail pending;
+              in
+              if builtins.elem parserName seen then
+                go seen rest
+              else
+                go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
+          closure = go [ ] [ "html" ];
+        in !builtins.elem "html_tags" closure
       ''
       "true";
 

@@ -123,6 +123,73 @@
       ''
       "true";
 
+  test-plugin-source-latest-skips-query-only-requires =
+    testLib.testNixExpr "plugin-source-latest-skips-query-only-requires"
+      ''
+        let
+          testConfig = {
+            config = {
+              home.homeDirectory = "/tmp/test";
+              home.username = "testuser";
+              home.stateVersion = "23.11";
+              programs.lazyvim = {
+                enable = true;
+                pluginSource = "latest";
+                treesitterParsers = with (import <nixpkgs> {}).vimPlugins.nvim-treesitter-parsers; [
+                  html
+                ];
+              };
+            };
+            lib = (import <nixpkgs> {}).lib;
+            pkgs = import <nixpkgs> {};
+          };
+          treesitterLib = import ${../../nix/lib/treesitter.nix} {
+            lib = testConfig.lib;
+            pkgs = testConfig.pkgs;
+            treesitterMappings = { core = [ ]; extras = { }; };
+            extractLang = parser: parser.grammarName or parser.language;
+            ignoreBuildNotifications = false;
+          };
+          parserNames = treesitterLib.automaticTreesitterParsers testConfig.config.programs.lazyvim [ ];
+        in builtins.elem "html" parserNames && !builtins.elem "html_tags" parserNames
+      ''
+      "true";
+
+  test-plugin-source-latest-missing-parser-fails-clearly =
+    testLib.testNixExpr "plugin-source-latest-missing-parser-fails-clearly"
+      ''
+        let
+          testConfig = {
+            config = {
+              home.homeDirectory = "/tmp/test";
+              home.username = "testuser";
+              home.stateVersion = "23.11";
+              programs.lazyvim = {
+                enable = true;
+                pluginSource = "latest";
+                treesitterParsers = [
+                  {
+                    grammarName = "definitely_missing_parser";
+                    name = "mock-definitely-missing-parser";
+                  }
+                ];
+              };
+            };
+            lib = (import <nixpkgs> {}).lib;
+            pkgs = import <nixpkgs> {};
+          };
+          treesitterLib = import ${../../nix/lib/treesitter.nix} {
+            lib = testConfig.lib;
+            pkgs = testConfig.pkgs;
+            treesitterMappings = { core = [ ]; extras = { }; };
+            extractLang = parser: parser.grammarName or parser.language;
+            ignoreBuildNotifications = false;
+          };
+          parserNames = treesitterLib.automaticTreesitterParsers testConfig.config.programs.lazyvim [ ];
+        in !(builtins.tryEval (treesitterLib.treesitterGrammarsFromSource parserNames)).success
+      ''
+      "true";
+
   # Test plugin source strategy "nixpkgs"
   test-plugin-source-nixpkgs = testLib.testNixExpr "plugin-source-nixpkgs" ''
     let
