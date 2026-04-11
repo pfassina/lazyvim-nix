@@ -1,5 +1,10 @@
 # LazyVim Nix module - Main entry point
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -32,36 +37,41 @@ let
   fileLib = import ./lib/file-scanning.nix { inherit lib pkgs config; };
 
   # Helper function to collect enabled extras
-  getEnabledExtras = extrasConfig:
+  getEnabledExtras =
+    extrasConfig:
     let
-      processCategory = categoryName: categoryExtras:
+      processCategory =
+        categoryName: categoryExtras:
         let
-          enabledInCategory = lib.filterAttrs (extraName: extraConfig:
-            extraConfig.enable or false
+          enabledInCategory = lib.filterAttrs (
+            extraName: extraConfig: extraConfig.enable or false
           ) categoryExtras;
         in
-          lib.mapAttrsToList (extraName: extraConfig:
-            let
-              # Normalize hyphens to underscores to match extras.json keys
-              normalizedName = builtins.replaceStrings ["-"] ["_"] extraName;
-              metadata = dataLib.extrasMetadata.${categoryName}.${normalizedName} or null;
-            in
-              if metadata != null then {
-                inherit (metadata) name category import;
-                config = extraConfig.config or "";
-                hasConfig = (extraConfig.config or "") != "";
-              } else
-                null
-          ) enabledInCategory;
+        lib.mapAttrsToList (
+          extraName: extraConfig:
+          let
+            # Normalize hyphens to underscores to match extras.json keys
+            normalizedName = builtins.replaceStrings [ "-" ] [ "_" ] extraName;
+            metadata = dataLib.extrasMetadata.${categoryName}.${normalizedName} or null;
+          in
+          if metadata != null then
+            {
+              inherit (metadata) name category import;
+              config = extraConfig.config or "";
+              hasConfig = (extraConfig.config or "") != "";
+            }
+          else
+            null
+        ) enabledInCategory;
 
       allCategories = lib.mapAttrsToList processCategory extrasConfig;
       flattenedExtras = lib.flatten allCategories;
       validExtras = lib.filter (x: x != null) flattenedExtras;
     in
-      validExtras;
+    validExtras;
 
   # Get list of enabled extras
-  enabledExtras = if cfg.enable then getEnabledExtras (cfg.extras or {}) else [];
+  enabledExtras = if cfg.enable then getEnabledExtras (cfg.extras or { }) else [ ];
 
   # Enabled extra identifiers (category.name) for downstream tooling
   enabledExtraNames = map (extra: "${extra.category}.${extra.name}") enabledExtras;
@@ -73,12 +83,14 @@ let
   systemPackages = dependenciesLib.systemPackages cfg enabledExtraNames;
 
   # Scan for user plugins from the default LazyVim config directory
-  userPlugins = if cfg.enable then
-    fileLib.scanUserPlugins "${config.home.homeDirectory}/.config/${cfg.appName}"
-  else [];
+  userPlugins =
+    if cfg.enable then
+      fileLib.scanUserPlugins "${config.home.homeDirectory}/.config/${cfg.appName}"
+    else
+      [ ];
 
   # Filter plugins by category: only build core plugins by default
-  corePlugins = builtins.filter (p: p.is_core or false) (dataLib.pluginData.plugins or []);
+  corePlugins = builtins.filter (p: p.is_core or false) (dataLib.pluginData.plugins or [ ]);
 
   # Get plugins from enabled extras only
   extrasPlugins =
@@ -90,10 +102,10 @@ let
       isExtraEnabled = plugin: builtins.elem (plugin.source_file or "") enabledExtrasFiles;
 
       # Get all non-core plugins (i.e., extras plugins)
-      allExtrasPlugins = builtins.filter (p: !(p.is_core or false)) (dataLib.pluginData.plugins or []);
+      allExtrasPlugins = builtins.filter (p: !(p.is_core or false)) (dataLib.pluginData.plugins or [ ]);
     in
-      # Only include extras that are enabled
-      builtins.filter isExtraEnabled allExtrasPlugins;
+    # Only include extras that are enabled
+    builtins.filter isExtraEnabled allExtrasPlugins;
 
   # Merge core plugins with enabled extras plugins and user plugins
   allPluginSpecs = corePlugins ++ extrasPlugins ++ userPlugins;
@@ -105,12 +117,12 @@ let
   # Must come from the same resolved list to match the parser strategy
   resolvedTreesitterPlugin =
     let
-      tsPlugins = lib.zipListsWith (spec: plugin:
-        if spec.name == "nvim-treesitter/nvim-treesitter" then plugin else null
+      tsPlugins = lib.zipListsWith (
+        spec: plugin: if spec.name == "nvim-treesitter/nvim-treesitter" then plugin else null
       ) allPluginSpecs resolvedPlugins;
       found = lib.findFirst (p: p != null) null tsPlugins;
     in
-      if found != null then found else pkgs.vimPlugins.nvim-treesitter;
+    if found != null then found else pkgs.vimPlugins.nvim-treesitter;
 
   # Create the dev path with proper symlinks
   devPath = devPathLib.createDevPath allPluginSpecs resolvedPlugins;
@@ -126,7 +138,7 @@ let
   # - "latest": Build parsers from source to match nvim-treesitter version
   # - "nixpkgs": Use nixpkgs grammarPlugins (current behavior)
   treesitterGrammars =
-    if cfg.pluginSource == "latest" && treesitterLib.hasParserRevisions then
+    if cfg.pluginSource == "latest" then
       treesitterLib.treesitterGrammarsFromSource automaticTreesitterParsers
     else
       treesitterLib.treesitterGrammars automaticTreesitterParsers;
@@ -136,7 +148,7 @@ let
   # filtering, nvim-treesitter's health check considers every language with a
   # query directory as "installed" and tries to validate its queries against a
   # parser that may not exist, producing thousands of false errors.
-  filteredQueries = pkgs.runCommand "treesitter-queries" {} ''
+  filteredQueries = pkgs.runCommand "treesitter-queries" { } ''
     mkdir -p $out
     querySrc="${resolvedTreesitterPlugin}/runtime/queries"
     parserDir="${treesitterGrammars}/parser"
@@ -185,7 +197,8 @@ let
   conflictChecks = fileLib.detectConflicts cfg scannedFiles;
   _ = if cfg.enable then conflictChecks else null;
 
-in {
+in
+{
   # Import module options
   options.programs.lazyvim = import ./options.nix { inherit lib; };
 
@@ -212,10 +225,10 @@ in {
     # Link treesitter parsers to the correct data directory
     # nvim-treesitter expects parsers at stdpath('data')/site/parser
     xdg.dataFile = {
-      "${cfg.appName}/site/parser" = mkIf (automaticTreesitterParsers != []) {
+      "${cfg.appName}/site/parser" = mkIf (automaticTreesitterParsers != [ ]) {
         source = "${treesitterGrammars}/parser";
       };
-      "${cfg.appName}/site/queries" = mkIf (automaticTreesitterParsers != []) {
+      "${cfg.appName}/site/queries" = mkIf (automaticTreesitterParsers != [ ]) {
         source = "${filteredQueries}";
       };
     };
@@ -225,51 +238,52 @@ in {
       "${cfg.appName}/init.lua".text = lazyConfig;
 
       # LazyVim config files - use configFiles if available, otherwise use string options
-      "${cfg.appName}/lua/config/autocmds.lua" = mkIf (
-        scannedFiles.configFiles ? autocmds || cfg.config.autocmds != ""
-      ) (
-        if scannedFiles.configFiles ? autocmds then
-          { source = scannedFiles.configFiles.autocmds.file; }
-        else
-          {
-            text = ''
-              -- User autocmds configured via Nix
-              ${cfg.config.autocmds}
-            '';
-          }
-      );
+      "${cfg.appName}/lua/config/autocmds.lua" =
+        mkIf (scannedFiles.configFiles ? autocmds || cfg.config.autocmds != "")
+          (
+            if scannedFiles.configFiles ? autocmds then
+              { source = scannedFiles.configFiles.autocmds.file; }
+            else
+              {
+                text = ''
+                  -- User autocmds configured via Nix
+                  ${cfg.config.autocmds}
+                '';
+              }
+          );
 
-      "${cfg.appName}/lua/config/keymaps.lua" = mkIf (
-        scannedFiles.configFiles ? keymaps || cfg.config.keymaps != ""
-      ) (
-        if scannedFiles.configFiles ? keymaps then
-          { source = scannedFiles.configFiles.keymaps.file; }
-        else
-          {
-            text = ''
-              -- User keymaps configured via Nix
-              ${cfg.config.keymaps}
-            '';
-          }
-      );
+      "${cfg.appName}/lua/config/keymaps.lua" =
+        mkIf (scannedFiles.configFiles ? keymaps || cfg.config.keymaps != "")
+          (
+            if scannedFiles.configFiles ? keymaps then
+              { source = scannedFiles.configFiles.keymaps.file; }
+            else
+              {
+                text = ''
+                  -- User keymaps configured via Nix
+                  ${cfg.config.keymaps}
+                '';
+              }
+          );
 
-      "${cfg.appName}/lua/config/options.lua" = mkIf (
-        scannedFiles.configFiles ? options || cfg.config.options != ""
-      ) (
-        if scannedFiles.configFiles ? options then
-          { source = scannedFiles.configFiles.options.file; }
-        else
-          {
-            text = ''
-              -- User options configured via Nix
-              ${cfg.config.options}
-            '';
-          }
-      );
+      "${cfg.appName}/lua/config/options.lua" =
+        mkIf (scannedFiles.configFiles ? options || cfg.config.options != "")
+          (
+            if scannedFiles.configFiles ? options then
+              { source = scannedFiles.configFiles.options.file; }
+            else
+              {
+                text = ''
+                  -- User options configured via Nix
+                  ${cfg.config.options}
+                '';
+              }
+          );
 
     }
     # Generate plugin configuration files from both sources
-    // (lib.mapAttrs' (name: content:
+    // (lib.mapAttrs' (
+      name: content:
       lib.nameValuePair "${cfg.appName}/lua/plugins/${name}.lua" {
         text = ''
           -- Plugin configuration for ${name} (configured via Nix)
@@ -278,7 +292,8 @@ in {
       }
     ) cfg.plugins)
     # Add plugin files from configFiles
-    // (lib.mapAttrs' (name: fileInfo:
+    // (lib.mapAttrs' (
+      name: fileInfo:
       lib.nameValuePair fileInfo.targetPath {
         source = fileInfo.file;
       }
@@ -288,17 +303,17 @@ in {
     # Add default plugin file when no plugins are defined to prevent LazyVim error
     // (
       let
-        hasUserPlugins = cfg.plugins != {} || scannedFiles.pluginFiles != {};
+        hasUserPlugins = cfg.plugins != { } || scannedFiles.pluginFiles != { };
       in
-        optionalAttrs (!hasUserPlugins) {
-          "${cfg.appName}/lua/plugins/_lazyvim_nix_default.lua" = {
-            text = ''
-              -- Default plugin specification to ensure plugins directory is valid
-              -- This prevents "No specs found for module 'plugins'" error
-              return {}
-            '';
-          };
-        }
+      optionalAttrs (!hasUserPlugins) {
+        "${cfg.appName}/lua/plugins/_lazyvim_nix_default.lua" = {
+          text = ''
+            -- Default plugin specification to ensure plugins directory is valid
+            -- This prevents "No specs found for module 'plugins'" error
+            return {}
+          '';
+        };
+      }
     )
     # Disable LazyVim's treesitter healthcheck - Nix provides pre-built parsers
     // {

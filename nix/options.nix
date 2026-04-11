@@ -17,18 +17,21 @@ with lib;
   };
 
   pluginSource = mkOption {
-    type = types.enum [ "latest" "nixpkgs" ];
+    type = types.enum [
+      "latest"
+      "nixpkgs"
+    ];
     default = "latest";
     description = ''
       Plugin source strategy:
-      - "latest": Use nixpkgs if it has the required version, otherwise build from source
+      - "latest": Build plugins/parsers to match LazyVim's pinned upstream sources and fail clearly when a parser is unavailable in the generated manifest
       - "nixpkgs": Prefer nixpkgs versions, fallback to source if unavailable
     '';
   };
 
   extraPackages = mkOption {
     type = types.listOf types.package;
-    default = [];
+    default = [ ];
     example = literalExpression ''
       with pkgs; [
         rust-analyzer
@@ -44,7 +47,7 @@ with lib;
 
   treesitterParsers = mkOption {
     type = types.listOf types.package;
-    default = [];
+    default = [ ];
     example = literalExpression ''
       with pkgs.vimPlugins.nvim-treesitter-parsers; [
         # Additional parsers beyond what LazyVim extras provide
@@ -153,7 +156,7 @@ with lib;
         };
       };
     };
-    default = {};
+    default = { };
     description = ''
       LazyVim configuration files. These map to the lua/config/ directory structure
       and are loaded by LazyVim automatically.
@@ -161,44 +164,48 @@ with lib;
   };
 
   extras = mkOption {
-    type = types.attrsOf (types.attrsOf (types.submodule {
-      options = {
-        enable = mkEnableOption "this LazyVim extra";
+    type = types.attrsOf (
+      types.attrsOf (
+        types.submodule {
+          options = {
+            enable = mkEnableOption "this LazyVim extra";
 
-        installDependencies = mkOption {
-          type = types.bool;
-          default = false;
-          description = ''
-            Whether to install the main tools for this extra.
+            installDependencies = mkOption {
+              type = types.bool;
+              default = false;
+              description = ''
+                Whether to install the main tools for this extra.
 
-            For example, for lang.python this would install tools like 'ruff'.
-            When false (default), tools must be provided via extraPackages.
-          '';
-        };
+                For example, for lang.python this would install tools like 'ruff'.
+                When false (default), tools must be provided via extraPackages.
+              '';
+            };
 
-        installRuntimeDependencies = mkOption {
-          type = types.bool;
-          default = false;
-          description = ''
-            Whether to install runtime dependencies for this extra's tools.
+            installRuntimeDependencies = mkOption {
+              type = types.bool;
+              default = false;
+              description = ''
+                Whether to install runtime dependencies for this extra's tools.
 
-            For example, for lang.python this would install python3 and pip.
-            When false (default), runtime dependencies must be available in PATH
-            or provided via extraPackages.
-          '';
-        };
+                For example, for lang.python this would install python3 and pip.
+                When false (default), runtime dependencies must be available in PATH
+                or provided via extraPackages.
+              '';
+            };
 
-        config = mkOption {
-          type = types.str;
-          default = "";
-          description = ''
-            Complete Lua plugin specification to override or extend this extra.
-            Should contain a complete lazy.nvim plugin spec with return statement.
-          '';
-        };
-      };
-    }));
-    default = {};
+            config = mkOption {
+              type = types.str;
+              default = "";
+              description = ''
+                Complete Lua plugin specification to override or extend this extra.
+                Should contain a complete lazy.nvim plugin spec with return statement.
+              '';
+            };
+          };
+        }
+      )
+    );
+    default = { };
     example = literalExpression ''
       {
         coding.yanky = {
@@ -270,7 +277,7 @@ with lib;
 
   plugins = mkOption {
     type = types.attrsOf types.str;
-    default = {};
+    default = { };
     example = literalExpression ''
       {
         custom-theme = '''
