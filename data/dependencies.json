@@ -191,6 +191,7 @@
     "lang.elm": [
       {
         "name": "elm-format",
+        "nixpkg": "elmPackages.elm-format",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -494,7 +495,6 @@
     "lang.typescript.biome": [
       {
         "name": "biome",
-        "nixpkg": "biome",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -514,7 +514,6 @@
     "lang.typescript.oxc": [
       {
         "name": "oxlint",
-        "nixpkg": "oxlint",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -530,7 +529,6 @@
       },
       {
         "name": "oxfmt",
-        "nixpkg": "oxfmt",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -545,7 +543,6 @@
     "lang.typescript.tsgo": [
       {
         "name": "tsgo",
-        "nixpkg": "typescript-go",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -560,7 +557,6 @@
     "lang.typescript.vtsls": [
       {
         "name": "vtsls",
-        "nixpkg": "vtsls",
         "runtime_dependencies": [
           {
             "name": "nodejs",
@@ -602,7 +598,7 @@
       }
     ]
   },
-  "generated": "2026-04-05 18:35:49",
-  "lazyvim_path": "/tmp/nix-shell.9qYsb6/tmp.xqSWs8Zjj4/LazyVim",
-  "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
+  "generated": "2026-05-05 12:42:14",
+  "lazyvim_path": "/tmp/nix-shell.NDHpsr/tmp.yA8Ie9h37a/LazyVim",
+  "mason_path": "/home/dacid44/Documents/code/lazyvim-nix/tmp/update-cache/mason-registry"
 }
