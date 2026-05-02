@@ -127,6 +127,8 @@ let
       # Priority: respect LazyVim's exact specifications first
       targetVersion = if lazyvimVersion != null && lazyvimVersion != "*" && lazyvimVersion != false then
         lazyvimVersion
+      else if lazyvimVersion == "*" && cfg.pluginSource == "nixpkgs" then
+        lazyvimVersion
       else if tagVersion != null then
         tagVersion
       else if latestVersion != null then
