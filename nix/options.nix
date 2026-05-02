@@ -26,6 +26,16 @@ with lib;
     '';
   };
 
+  treesitterSource = mkOption {
+    type = types.enum [ "latest" "nixpkgs" ];
+    default = "latest";
+    description = ''
+      Treesitter parser source strategy, independent of pluginSource.
+      - "latest": Build parsers from source to match nvim-treesitter main branch queries
+      - "nixpkgs": Use nixpkgs grammar plugins
+    '';
+  };
+
   extraPackages = mkOption {
     type = types.listOf types.package;
     default = [];
