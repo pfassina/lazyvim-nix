@@ -167,17 +167,31 @@ with lib;
         installDependencies = mkOption {
           type = types.bool;
           default = false;
-          description = "Whether to install the main tools for this extra.";
+          description = ''
+            Whether to install the main tools for this extra.
+
+            For example, for lang.python this would install tools like 'ruff'.
+            When false (default), tools must be provided via extraPackages.
+          '';
         };
         installRuntimeDependencies = mkOption {
           type = types.bool;
           default = false;
-          description = "Whether to install runtime dependencies for this extra's tools.";
+          description = ''
+            Whether to install runtime dependencies for this extra's tools.
+
+            For example, for lang.python this would install python3 and pip.
+            When false (default), runtime dependencies must be available in PATH
+            or provided via extraPackages.
+          '';
         };
         config = mkOption {
           type = types.str;
           default = "";
-          description = "Complete Lua plugin specification to override or extend this extra.";
+          description = ''
+            Complete Lua plugin specification to override or extend this extra.
+            Should contain a complete lazy.nvim plugin spec with return statement.
+          '';
         };
       };
 
