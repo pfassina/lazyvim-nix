@@ -34,31 +34,53 @@ let
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
     let
+      flattenExtras = categoryName: prefix: node:
+        let
+          isExtraEnabled = node.enable or false;
+          current = if isExtraEnabled then [{
+            name = prefix;
+            config = node.config or "";
+          }] else
+             [];
+          metaChildren = lib.filterAttrs(n: v:
+            builtins.isAttrs v && (v.is_nested or false) && lib.hasPrefix "${prefix}." n
+          ) (dataLib.extrasMetadata.${categoryName} or {});
+          nestedList = lib.mapAttrsToList (childName: _childConfig:
+            let
+              shortName = lib.removePrefix "${prefix}." childName;
+              nixName = builtins.replaceStrings ["_"] ["-"] shortName;
+              childNode = node.${nixName} or {};
+            in
+              flattenExtras categoryName childName childNode
+          ) metaChildren;
+        in current ++ builtins.concatLists nestedList;
+
       processCategory = categoryName: categoryExtras:
         let
-          enabledInCategory = lib.filterAttrs (extraName: extraConfig:
-            extraConfig.enable or false
-          ) categoryExtras;
-        in
-          lib.mapAttrsToList (extraName: extraConfig:
+          flatUserExtras = builtins.concatLists (lib.mapAttrsToList (topName: topConfig:
             let
-              # Normalize hyphens to underscores to match extras.json keys
-              normalizedName = builtins.replaceStrings ["-"] ["_"] extraName;
-              metadata = dataLib.extrasMetadata.${categoryName}.${normalizedName} or null;
+              normalizedName = builtins.replaceStrings ["-"] ["_"] topName;
+            in
+              flattenExtras categoryName normalizedName topConfig
+          ) categoryExtras);
+
+          resolvedExtras = map (item:
+            let
+              configPath = [ categoryName item.name ];
+              metadata = lib.attrByPath configPath null dataLib.extrasMetadata;
             in
               if metadata != null then {
                 inherit (metadata) name category import;
-                config = extraConfig.config or "";
-                hasConfig = (extraConfig.config or "") != "";
+                inherit (item) config;
+                hasConfig = item.config != "";
               } else
                 null
-          ) enabledInCategory;
+          ) flatUserExtras;
+        in builtins.filter (x: x != null) resolvedExtras;
 
       allCategories = lib.mapAttrsToList processCategory extrasConfig;
-      flattenedExtras = lib.flatten allCategories;
-      validExtras = lib.filter (x: x != null) flattenedExtras;
     in
-      validExtras;
+      lib.filter (x: x != null) (lib.flatten allCategories);
 
   # Get list of enabled extras
   enabledExtras = if cfg.enable then getEnabledExtras (cfg.extras or {}) else [];
@@ -187,7 +209,7 @@ let
 
 in {
   # Import module options
-  options.programs.lazyvim = import ./options.nix { inherit lib; };
+  options.programs.lazyvim = import ./options.nix { inherit lib dataLib; };
 
   config = mkIf cfg.enable {
     # Force evaluation of conflict checks (this will throw if conflicts exist)

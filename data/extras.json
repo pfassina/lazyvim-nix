@@ -3,46 +3,55 @@
     "avante": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.avante",
+      "is_nested": false,
       "name": "avante"
     },
     "claudecode": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.claudecode",
+      "is_nested": false,
       "name": "claudecode"
     },
     "codeium": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.codeium",
+      "is_nested": false,
       "name": "codeium"
     },
     "copilot": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.copilot",
+      "is_nested": false,
       "name": "copilot"
     },
     "copilot_chat": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.copilot-chat",
+      "is_nested": false,
       "name": "copilot-chat"
     },
     "copilot_native": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.copilot-native",
+      "is_nested": false,
       "name": "copilot-native"
     },
     "sidekick": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.sidekick",
+      "is_nested": false,
       "name": "sidekick"
     },
     "supermaven": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.supermaven",
+      "is_nested": false,
       "name": "supermaven"
     },
     "tabnine": {
       "category": "ai",
       "import": "lazyvim.plugins.extras.ai.tabnine",
+      "is_nested": false,
       "name": "tabnine"
     }
   },
@@ -50,41 +59,49 @@
     "blink": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.blink",
+      "is_nested": false,
       "name": "blink"
     },
     "luasnip": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.luasnip",
+      "is_nested": false,
       "name": "luasnip"
     },
     "mini_comment": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.mini-comment",
+      "is_nested": false,
       "name": "mini-comment"
     },
     "mini_snippets": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.mini-snippets",
+      "is_nested": false,
       "name": "mini-snippets"
     },
     "mini_surround": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.mini-surround",
+      "is_nested": false,
       "name": "mini-surround"
     },
     "neogen": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.neogen",
+      "is_nested": false,
       "name": "neogen"
     },
     "nvim_cmp": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.nvim-cmp",
+      "is_nested": false,
       "name": "nvim-cmp"
     },
     "yanky": {
       "category": "coding",
       "import": "lazyvim.plugins.extras.coding.yanky",
+      "is_nested": false,
       "name": "yanky"
     }
   },
@@ -92,11 +109,13 @@
     "core": {
       "category": "dap",
       "import": "lazyvim.plugins.extras.dap.core",
+      "is_nested": false,
       "name": "core"
     },
     "nlua": {
       "category": "dap",
       "import": "lazyvim.plugins.extras.dap.nlua",
+      "is_nested": false,
       "name": "nlua"
     }
   },
@@ -104,91 +123,109 @@
     "aerial": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.aerial",
+      "is_nested": false,
       "name": "aerial"
     },
     "dial": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.dial",
+      "is_nested": false,
       "name": "dial"
     },
     "fzf": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.fzf",
+      "is_nested": false,
       "name": "fzf"
     },
     "harpoon2": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.harpoon2",
+      "is_nested": false,
       "name": "harpoon2"
     },
     "illuminate": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.illuminate",
+      "is_nested": false,
       "name": "illuminate"
     },
     "inc_rename": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.inc-rename",
+      "is_nested": false,
       "name": "inc-rename"
     },
     "leap": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.leap",
+      "is_nested": false,
       "name": "leap"
     },
     "mini_diff": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.mini-diff",
+      "is_nested": false,
       "name": "mini-diff"
     },
     "mini_files": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.mini-files",
+      "is_nested": false,
       "name": "mini-files"
     },
     "mini_move": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.mini-move",
+      "is_nested": false,
       "name": "mini-move"
     },
     "navic": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.navic",
+      "is_nested": false,
       "name": "navic"
     },
     "neo_tree": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.neo-tree",
+      "is_nested": false,
       "name": "neo-tree"
     },
     "outline": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.outline",
+      "is_nested": false,
       "name": "outline"
     },
     "overseer": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.overseer",
+      "is_nested": false,
       "name": "overseer"
     },
     "refactoring": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.refactoring",
+      "is_nested": false,
       "name": "refactoring"
     },
     "snacks_explorer": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.snacks_explorer",
+      "is_nested": false,
       "name": "snacks_explorer"
     },
     "snacks_picker": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.snacks_picker",
+      "is_nested": false,
       "name": "snacks_picker"
     },
     "telescope": {
       "category": "editor",
       "import": "lazyvim.plugins.extras.editor.telescope",
+      "is_nested": false,
       "name": "telescope"
     }
   },
@@ -196,11 +233,13 @@
     "black": {
       "category": "formatting",
       "import": "lazyvim.plugins.extras.formatting.black",
+      "is_nested": false,
       "name": "black"
     },
     "prettier": {
       "category": "formatting",
       "import": "lazyvim.plugins.extras.formatting.prettier",
+      "is_nested": false,
       "name": "prettier"
     }
   },
@@ -208,246 +247,319 @@
     "angular": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.angular",
+      "is_nested": false,
       "name": "angular"
     },
     "ansible": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.ansible",
+      "is_nested": false,
       "name": "ansible"
     },
     "astro": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.astro",
+      "is_nested": false,
       "name": "astro"
     },
     "clangd": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.clangd",
+      "is_nested": false,
       "name": "clangd"
     },
     "clojure": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.clojure",
+      "is_nested": false,
       "name": "clojure"
     },
     "cmake": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.cmake",
+      "is_nested": false,
       "name": "cmake"
     },
     "dart": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.dart",
+      "is_nested": false,
       "name": "dart"
     },
     "docker": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.docker",
+      "is_nested": false,
       "name": "docker"
     },
     "dotnet": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.dotnet",
+      "is_nested": false,
       "name": "dotnet"
     },
     "elixir": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.elixir",
+      "is_nested": false,
       "name": "elixir"
     },
     "elm": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.elm",
+      "is_nested": false,
       "name": "elm"
     },
     "ember": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.ember",
+      "is_nested": false,
       "name": "ember"
     },
     "erlang": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.erlang",
+      "is_nested": false,
       "name": "erlang"
     },
     "git": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.git",
+      "is_nested": false,
       "name": "git"
     },
     "gleam": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.gleam",
+      "is_nested": false,
       "name": "gleam"
     },
     "go": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.go",
+      "is_nested": false,
       "name": "go"
     },
     "haskell": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.haskell",
+      "is_nested": false,
       "name": "haskell"
     },
     "helm": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.helm",
+      "is_nested": false,
       "name": "helm"
     },
     "java": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.java",
+      "is_nested": false,
       "name": "java"
     },
     "json": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.json",
+      "is_nested": false,
       "name": "json"
     },
     "julia": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.julia",
+      "is_nested": false,
       "name": "julia"
     },
     "kotlin": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.kotlin",
+      "is_nested": false,
       "name": "kotlin"
     },
     "lean": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.lean",
+      "is_nested": false,
       "name": "lean"
     },
     "markdown": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.markdown",
+      "is_nested": false,
       "name": "markdown"
     },
     "nix": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.nix",
+      "is_nested": false,
       "name": "nix"
     },
     "nushell": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.nushell",
+      "is_nested": false,
       "name": "nushell"
     },
     "ocaml": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.ocaml",
+      "is_nested": false,
       "name": "ocaml"
     },
     "php": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.php",
+      "is_nested": false,
       "name": "php"
     },
     "prisma": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.prisma",
+      "is_nested": false,
       "name": "prisma"
     },
     "python": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.python",
+      "is_nested": false,
       "name": "python"
     },
     "r": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.r",
+      "is_nested": false,
       "name": "r"
     },
     "rego": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.rego",
+      "is_nested": false,
       "name": "rego"
     },
     "ruby": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.ruby",
+      "is_nested": false,
       "name": "ruby"
     },
     "rust": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.rust",
+      "is_nested": false,
       "name": "rust"
     },
     "scala": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.scala",
+      "is_nested": false,
       "name": "scala"
     },
     "solidity": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.solidity",
+      "is_nested": false,
       "name": "solidity"
     },
     "sql": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.sql",
+      "is_nested": false,
       "name": "sql"
     },
     "svelte": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.svelte",
+      "is_nested": false,
       "name": "svelte"
     },
     "tailwind": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.tailwind",
+      "is_nested": false,
       "name": "tailwind"
     },
     "terraform": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.terraform",
+      "is_nested": false,
       "name": "terraform"
     },
     "tex": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.tex",
+      "is_nested": false,
       "name": "tex"
     },
     "thrift": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.thrift",
+      "is_nested": false,
       "name": "thrift"
     },
     "toml": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.toml",
+      "is_nested": false,
       "name": "toml"
-    },
-    "typescript": {
-      "category": "lang",
-      "import": "lazyvim.plugins.extras.lang.typescript",
-      "name": "typescript"
     },
     "twig": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.twig",
+      "is_nested": false,
       "name": "twig"
+    },
+    "typescript": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.typescript",
+      "is_nested": false,
+      "name": "typescript"
+    },
+    "typescript.biome": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.typescript.biome",
+      "is_nested": true,
+      "name": "typescript.biome"
+    },
+    "typescript.oxc": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.typescript.oxc",
+      "is_nested": true,
+      "name": "typescript.oxc"
+    },
+    "typescript.tsgo": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.typescript.tsgo",
+      "is_nested": true,
+      "name": "typescript.tsgo"
+    },
+    "typescript.vtsls": {
+      "category": "lang",
+      "import": "lazyvim.plugins.extras.lang.typescript.vtsls",
+      "is_nested": true,
+      "name": "typescript.vtsls"
     },
     "typst": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.typst",
+      "is_nested": false,
       "name": "typst"
     },
     "vue": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.vue",
+      "is_nested": false,
       "name": "vue"
     },
     "yaml": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.yaml",
+      "is_nested": false,
       "name": "yaml"
     },
     "zig": {
       "category": "lang",
       "import": "lazyvim.plugins.extras.lang.zig",
+      "is_nested": false,
       "name": "zig"
     }
   },
@@ -455,6 +567,7 @@
     "eslint": {
       "category": "linting",
       "import": "lazyvim.plugins.extras.linting.eslint",
+      "is_nested": false,
       "name": "eslint"
     }
   },
@@ -462,11 +575,13 @@
     "neoconf": {
       "category": "lsp",
       "import": "lazyvim.plugins.extras.lsp.neoconf",
+      "is_nested": false,
       "name": "neoconf"
     },
     "none_ls": {
       "category": "lsp",
       "import": "lazyvim.plugins.extras.lsp.none-ls",
+      "is_nested": false,
       "name": "none-ls"
     }
   },
@@ -474,6 +589,7 @@
     "core": {
       "category": "test",
       "import": "lazyvim.plugins.extras.test.core",
+      "is_nested": false,
       "name": "core"
     }
   },
@@ -481,46 +597,55 @@
     "alpha": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.alpha",
+      "is_nested": false,
       "name": "alpha"
     },
     "dashboard_nvim": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.dashboard-nvim",
+      "is_nested": false,
       "name": "dashboard-nvim"
     },
     "edgy": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.edgy",
+      "is_nested": false,
       "name": "edgy"
     },
     "indent_blankline": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.indent-blankline",
+      "is_nested": false,
       "name": "indent-blankline"
     },
     "mini_animate": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.mini-animate",
+      "is_nested": false,
       "name": "mini-animate"
     },
     "mini_indentscope": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.mini-indentscope",
+      "is_nested": false,
       "name": "mini-indentscope"
     },
     "mini_starter": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.mini-starter",
+      "is_nested": false,
       "name": "mini-starter"
     },
     "smear_cursor": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.smear-cursor",
+      "is_nested": false,
       "name": "smear-cursor"
     },
     "treesitter_context": {
       "category": "ui",
       "import": "lazyvim.plugins.extras.ui.treesitter-context",
+      "is_nested": false,
       "name": "treesitter-context"
     }
   },
@@ -528,46 +653,55 @@
     "chezmoi": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.chezmoi",
+      "is_nested": false,
       "name": "chezmoi"
     },
     "dot": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.dot",
+      "is_nested": false,
       "name": "dot"
     },
     "gh": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.gh",
+      "is_nested": false,
       "name": "gh"
     },
     "gitui": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.gitui",
+      "is_nested": false,
       "name": "gitui"
     },
     "mini_hipatterns": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.mini-hipatterns",
+      "is_nested": false,
       "name": "mini-hipatterns"
     },
     "octo": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.octo",
+      "is_nested": false,
       "name": "octo"
     },
     "project": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.project",
+      "is_nested": false,
       "name": "project"
     },
     "rest": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.rest",
+      "is_nested": false,
       "name": "rest"
     },
     "startuptime": {
       "category": "util",
       "import": "lazyvim.plugins.extras.util.startuptime",
+      "is_nested": false,
       "name": "startuptime"
     }
   }

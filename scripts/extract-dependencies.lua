@@ -411,6 +411,7 @@ local function resolve_package_name(dep_name)
         gleam = "gleam",
         tinymist = "tinymist",
         ["haskell-language-server"] = "haskell-language-server",
+        jsonls = "vscode-langservers-extracted",
 
         -- Go tools with direct names
         gopls = "gopls",
@@ -430,6 +431,12 @@ local function resolve_package_name(dep_name)
         -- Node packages (top-level in nixpkgs)
         prettier = "prettier",
         eslint = "eslint",
+        biome = "biome",
+        oxlint = "oxlint",
+        oxfmt = "oxfmt",
+        tsgo = "typescript-go",
+        tsgolint = "tsgolint",
+        vtsls = "vtsls",
 
         -- Debug adapters
         codelldb = "vscode-extensions.vadimcn.vscode-lldb",

@@ -49,8 +49,7 @@
             # Split "category.name" into parts to access cfg.extras
             parts = lib.splitString "." extraName;
             category = lib.head parts;
-            name = lib.last parts;
-            extraConfig = cfg.extras.${category}.${name} or {};
+            extraConfig = lib.attrByPath (lib.tail parts) {} cfg.extras.${category};
             extraTools = dependencies.extras.${extraName} or [];
 
             # Check installation options

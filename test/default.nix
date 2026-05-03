@@ -70,7 +70,8 @@ let
   unitTests = import ./unit { inherit pkgs testLib moduleUnderTest; };
   integrationTests = import ./integration/simple.nix { inherit pkgs testLib moduleUnderTest; } //
                      import ./integration/critical.nix { inherit pkgs testLib moduleUnderTest; } //
-                     import ./integration/issue33-fix.nix { inherit pkgs testLib moduleUnderTest; };
+                     import ./integration/issue33-fix.nix { inherit pkgs testLib moduleUnderTest; } //
+                     import ./integration/nested-extras.nix { inherit pkgs testLib moduleUnderTest; };
   propertyTests = import ./property/simple.nix { inherit pkgs testLib moduleUnderTest; };
   regressionTests = import ./regression/simple.nix { inherit pkgs testLib moduleUnderTest; } //
                     import ./regression/lazyvim-compliance.nix { inherit pkgs testLib moduleUnderTest; } //
