@@ -2,61 +2,39 @@
 { lib, pkgs, config }:
 
 {
-  # Function to scan user plugins from LazyVim configuration
   scanUserPlugins = config_path:
     let
-      # Use Nix to call the Lua scanner script
-      scanResult = pkgs.runCommand "scan-user-plugins" {
-        buildInputs = [ pkgs.lua pkgs.neovim pkgs.luaPackages.luv ];
-      } ''
-        # Copy scanner script to build directory
-        cp ${../../scripts/scan-user-plugins.lua} scan-user-plugins.lua
-
-        # Create a simple Lua runner script
-        cat > run-scanner.lua << 'EOF'
-        -- Initialize vim.loop for the scanner
-        _G.vim = _G.vim or {}
-        vim.loop = vim.loop or require('luv')
-
-        -- Load the scanner
-        local scanner = dofile('scan-user-plugins.lua')
-
-        -- Scan for user plugins
-        local user_plugins = scanner.scan_user_plugins("${config_path}")
-
-        -- Output as JSON-like format for Nix to parse
-        local function to_json_array(plugins)
-          local result = "["
-          for i, plugin in ipairs(plugins) do
-            if i > 1 then result = result .. "," end
-            result = result .. string.format(
-              '{"name":"%s","owner":"%s","repo":"%s","source_file":"%s","user_plugin":true}',
-              plugin.name, plugin.owner, plugin.repo, plugin.source_file
-            )
-          end
-          result = result .. "]"
-          return result
-        end
-
-        -- Write result to Nix output path
-        local output_path = os.getenv("out")
-        local file = io.open(output_path, "w")
-        file:write(to_json_array(user_plugins))
-        file:close()
-        EOF
-
-        # Default to empty array (handles early returns in Lua scanner)
-        echo "[]" > $out
-
-        # Run the scanner if config path exists (overwrites default on success)
-        if [ -d "${config_path}" ]; then
-          lua run-scanner.lua 2>/dev/null || true
-        fi
-      '';
-      userPluginsJson = builtins.readFile scanResult;
-      userPluginsList = if userPluginsJson == "[]" then [] else builtins.fromJSON userPluginsJson;
+      pluginsDir = config_path + "/lua/plugins";
     in
-      userPluginsList;
+      if !builtins.pathExists pluginsDir then []
+      else let
+        luaFiles = lib.filter
+          (p: lib.hasSuffix ".lua" (toString p))
+          (lib.filesystem.listFilesRecursive pluginsDir);
+
+        tokenRe = ''"([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)"'';
+
+        extractFromFile = p:
+          let
+            content = builtins.readFile p;
+            matches = builtins.filter builtins.isList
+              (builtins.split tokenRe content);
+            names = lib.unique (map (m: builtins.head m) matches);
+          in map (name:
+            let parts = lib.splitString "/" name; in {
+              inherit name;
+              owner = builtins.elemAt parts 0;
+              repo  = builtins.elemAt parts 1;
+              source_file = baseNameOf (toString p);
+              user_plugin = true;
+            }
+          ) names;
+
+        all = lib.concatMap extractFromFile luaFiles;
+        dedup = lib.foldl' (acc: p:
+          if lib.any (q: q.name == p.name) acc then acc else acc ++ [p]
+        ) [] all;
+      in lib.sort (a: b: a.name < b.name) dedup;
 
   # Helper function to scan config files from a directory
   scanConfigFiles = configPath: appName:
