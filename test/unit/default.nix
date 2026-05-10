@@ -76,8 +76,9 @@ let
 # Import additional unit tests
 devPathTests = import ./dev-path.nix { inherit pkgs testLib moduleUnderTest; };
 treesitterTests = import ./treesitter-parsers.nix { inherit pkgs testLib moduleUnderTest; };
+scanUserPluginsTests = import ./scan-user-plugins.nix { inherit pkgs testLib moduleUnderTest; };
 
-in devPathTests // treesitterTests // {
+in devPathTests // treesitterTests // scanUserPluginsTests // {
   # Test plugin name resolution
   test-plugin-name-resolution-automatic = testLib.testNixExpr
     "plugin-name-resolution-automatic"
