@@ -7,6 +7,7 @@ let
   moduleNixExists = builtins.pathExists ../../nix/module.nix;
   flakeNixExists = builtins.pathExists ../../flake.nix;
   pluginMappingsExists = builtins.pathExists ../../data/mappings.json;
+  parserManifestExists = builtins.pathExists ../../data/parser-manifest.json;
 
   # Load and parse plugins.json
   pluginsData = if pluginsJsonExists then
@@ -28,7 +29,8 @@ in {
         moduleExists = ${if moduleNixExists then "true" else "false"};
         pluginsExists = ${if pluginsJsonExists then "true" else "false"};
         mappingsExists = ${if pluginMappingsExists then "true" else "false"};
-      in flakeExists && moduleExists && pluginsExists && mappingsExists
+        parserManifestExists = ${if parserManifestExists then "true" else "false"};
+      in flakeExists && moduleExists && pluginsExists && mappingsExists && parserManifestExists
     ''
     "true";
 

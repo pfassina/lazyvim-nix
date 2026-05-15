@@ -33,14 +33,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          REVISIONS_FILE="data/parser-revisions.json"
+          REVISIONS_FILE="data/parser-manifest.json"
 
           # Nix expression returning individual fetchgit derivations per parser.
           # Uses fetchSubmodules = false to match nix/lib/treesitter.nix.
           cat > verify-parsers.nix << 'EOF'
           let
             pkgs = import <nixpkgs> {};
-            revisions = builtins.fromJSON (builtins.readFile ./data/parser-revisions.json);
+            revisions = builtins.fromJSON (builtins.readFile ./data/parser-manifest.json);
             fetchParser = name: parser: pkgs.fetchgit {
               url = parser.url;
               rev = parser.revision;
@@ -131,4 +131,4 @@ jobs:
           branch: fix-parser-hashes
           delete-branch: true
           add-paths: |
-            data/parser-revisions.json
+            data/parser-manifest.json
