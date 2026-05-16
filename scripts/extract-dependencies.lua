@@ -412,6 +412,8 @@ local function resolve_package_name(dep_name)
         tinymist = "tinymist",
         ["haskell-language-server"] = "haskell-language-server",
         jsonls = "vscode-langservers-extracted",
+        ["elm-format"] = "elmPackages.elm-format",
+        ["elm-language-server"] = "elmPackages.elm-language-server",
 
         -- Go tools with direct names
         gopls = "gopls",

@@ -191,6 +191,7 @@
     "lang.elm": [
       {
         "name": "elm-format",
+        "nixpkg": "elmPackages.elm-format",
         "runtime_dependencies": [
           {
             "name": "nodejs",
