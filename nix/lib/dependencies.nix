@@ -22,6 +22,10 @@
             else if ignoreBuildNotifications then null
             else builtins.trace "Warning: Package '${pkgName}' not found in nixpkgs" null;
 
+        # Package managers that are intentionally not mapped to nixpkgs
+        # (mirrors the exclusion list in scripts/extract-dependencies.lua)
+        knownPackageManagers = [ "pip" "npm" "composer" "luarocks" "opam" "gem" ];
+
         # Helper function to warn about unmapped tools
         warnUnmappedTool = toolName: extraName:
           if ignoreBuildNotifications then null
@@ -74,9 +78,11 @@
                     if tool ? runtime_dependencies then map (dep:
                       if dep ? nixpkg then
                         resolvePackage dep.nixpkg
+                      else if builtins.elem dep.name knownPackageManagers then
+                        null  # Package managers are intentionally unmapped
                       else if ignoreBuildNotifications then null
                       else
-                        builtins.trace "Info: Runtime dependency '${dep.name}' for tool '${tool.name}' in '${extraName}' has no nixpkg mapping (may be a package manager like pip/npm)" null
+                        builtins.trace "Info: Runtime dependency '${dep.name}' for tool '${tool.name}' in '${extraName}' has no nixpkg mapping" null
                     ) tool.runtime_dependencies else []
                   ) extraTools))
                 else [];

@@ -443,6 +443,15 @@ local function resolve_package_name(dep_name)
         -- Debug adapters
         codelldb = "vscode-extensions.vadimcn.vscode-lldb",
 
+        -- .NET tools
+        fsautocomplete = "fsautocomplete",
+        csharpier = "csharpier",
+        netcoredbg = "netcoredbg",
+        fantomas = "fantomas",
+
+        -- CSS tools
+        tailwindcss = "tailwindcss",
+
         -- Runtime packages
         nodejs = "nodejs",
         cargo = "cargo",
