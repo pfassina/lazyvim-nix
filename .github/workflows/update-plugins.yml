@@ -76,6 +76,12 @@ jobs:
           echo "Current starter: $CURRENT_STARTER"
           echo "Latest starter: $LATEST_STARTER"
 
+          if [ "$CURRENT_STARTER" != "$LATEST_STARTER" ]; then
+            echo "starter_updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "starter_updated=false" >> $GITHUB_OUTPUT
+          fi
+
           if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ] || [ "$CURRENT_STARTER" != "$LATEST_STARTER" ]; then
             echo "update_needed=true" >> $GITHUB_OUTPUT
             echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
@@ -148,7 +154,7 @@ jobs:
             ## Changes
             - Updated `data/plugins.json` with latest LazyVim plugin list
             - Updated `data/extras.json` with latest LazyVim extras metadata
-            - Updated `data/starter-lazy.lua` with latest LazyVim starter config
+            ${{ steps.check-updates.outputs.starter_updated == 'true' && '- Updated `data/starter-lazy.lua` with latest LazyVim starter config' || '' }}
             - LazyVim version: ${{ steps.check-updates.outputs.latest_version }}
             - Starter commit: ${{ steps.check-updates.outputs.latest_starter }}
             ${{ steps.update-plugins.outputs.has_verified_mappings == 'true' && '- Added new verified plugin mappings to `data/mappings.json`' || '' }}
@@ -174,7 +180,6 @@ jobs:
             data/mappings.json
             data/extras.json
             data/dependencies.json
-            data/dependencies-verification-report.json
             data/mapping-analysis-report.md
             data/starter-lazy.lua
             data/starter-version.txt
