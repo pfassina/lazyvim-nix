@@ -23,6 +23,7 @@ Thumbs.db
 
 # Generated analysis reports
 data/mapping-analysis-report.md
+data/dependencies-verification-report.json
 
 # Test artifacts
 /test/temp/
