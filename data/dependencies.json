@@ -221,8 +221,8 @@
         ]
       },
       {
-        "name": "gofumpt",
-        "nixpkg": "gofumpt",
+        "name": "goimports",
+        "nixpkg": "go",
         "runtime_dependencies": [
           {
             "name": "go",
@@ -231,8 +231,8 @@
         ]
       },
       {
-        "name": "goimports",
-        "nixpkg": "go",
+        "name": "gofumpt",
+        "nixpkg": "gofumpt",
         "runtime_dependencies": [
           {
             "name": "go",
@@ -527,7 +527,8 @@
         ]
       },
       {
-        "name": "fixKind"
+        "name": "git",
+        "nixpkg": "git"
       },
       {
         "name": "oxfmt",
@@ -603,7 +604,7 @@
       }
     ]
   },
-  "generated": "2026-04-05 18:35:49",
-  "lazyvim_path": "/tmp/nix-shell.9qYsb6/tmp.xqSWs8Zjj4/LazyVim",
+  "generated": "2026-06-04 16:58:52",
+  "lazyvim_path": "/tmp/nix-shell.KEYijX/tmp.DxgA5z4V1X/LazyVim",
   "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
 }
