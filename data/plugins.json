@@ -1652,11 +1652,12 @@
         "CmdlineEnter"
       ],
       "version_info": {
-        "commit": "d2c4d170ad51e5116da7b19f2426f3b6e318161d",
+        "commit": "78336bc89ee5365633bcf754d93df01678b5c08f",
         "lazyvim_version": "*",
         "lazyvim_version_type": "version",
-        "sha256": "00x2lkaknbaqf4x0qgqfafw45rj84bh3h31csslhwhw4qpxp4lrn",
-        "fetched_at": "2026-06-04T16:58:25Z"
+        "tag": "v1.10.2",
+        "sha256": "1nz8f8sh4q5dg0nr4jip1hx9sqn6sxim1hvvfi6pwzrldk46jl8b",
+        "fetched_at": "2026-06-07T00:00:00Z"
       }
     },
     {
