@@ -14,28 +14,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: nixbuild/nix-quick-install-action@v34
 
       - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v8
+        uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-test-${{ hashFiles('**/*.nix', 'flake.lock', 'data/**') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-test-
+          gc-max-store-size-linux: 4G
 
       - name: Run test suite
         run: nix-build test/ -A runAll
+        env:
+          # test/default.nix imports <nixpkgs>; resolve it via the flake registry
+          NIX_PATH: nixpkgs=flake:nixpkgs
 
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: nixbuild/nix-quick-install-action@v34
 
       - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v8
+        uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('**/*.nix', 'flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          gc-max-store-size-linux: 2G
 
       - name: statix
         run: nix run nixpkgs#statix -- check .
@@ -47,13 +58,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v16
+        uses: nixbuild/nix-quick-install-action@v34
 
       - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v8
+        uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-flake-check-${{ hashFiles('**/*.nix', 'flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-flake-check-
+          gc-max-store-size-linux: 2G
 
       - name: nix flake check
         run: nix flake check
