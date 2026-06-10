@@ -1,5 +1,5 @@
 # LazyVim specification compliance tests
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
   # Load plugins.json at evaluation time

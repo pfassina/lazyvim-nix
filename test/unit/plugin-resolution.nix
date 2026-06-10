@@ -1,10 +1,10 @@
 # Unit tests for plugin name resolution and plugin building
 # These tests import the real implementation from nix/lib/ and verify its
 # behavior - they intentionally do not re-implement any module logic.
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 
   # Fixture mappings exercising both mapping shapes (string and multi-module)
   fixtureMappings = {

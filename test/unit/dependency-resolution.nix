@@ -1,10 +1,10 @@
 # Unit tests for dependency resolution logic
 # Imports the real nix/lib/dependencies.nix and verifies systemPackages
 # against mock dependency data and the real nixpkgs package set.
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 
   # Mock dependencies.json data for testing
   mockDependencies = {

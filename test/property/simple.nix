@@ -1,5 +1,5 @@
 # Simplified property tests for edge cases
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
 {
   # Test empty plugin name handling

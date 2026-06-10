@@ -1,5 +1,5 @@
 # Simplified end-to-end tests
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
 {
   # Test that lazy.nvim is in the plugin list

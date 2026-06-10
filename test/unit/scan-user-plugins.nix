@@ -1,14 +1,11 @@
 # Unit tests for the pure-Nix scanUserPlugins implementation
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 
   # The real file scanning library under test
-  fileScanning = import ../../nix/lib/file-scanning.nix {
-    inherit lib pkgs;
-    config = { };
-  };
+  fileScanning = import ../../nix/lib/file-scanning.nix { inherit lib; };
 
   inherit (fileScanning) scanUserPlugins scanConfigFiles detectConflicts;
 

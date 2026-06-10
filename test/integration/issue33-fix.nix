@@ -1,5 +1,5 @@
 # Test for issue #33 fix - minimal configuration should create default plugin file
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
 {
   # Test that minimal config creates default plugin file to prevent LazyVim error

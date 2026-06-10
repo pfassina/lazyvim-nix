@@ -1,10 +1,10 @@
 # Unit tests for dev path creation and symlink handling
 # Imports the real nix/lib/dev-path.nix, builds an actual dev path derivation
 # from fake plugin packages, and inspects the resulting symlinks.
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 
   fixtureMappings = {
     "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };

@@ -112,7 +112,6 @@ let
       latestVersion = versionInfo.latest_version or null;
       tagVersion = versionInfo.tag or null;
       commitVersion = versionInfo.commit or null;
-      branchVersion = versionInfo.branch or null;
       nixpkgsVersion = if nixPlugin != null then
         nixPlugin.src.rev or nixPlugin.version or null
       else null;
@@ -120,8 +119,6 @@ let
       # Determine LazyVim-specified source requirements
       lazyvimRequiresBranch = lazyvimVersionType == "branch";
       lazyvimRequiresNoReleases = lazyvimVersion == false; # version = false
-      lazyvimHasSpecificCommit = lazyvimVersionType == "commit";
-      lazyvimHasSpecificTag = lazyvimVersionType == "tag";
 
       # Determine target version based on LazyVim specifications
       # Priority: respect LazyVim's exact specifications first
