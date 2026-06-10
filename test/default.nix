@@ -37,6 +37,31 @@ let
       ${drv} && echo "Build successful"
     '';
 
+    # Helper to test evaluated Nix values (compile-time evaluation)
+    # Unlike testNixExpr, this takes a real Nix value - typically the result of
+    # calling actual module code - so tests exercise the real implementation.
+    testEval = name: value: expectedResult:
+      let
+        normalize = val:
+          if builtins.isBool val then (if val then "true" else "false")
+          else toString val;
+        result = builtins.tryEval (normalize value);
+        expected = normalize expectedResult;
+        actual = if result.success then result.value else "evaluation failed";
+      in
+        if result.success && actual == expected then
+          pkgs.runCommand "test-eval-${name}" {} ''
+            echo "✓ ${name} PASSED: ${actual}"
+            touch $out
+          ''
+        else
+          pkgs.runCommand "test-eval-${name}" {} ''
+            echo "✗ ${name} FAILED"
+            echo "  Expected: ${expected}"
+            echo "  Got: ${actual}"
+            exit 1
+          '';
+
     # Helper to test Nix expressions (compile-time evaluation)
     testNixExpr = name: expr: expectedResult:
       let

@@ -1,532 +1,178 @@
 # Unit tests for treesitter parser resolution
+# Imports the real nix/lib/treesitter.nix and nix/lib/data-loading.nix and
+# verifies parser derivation, dependency expansion, and extractLang behavior.
 { pkgs, testLib, moduleUnderTest }:
 
 let
-  # Test treesitter mappings data
-  testTreesitterMappings = {
-    core = [
-      "bash" "c" "diff" "html" "javascript" "jsdoc" "json" "jsonc"
-      "lua" "luadoc" "luap" "markdown" "markdown_inline" "printf"
-      "python" "query" "regex" "toml" "tsx" "typescript"
-      "vim" "vimdoc" "xml" "yaml"
-    ];
+  lib = pkgs.lib;
+
+  # The real data loading library (provides extractLang)
+  dataLib = import ../../nix/lib/data-loading.nix { inherit lib pkgs; };
+  inherit (dataLib) extractLang;
+
+  # Fixture treesitter mappings (shape of data/treesitter.json)
+  fixtureTreesitterMappings = {
+    core = [ "lua" "vim" "query" ];
     extras = {
       "lang.rust" = [ "rust" "ron" ];
-      "lang.go" = [ "go" "gomod" "gowork" "gosum" ];
-      "lang.python" = [ "ninja" "rst" ];
-      "lang.nix" = [ "nix" ];
-      "lang.typescript" = [ ]; # Some extras might not add extra parsers
+      "lang.go" = [ "go" "gomod" ];
+      "lang.typescript" = [ ]; # Extras may add no parsers
     };
   };
 
-  # Mock enabled extras configurations
-  testExtrasConfig = {
-    lang = {
-      rust = { enable = true; };
-      python = { enable = true; };
-      nix = { enable = false; }; # Disabled
-      typescript = { enable = true; }; # No extra parsers
-    };
+  # The real treesitter library under test
+  tsLib = import ../../nix/lib/treesitter.nix {
+    inherit lib pkgs;
+    treesitterMappings = fixtureTreesitterMappings;
+    inherit extractLang;
+    ignoreBuildNotifications = true;
   };
 
-  # Helper function to derive automatic parsers (simplified from module logic)
-  deriveAutomaticParsers = extrasConfig: treesitterMappings: manualParsers:
-    let
-      # Get enabled extra names in "category.name" format
-      enabledExtraNames = pkgs.lib.flatten (pkgs.lib.mapAttrsToList (category: extras:
-        pkgs.lib.mapAttrsToList (name: extraConfig:
-          pkgs.lib.optional (extraConfig.enable or false) "${category}.${name}"
-        ) extras
-      ) extrasConfig);
+  inherit (tsLib) automaticTreesitterParsers expandParserDependencies;
 
-      # Core parsers are always included
-      coreParsers = treesitterMappings.core or [];
+  baseCfg = {
+    enable = true;
+    treesitterParsers = [ ];
+  };
 
-      # Extra parsers based on enabled extras
-      extraParsers = pkgs.lib.flatten (map (extraName:
-        treesitterMappings.extras.${extraName} or []
-      ) enabledExtraNames);
+  coreOnlyParsers = automaticTreesitterParsers baseCfg [ ];
 
-      # Combine and deduplicate all parsers
-      allParsers = pkgs.lib.unique (coreParsers ++ extraParsers ++ manualParsers);
-    in
-      allParsers;
+  # Real shipped parser manifest (used by expandParserDependencies)
+  parserManifest = builtins.fromJSON (builtins.readFile ../../data/parser-manifest.json);
 
 in {
-  # Test core parsers are always included
-  test-core-parsers-always-included = testLib.testNixExpr
+  # Core parsers are always included
+  test-core-parsers-always-included = testLib.testEval
     "core-parsers-always-included"
-    ''
-      let
-        coreParsers = [
-          "bash" "c" "diff" "html" "javascript" "jsdoc" "json" "jsonc"
-          "lua" "luadoc" "luap" "markdown" "markdown_inline" "printf"
-          "python" "query" "regex" "toml" "tsx" "typescript"
-          "vim" "vimdoc" "xml" "yaml"
-        ];
-        # Core parsers should be present even with no extras enabled
-        coreCount = builtins.length coreParsers;
-      in coreCount == 24
-    ''
-    "true";
+    (builtins.all (p: builtins.elem p coreOnlyParsers) fixtureTreesitterMappings.core)
+    true;
 
-  # Test enabled extras add their parsers
-  test-enabled-extras-add-parsers = testLib.testNixExpr
+  # Enabled extras add their parsers
+  test-enabled-extras-add-parsers = testLib.testEval
     "enabled-extras-add-parsers"
-    ''
-      let
-        # Simulate rust extra being enabled
-        enabledExtras = ["lang.rust"];
-        rustParsers = ["rust" "ron"];
-        allParsers = [ "bash" "c" "diff" "html" "javascript" "jsdoc" "json" "jsonc" "lua" "luadoc" "luap" "markdown" "markdown_inline" "printf" "python" "query" "regex" "toml" "tsx" "typescript" "vim" "vimdoc" "xml" "yaml" ] ++ rustParsers;
-        hasRust = builtins.elem "rust" allParsers;
-        hasRon = builtins.elem "ron" allParsers;
-      in hasRust && hasRon
-    ''
-    "true";
+    (let parsers = automaticTreesitterParsers baseCfg [ "lang.rust" ];
+     in builtins.elem "rust" parsers && builtins.elem "ron" parsers)
+    true;
 
-  # Test disabled extras don't add parsers
-  test-disabled-extras-no-parsers = testLib.testNixExpr
+  # Extras that are not enabled contribute no parsers
+  test-disabled-extras-no-parsers = testLib.testEval
     "disabled-extras-no-parsers"
-    ''
-      let
-        # Nix extra is disabled, so "nix" parser shouldn't be in enabled list
-        enabledExtras = ["lang.rust" "lang.python"]; # nix not enabled
-        nixParserShouldBeAbsent = ! (builtins.elem "lang.nix" enabledExtras);
-      in nixParserShouldBeAbsent
-    ''
-    "true";
+    (builtins.elem "rust" coreOnlyParsers)
+    false;
 
-  # Test manual parsers are merged with automatic ones
-  test-manual-parsers-merged = testLib.testNixExpr
-    "manual-parsers-merged"
-    ''
-      let
-        coreParsers = ["lua" "vim"];
-        extraParsers = ["rust"];
-        manualParsers = ["wgsl" "custom"];
-        allParsers = coreParsers ++ extraParsers ++ manualParsers;
-        hasManual = builtins.elem "wgsl" allParsers && builtins.elem "custom" allParsers;
-        hasCore = builtins.elem "lua" allParsers;
-        hasExtra = builtins.elem "rust" allParsers;
-      in hasManual && hasCore && hasExtra
-    ''
-    "true";
-
-  # Test deduplication works correctly
-  test-parser-deduplication = testLib.testNixExpr
-    "parser-deduplication"
-    ''
-      let
-        # python is in core, but user also specifies it manually
-        coreParsers = ["python" "lua"];
-        manualParsers = ["python" "custom"]; # duplicate python
-        combined = coreParsers ++ manualParsers;
-        deduplicated = builtins.foldl' (acc: item:
-          if builtins.elem item acc then acc else acc ++ [item]
-        ) [] combined;
-        pythonCount = builtins.length (builtins.filter (x: x == "python") combined);
-        deduplicatedPythonCount = builtins.length (builtins.filter (x: x == "python") deduplicated);
-      in pythonCount == 2 && deduplicatedPythonCount == 1
-    ''
-    "true";
-
-  # Test extras with no additional parsers
-  test-extras-no-additional-parsers = testLib.testNixExpr
+  # Extras with an empty parser list change nothing
+  test-extras-no-additional-parsers = testLib.testEval
     "extras-no-additional-parsers"
-    ''
-      let
-        # Some extras like typescript might not add extra parsers (typescript is in core)
-        typescriptExtraParsers = [];
-        emptyExtraResult = builtins.length typescriptExtraParsers == 0;
-      in emptyExtraResult
-    ''
-    "true";
+    (automaticTreesitterParsers baseCfg [ "lang.typescript" ] == coreOnlyParsers)
+    true;
 
-  # Test multiple extras enabled
-  test-multiple-extras-enabled = testLib.testNixExpr
+  # Multiple enabled extras all contribute parsers
+  test-multiple-extras-enabled = testLib.testEval
     "multiple-extras-enabled"
-    ''
-      let
-        enabledExtras = ["lang.rust" "lang.go"];
-        rustParsers = ["rust" "ron"];
-        goParsers = ["go" "gomod" "gowork" "gosum"];
-        allExtraParsers = rustParsers ++ goParsers;
-        hasAllRust = builtins.all (p: builtins.elem p allExtraParsers) rustParsers;
-        hasAllGo = builtins.all (p: builtins.elem p allExtraParsers) goParsers;
-      in hasAllRust && hasAllGo
-    ''
-    "true";
+    (let parsers = automaticTreesitterParsers baseCfg [ "lang.rust" "lang.go" ];
+     in builtins.all (p: builtins.elem p parsers) [ "rust" "ron" "go" "gomod" ])
+    true;
 
-  # Test parser name format validation
-  test-parser-name-format = testLib.testNixExpr
-    "parser-name-format"
-    ''
-      let
-        validParsers = ["rust" "python" "go" "json5" "c_sharp"];
-        # All parser names should be valid identifiers (letters, numbers, underscore)
-        isValidName = name:
-          builtins.match "[a-zA-Z][a-zA-Z0-9_]*" name != null;
-        allValid = builtins.all isValidName validParsers;
-      in allValid
-    ''
-    "true";
+  # Manual treesitterParsers packages are merged via extractLang
+  test-manual-parsers-merged = testLib.testEval
+    "manual-parsers-merged"
+    (builtins.elem "wgsl" (automaticTreesitterParsers (baseCfg // {
+      treesitterParsers = [ { grammarName = "wgsl"; } ];
+    }) [ ]))
+    true;
 
-  # Test enabled extra name derivation
-  test-enabled-extra-names = testLib.testNixExpr
-    "enabled-extra-names"
-    ''
-      let
-        extrasConfig = {
-          lang = {
-            rust = { enable = true; };
-            python = { enable = true; };
-            nix = { enable = false; };
-          };
-          editor = {
-            dial = { enable = true; };
-          };
-        };
-        # Should get ["lang.rust" "lang.python" "editor.dial"]
-        enabledNames = builtins.foldl' (acc: category:
-          acc ++ (builtins.foldl' (acc2: name:
-            let extraConfig = extrasConfig.''${category}.''${name};
-            in if extraConfig.enable or false
-               then acc2 ++ ["''${category}.''${name}"]
-               else acc2
-          ) [] (builtins.attrNames extrasConfig.''${category}))
-        ) [] (builtins.attrNames extrasConfig);
-        hasRust = builtins.elem "lang.rust" enabledNames;
-        hasPython = builtins.elem "lang.python" enabledNames;
-        hasNix = builtins.elem "lang.nix" enabledNames;
-        hasDial = builtins.elem "editor.dial" enabledNames;
-      in hasRust && hasPython && !hasNix && hasDial
-    ''
-    "true";
+  # A manual parser already in core is deduplicated
+  test-parser-deduplication = testLib.testEval
+    "parser-deduplication"
+    (builtins.length (lib.filter (p: p == "lua") (automaticTreesitterParsers (baseCfg // {
+      treesitterParsers = [ { grammarName = "lua"; } ];
+    }) [ ])))
+    1;
 
-  # Test parser package name mapping
-  test-parser-package-mapping = testLib.testNixExpr
-    "parser-package-mapping"
-    ''
-      let
-        # Parser names should map to grammarPlugins packages
-        parserName = "rust";
-        # In real implementation: pkgs.vimPlugins.nvim-treesitter.grammarPlugins.''${parserName}
-        expectedPackagePath = "vimPlugins.nvim-treesitter.grammarPlugins.rust";
-        # Just verify the pattern is correct
-        validPath = builtins.match "vimPlugins\.nvim-treesitter\.grammarPlugins\.[a-zA-Z_][a-zA-Z0-9_]*" expectedPackagePath != null;
-      in validPath
-    ''
-    "true";
+  # With the module disabled, only manual parsers are derived
+  test-disabled-module-only-manual-parsers = testLib.testEval
+    "disabled-module-only-manual-parsers"
+    (let parsers = automaticTreesitterParsers {
+       enable = false;
+       treesitterParsers = [ { grammarName = "wgsl"; } ];
+     } [ "lang.rust" ];
+     in builtins.elem "wgsl" parsers && !(builtins.elem "lua" parsers) && !(builtins.elem "rust" parsers))
+    true;
 
-  # Test edge case: empty extras configuration
-  test-empty-extras-config = testLib.testNixExpr
-    "empty-extras-config"
-    ''
-      let
-        emptyExtras = {};
-        enabledNames = [];
-        # Should only have core parsers
-        result = [ "bash" "c" "diff" "html" "javascript" "jsdoc" "json" "jsonc" "lua" "luadoc" "luap" "markdown" "markdown_inline" "printf" "python" "query" "regex" "toml" "tsx" "typescript" "vim" "vimdoc" "xml" "yaml" ];
-        onlyCore = builtins.length result == 24;
-      in onlyCore
-    ''
-    "true";
-
-  # Test extractLang function with nvim-treesitter-parsers (grammarName attribute)
-  test-extract-lang-grammar-plugins = testLib.testNixExpr
-    "extract-lang-grammar-plugins"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        # Updated extractLang supporting grammarName, language with associatedQuery, and detecting deprecated packages
-        extractLang = pkg:
-          let
-            grammarName = pkg.grammarName or null;
-            language = pkg.language or null;
-            pname = pkg.pname or "";
-            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
-          in
-            if grammarName != null then grammarName
-            else if language != null && hasAssociatedQuery then language
-            else if language != null && lib.hasPrefix "tree-sitter-" pname then
-              abort "tree-sitter-grammars is deprecated"
-            else
-              abort "Unknown package format";
-
-        # Test with nvim-treesitter-parsers / grammarPlugins packages (have grammarName)
-        mockPackage1 = { grammarName = "rust"; name = "vimplugin-nvim-treesitter-grammar-rust"; };
-        mockPackage2 = { grammarName = "python"; name = "vimplugin-nvim-treesitter-grammar-python"; };
-        mockPackage3 = { grammarName = "css"; name = "vimplugin-nvim-treesitter-grammar-css"; };
-
-        extracted1 = extractLang mockPackage1;
-        extracted2 = extractLang mockPackage2;
-        extracted3 = extractLang mockPackage3;
-      in
-        extracted1 == "rust" &&
-        extracted2 == "python" &&
-        extracted3 == "css"
-    ''
-    "true";
-
-  # Test extractLang function with allGrammars/builtGrammars (language + associatedQuery)
-  test-extract-lang-all-grammars = testLib.testNixExpr
-    "extract-lang-all-grammars"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        # Updated extractLang supporting grammarName, language with associatedQuery, and detecting deprecated packages
-        extractLang = pkg:
-          let
-            grammarName = pkg.grammarName or null;
-            language = pkg.language or null;
-            pname = pkg.pname or "";
-            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
-          in
-            if grammarName != null then grammarName
-            else if language != null && hasAssociatedQuery then language
-            else if language != null && lib.hasPrefix "tree-sitter-" pname then
-              abort "tree-sitter-grammars is deprecated"
-            else
-              abort "Unknown package format";
-
-        # Test with allGrammars/builtGrammars packages (have language + passthru.associatedQuery)
-        mockPackage1 = { language = "ada"; pname = "tree-sitter-ada"; name = "tree-sitter-ada-0.0.0"; passthru.associatedQuery = {}; };
-        mockPackage2 = { language = "zig"; pname = "tree-sitter-zig"; name = "tree-sitter-zig-0.0.0"; passthru.associatedQuery = {}; };
-        mockPackage3 = { language = "wgsl"; pname = "tree-sitter-wgsl"; name = "tree-sitter-wgsl-0.0.0"; passthru.associatedQuery = {}; };
-
-        extracted1 = extractLang mockPackage1;
-        extracted2 = extractLang mockPackage2;
-        extracted3 = extractLang mockPackage3;
-      in
-        extracted1 == "ada" &&
-        extracted2 == "zig" &&
-        extracted3 == "wgsl"
-    ''
-    "true";
-
-  # Test extractLang prefers grammarName over language
-  test-extract-lang-grammarname-priority = testLib.testNixExpr
-    "extract-lang-grammarname-priority"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        extractLang = pkg:
-          let
-            grammarName = pkg.grammarName or null;
-            language = pkg.language or null;
-            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
-          in
-            if grammarName != null then grammarName
-            else if language != null && hasAssociatedQuery then language
-            else abort "no grammarName or valid language";
-
-        # Package with both attributes - grammarName should win
-        mockPackage = { grammarName = "correct"; language = "wrong"; passthru.associatedQuery = {}; };
-        extracted = extractLang mockPackage;
-      in
-        extracted == "correct"
-    ''
-    "true";
-
-  # Test extractLang with mixed package types
-  test-extract-lang-mixed = testLib.testNixExpr
-    "extract-lang-mixed"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        extractLang = pkg:
-          let
-            grammarName = pkg.grammarName or null;
-            language = pkg.language or null;
-            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
-          in
-            if grammarName != null then grammarName
-            else if language != null && hasAssociatedQuery then language
-            else abort "unsupported package";
-
-        # Test with a mix of package types
-        packages = [
-          { grammarName = "bash"; }                                        # grammarPlugins style
-          { language = "wgsl"; passthru.associatedQuery = {}; }            # allGrammars style
-          { grammarName = "vim"; }                                         # grammarPlugins style
-          { language = "templ"; passthru.associatedQuery = {}; }           # allGrammars style
-        ];
-
-        extractedNames = map extractLang packages;
-        expected = [ "bash" "wgsl" "vim" "templ" ];
-      in
-        extractedNames == expected
-    ''
-    "true";
-
-  # Test that deprecated tree-sitter-grammars throws an error
-  test-extract-lang-deprecated-throws = testLib.testNixExpr
-    "extract-lang-deprecated-throws"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        extractLang = pkg:
-          let
-            grammarName = pkg.grammarName or null;
-            language = pkg.language or null;
-            pname = pkg.pname or "";
-            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
-            isTreeSitterGrammar = lib.hasPrefix "tree-sitter-" pname;
-          in
-            if grammarName != null then grammarName
-            else if language != null && hasAssociatedQuery then language
-            else if language != null && isTreeSitterGrammar then
-              "DEPRECATED_ERROR"  # In real code this throws
-            else
-              "UNKNOWN_ERROR";
-
-        # Test with deprecated tree-sitter-grammars package (has language but no associatedQuery)
-        deprecatedPackage = { language = "rust"; pname = "tree-sitter-rust"; name = "tree-sitter-rust"; passthru.updateScript = {}; };
-        result = extractLang deprecatedPackage;
-      in
-        result == "DEPRECATED_ERROR"
-    ''
-    "true";
-
-  # Test extractLang with edge cases in names
-  test-extract-lang-edge-cases = testLib.testNixExpr
-    "extract-lang-edge-cases"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        extractLang = pkg:
-          let
-            grammarName = pkg.grammarName or null;
-            language = pkg.language or null;
-            hasAssociatedQuery = (pkg.passthru or {}) ? associatedQuery;
-          in
-            if grammarName != null then grammarName
-            else if language != null && hasAssociatedQuery then language
-            else abort "unsupported package";
-
-        # Test edge cases
-        case1 = extractLang { grammarName = "c_sharp"; };                                           # Underscore in name
-        case2 = extractLang { grammarName = "tsx"; };                                               # Short name
-        case3 = extractLang { language = "markdown_inline"; passthru.associatedQuery = {}; };       # Underscore in language
-        case4 = extractLang { grammarName = "json5"; };                                             # Number in name
-      in
-        case1 == "c_sharp" &&
-        case2 == "tsx" &&
-        case3 == "markdown_inline" &&
-        case4 == "json5"
-    ''
-    "true";
-
-  # Tests for the generated parser manifest (pluginSource = "latest" coherent build metadata)
-  test-parser-manifest-covers-runtime-languages = testLib.testNixExpr
-    "parser-manifest-covers-runtime-languages"
-    ''
-      let
-        manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
-        parsers = manifest.parsers;
-      in parsers ? make && parsers ? gotmpl && parsers ? xml && parsers ? dtd
-    ''
-    "true";
-
-  test-parser-manifest-preserves-requires = testLib.testNixExpr
-    "parser-manifest-preserves-requires"
-    ''
-      let
-        manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
-        xmlRequires = manifest.parsers.xml.requires or [ ];
-      in xmlRequires == [ "dtd" ]
-    ''
-    "true";
-
-  test-latest-mode-missing-parser-fails-clearly = testLib.testNixExpr
-    "latest-mode-missing-parser-fails-clearly"
-    ''
-      let
-        manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
-      in !(builtins.hasAttr "definitely_missing_parser" manifest.parsers)
-    ''
-    "true";
-
-  test-parser-dependency-closure-includes-transitive-requires = testLib.testNixExpr
+  # expandParserDependencies: transitive requires from the real manifest are
+  # pulled in (xml requires dtd)
+  test-parser-dependency-closure-includes-transitive-requires = testLib.testEval
     "parser-dependency-closure-includes-transitive-requires"
-    ''
-      let
-        manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
-        parserRequires = parserName:
-          let
-            spec = if builtins.hasAttr parserName manifest.parsers then builtins.getAttr parserName manifest.parsers else null;
-            requires = if spec == null then [ ] else spec.requires or [ ];
-          in builtins.filter (name: builtins.hasAttr name manifest.parsers) requires;
-        go = seen: pending:
-          if pending == [ ] then
-            seen
-          else
-            let
-              parserName = builtins.head pending;
-              rest = builtins.tail pending;
-            in
-            if builtins.elem parserName seen then
-              go seen rest
-            else
-              go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
-        closure = go [ ] [ "xml" ];
-      in builtins.elem "dtd" closure
-    ''
-    "true";
+    (builtins.elem "dtd" (expandParserDependencies [ "xml" ]))
+    true;
 
-  test-parser-dependency-closure-deduplicates-shared-deps = testLib.testNixExpr
+  # expandParserDependencies: shared dependencies appear exactly once
+  test-parser-dependency-closure-deduplicates-shared-deps = testLib.testEval
     "parser-dependency-closure-deduplicates-shared-deps"
-    ''
-      let
-        manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
-        parserRequires = parserName:
-          let
-            spec = if builtins.hasAttr parserName manifest.parsers then builtins.getAttr parserName manifest.parsers else null;
-            requires = if spec == null then [ ] else spec.requires or [ ];
-          in builtins.filter (name: builtins.hasAttr name manifest.parsers) requires;
-        go = seen: pending:
-          if pending == [ ] then
-            seen
-          else
-            let
-              parserName = builtins.head pending;
-              rest = builtins.tail pending;
-            in
-            if builtins.elem parserName seen then
-              go seen rest
-            else
-              go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
-        closure = go [ ] [ "xml" "dtd" ];
-        dtdCount = builtins.length (builtins.filter (name: name == "dtd") closure);
-      in dtdCount == 1
-    ''
-    "true";
+    (builtins.length (lib.filter (p: p == "dtd") (expandParserDependencies [ "xml" "dtd" ])))
+    1;
 
-  test-parser-dependency-closure-skips-non-manifest-requires = testLib.testNixExpr
+  # expandParserDependencies: query-only namespaces (html_tags) that are not
+  # real manifest parsers are not pulled in
+  test-parser-dependency-closure-skips-non-manifest-requires = testLib.testEval
     "parser-dependency-closure-skips-non-manifest-requires"
-    ''
-      let
-        manifest = builtins.fromJSON (builtins.readFile ${../../data/parser-manifest.json});
-        parserRequires = parserName:
-          let
-            spec = if builtins.hasAttr parserName manifest.parsers then builtins.getAttr parserName manifest.parsers else null;
-            requires = if spec == null then [ ] else spec.requires or [ ];
-          in builtins.filter (name: builtins.hasAttr name manifest.parsers) requires;
-        go = seen: pending:
-          if pending == [ ] then
-            seen
-          else
-            let
-              parserName = builtins.head pending;
-              rest = builtins.tail pending;
-            in
-            if builtins.elem parserName seen then
-              go seen rest
-            else
-              go (seen ++ [ parserName ]) (rest ++ parserRequires parserName);
-        closure = go [ ] [ "html" ];
-      in !builtins.elem "html_tags" closure
-    ''
-    "true";
+    (builtins.elem "html_tags" (expandParserDependencies [ "html" ]))
+    false;
+
+  # extractLang: grammarPlugins / nvim-treesitter-parsers style (grammarName)
+  test-extract-lang-grammar-plugins = testLib.testEval
+    "extract-lang-grammar-plugins"
+    (map extractLang [
+      { grammarName = "rust"; }
+      { grammarName = "c_sharp"; }
+      { grammarName = "json5"; }
+    ] == [ "rust" "c_sharp" "json5" ])
+    true;
+
+  # extractLang: allGrammars style (language + passthru.associatedQuery)
+  test-extract-lang-all-grammars = testLib.testEval
+    "extract-lang-all-grammars"
+    (map extractLang [
+      { language = "ada"; pname = "tree-sitter-ada"; passthru.associatedQuery = { }; }
+      { language = "markdown_inline"; pname = "tree-sitter-markdown_inline"; passthru.associatedQuery = { }; }
+    ] == [ "ada" "markdown_inline" ])
+    true;
+
+  # extractLang: grammarName takes priority over language
+  test-extract-lang-grammarname-priority = testLib.testEval
+    "extract-lang-grammarname-priority"
+    (extractLang { grammarName = "correct"; language = "wrong"; passthru.associatedQuery = { }; })
+    "correct";
+
+  # extractLang: deprecated tree-sitter-grammars packages (language but no
+  # associatedQuery) throw a migration error
+  test-extract-lang-deprecated-throws = testLib.testEval
+    "extract-lang-deprecated-throws"
+    (builtins.tryEval (extractLang {
+      language = "rust";
+      pname = "tree-sitter-rust";
+      name = "tree-sitter-rust";
+    })).success
+    false;
+
+  # extractLang: unknown package formats throw
+  test-extract-lang-unknown-throws = testLib.testEval
+    "extract-lang-unknown-throws"
+    (builtins.tryEval (extractLang { name = "mystery-package"; })).success
+    false;
+
+  # Shipped parser manifest sanity: covers runtime languages and preserves
+  # the requires metadata that dependency expansion relies on
+  test-parser-manifest-covers-runtime-languages = testLib.testEval
+    "parser-manifest-covers-runtime-languages"
+    (parserManifest.parsers ? make &&
+     parserManifest.parsers ? gotmpl &&
+     parserManifest.parsers ? xml &&
+     parserManifest.parsers ? dtd)
+    true;
+
+  test-parser-manifest-preserves-requires = testLib.testEval
+    "parser-manifest-preserves-requires"
+    (parserManifest.parsers.xml.requires or [ ] == [ "dtd" ])
+    true;
 }

@@ -2,11 +2,15 @@
 { pkgs, testLib, moduleUnderTest }:
 
 let
+  lib = pkgs.lib;
+
+  # The real file scanning library under test
   fileScanning = import ../../nix/lib/file-scanning.nix {
-    inherit (pkgs) lib;
-    inherit pkgs;
-    config = {};
+    inherit lib pkgs;
+    config = { };
   };
+
+  inherit (fileScanning) scanUserPlugins;
 
   # Fixture: a config tree containing lua/plugins/ with both a top-level
   # file and a nested subdirectory; one plugin name appears in both files
@@ -31,104 +35,43 @@ let
     echo "-- no plugins here" > $out/lua/config/options.lua
   '';
 
+  scannedSpecs = scanUserPlugins fixtureWithPlugins;
+  scannedNames = map (s: s.name) scannedSpecs;
+
 in {
-  test-scan-user-plugins-missing-path = testLib.testNixExpr
+  test-scan-user-plugins-missing-path = testLib.testEval
     "scan-user-plugins-missing-path"
-    ''
-      let
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          lib = (import <nixpkgs> {}).lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-      in builtins.length (fs.scanUserPlugins /no/such/path/here)
-    ''
-    "0";
+    (builtins.length (scanUserPlugins /no/such/path/here))
+    0;
 
-  test-scan-user-plugins-missing-plugins-dir = testLib.testNixExpr
+  test-scan-user-plugins-missing-plugins-dir = testLib.testEval
     "scan-user-plugins-missing-plugins-dir"
-    ''
-      let
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          lib = (import <nixpkgs> {}).lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-      in builtins.length (fs.scanUserPlugins ${fixtureMissingPluginsDir})
-    ''
-    "0";
+    (builtins.length (scanUserPlugins fixtureMissingPluginsDir))
+    0;
 
-  test-scan-user-plugins-extracts-top-level = testLib.testNixExpr
+  test-scan-user-plugins-extracts-top-level = testLib.testEval
     "scan-user-plugins-extracts-top-level"
-    ''
-      let
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          lib = (import <nixpkgs> {}).lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-        names = map (s: s.name) (fs.scanUserPlugins ${fixtureWithPlugins});
-      in builtins.elem "LazyVim/LazyVim" names
-    ''
-    "true";
+    (builtins.elem "LazyVim/LazyVim" scannedNames)
+    true;
 
-  test-scan-user-plugins-recurses-subdirectories = testLib.testNixExpr
+  test-scan-user-plugins-recurses-subdirectories = testLib.testEval
     "scan-user-plugins-recurses-subdirectories"
-    ''
-      let
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          lib = (import <nixpkgs> {}).lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-        names = map (s: s.name) (fs.scanUserPlugins ${fixtureWithPlugins});
-      in builtins.elem "owner/nested-plugin" names
-    ''
-    "true";
+    (builtins.elem "owner/nested-plugin" scannedNames)
+    true;
 
-  test-scan-user-plugins-dedups = testLib.testNixExpr
+  test-scan-user-plugins-dedups = testLib.testEval
     "scan-user-plugins-dedups"
-    ''
-      let
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          lib = (import <nixpkgs> {}).lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-        names = map (s: s.name) (fs.scanUserPlugins ${fixtureWithPlugins});
-        lazyCount = builtins.length (builtins.filter (n: n == "folke/lazy.nvim") names);
-      in lazyCount
-    ''
-    "1";
+    (builtins.length (builtins.filter (n: n == "folke/lazy.nvim") scannedNames))
+    1;
 
-  test-scan-user-plugins-sorted = testLib.testNixExpr
+  test-scan-user-plugins-sorted = testLib.testEval
     "scan-user-plugins-sorted"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          inherit lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-        names = map (s: s.name) (fs.scanUserPlugins ${fixtureWithPlugins});
-        sorted = lib.sort (a: b: a < b) names;
-      in names == sorted
-    ''
-    "true";
+    (scannedNames == lib.sort (a: b: a < b) scannedNames)
+    true;
 
-  test-scan-user-plugins-spec-shape = testLib.testNixExpr
+  test-scan-user-plugins-spec-shape = testLib.testEval
     "scan-user-plugins-spec-shape"
-    ''
-      let
-        fs = import ${../../nix/lib/file-scanning.nix} {
-          lib = (import <nixpkgs> {}).lib;
-          pkgs = import <nixpkgs> {};
-          config = {};
-        };
-        specs = fs.scanUserPlugins ${fixtureWithPlugins};
-        first = builtins.head specs;
-      in first ? name && first ? owner && first ? repo && first ? source_file && first ? user_plugin
-    ''
-    "true";
+    (let first = builtins.head scannedSpecs;
+     in first ? name && first ? owner && first ? repo && first ? source_file && first ? user_plugin)
+    true;
 }

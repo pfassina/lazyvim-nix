@@ -1,175 +1,103 @@
 # Unit tests for dev path creation and symlink handling
+# Imports the real nix/lib/dev-path.nix, builds an actual dev path derivation
+# from fake plugin packages, and inspects the resulting symlinks.
 { pkgs, testLib, moduleUnderTest }:
 
-{
-  # Test dev path creation with regular plugins
-  test-dev-path-regular-plugins = testLib.testNixExpr
-    "dev-path-regular-plugins"
-    ''
-      let
-        # Mock plugin specs and resolved plugins
-        pluginSpecs = [
-          { name = "folke/lazy.nvim"; }
-          { name = "neovim/nvim-lspconfig"; }
-        ];
+let
+  lib = pkgs.lib;
 
-        # Mock resolved plugins (simplified)
-        resolvedPlugins = [
-          "/nix/store/fake1-lazy-nvim"
-          "/nix/store/fake2-nvim-lspconfig"
-        ];
+  fixtureMappings = {
+    "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
+    "nvim-mini/mini.pairs" = { package = "mini-nvim"; module = "mini.pairs"; };
+    "folke/lazy.nvim" = "lazy-nvim";
+  };
 
-        # Extract repository names
-        getRepoName = specName:
-          let parts = builtins.filter (x: x != "") (builtins.split "/" specName);
-          in if builtins.length parts >= 2 then builtins.elemAt parts 2 else specName;
+  # The real dev path library under test
+  devPathLib = import ../../nix/lib/dev-path.nix {
+    inherit lib pkgs;
+    pluginMappings = fixtureMappings;
+  };
 
-        # Test repo name extraction
-        lazyRepo = getRepoName "folke/lazy.nvim";
-        lspRepo = getRepoName "neovim/nvim-lspconfig";
+  inherit (devPathLib) createDevPath getRepoName generateDevPluginSpecs;
 
-        correctRepoNames = lazyRepo == "lazy.nvim" && lspRepo == "nvim-lspconfig";
-      in correctRepoNames
-    ''
-    "true";
+  # Cheap stand-ins for resolved plugin packages
+  fakePlugin = name: pkgs.runCommand "fake-${name}" {} ''
+    mkdir -p $out
+    echo "${name}" > $out/marker
+  '';
+  fakeLazy = fakePlugin "lazy-nvim";
+  fakeLsp = fakePlugin "nvim-lspconfig";
+  fakeMini = fakePlugin "mini-nvim";
 
-  # Test multi-module plugin deduplication
-  test-multi-module-deduplication = testLib.testNixExpr
-    "multi-module-deduplication"
-    ''
-      let
-        # Mock mini.nvim modules (same package, different modules)
-        pluginSpecs = [
-          { name = "nvim-mini/mini.ai"; }
-          { name = "nvim-mini/mini.pairs"; }
-          { name = "folke/lazy.nvim"; }
-        ];
+  # Specs cover: regular plugins, two modules of one multi-module package, a
+  # duplicate entry for the same module (must deduplicate), and an unresolved
+  # plugin (null, must be filtered out).
+  devPathSpecs = [
+    { name = "folke/lazy.nvim"; }
+    { name = "neovim/nvim-lspconfig"; }
+    { name = "nvim-mini/mini.ai"; }
+    { name = "nvim-mini/mini.pairs"; }
+    { name = "nvim-mini/mini.ai"; }
+    { name = "owner/unresolved-plugin"; }
+  ];
+  devPathResolved = [ fakeLazy fakeLsp fakeMini fakeMini fakeMini null ];
 
-        # Mock mappings
-        mappings = {
-          "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
-          "nvim-mini/mini.pairs" = { package = "mini-nvim"; module = "mini.pairs"; };
-        };
+  devPath = createDevPath devPathSpecs devPathResolved;
 
-        # Simulate deduplication logic
-        pluginWithType = map (spec:
-          let
-            mapping = mappings.''${spec.name} or null;
-            isMultiModule = mapping != null && builtins.isAttrs mapping && mapping ? module;
-          in {
-            spec = spec;
-            isMultiModule = isMultiModule;
-            linkName = if isMultiModule then mapping.module else spec.name;
-          }
-        ) pluginSpecs;
+  # generateDevPluginSpecs must exclude treesitter plugins and unresolved ones
+  devSpecs = generateDevPluginSpecs devPathLib [
+    { name = "folke/lazy.nvim"; }
+    { name = "nvim-treesitter/nvim-treesitter"; }
+    { name = "nvim-treesitter/nvim-treesitter-textobjects"; }
+    { name = "owner/unresolved-plugin"; }
+  ] [ fakeLazy fakeMini fakeMini null ];
 
-        # Group by link name (deduplication)
-        grouped = builtins.groupBy (p: p.linkName) pluginWithType;
+in {
+  # getRepoName: real function edge cases
+  test-get-repo-name-standard = testLib.testEval
+    "get-repo-name-standard"
+    (getRepoName "folke/lazy.nvim")
+    "lazy.nvim";
 
-        # Should have 3 unique link names: mini.ai, mini.pairs, folke/lazy.nvim
-        uniqueCount = builtins.length (builtins.attrNames grouped);
-      in uniqueCount == 3
-    ''
-    "true";
+  test-get-repo-name-with-dots = testLib.testEval
+    "get-repo-name-with-dots"
+    (getRepoName "nvim-telescope/telescope.nvim")
+    "telescope.nvim";
 
-  # Test symlink command generation
-  test-symlink-commands = testLib.testNixExpr
-    "symlink-commands"
-    ''
-      let
-        # Mock deduplicated plugins
-        plugins = [
-          { linkName = "lazy.nvim"; plugin = "/nix/store/fake1-lazy-nvim"; }
-          { linkName = "mini.ai"; plugin = "/nix/store/fake2-mini-nvim"; }
-        ];
+  test-get-repo-name-with-hyphens = testLib.testEval
+    "get-repo-name-with-hyphens"
+    (getRepoName "owner/repo-with-hyphens")
+    "repo-with-hyphens";
 
-        # Generate symlink commands
-        linkCommands = map (p: "ln -sf ''${p.plugin} $out/''${p.linkName}") plugins;
+  test-get-repo-name-no-owner = testLib.testEval
+    "get-repo-name-no-owner"
+    (getRepoName "single-name")
+    "single-name";
 
-        # Check command structure
-        hasCorrectCommands =
-          builtins.any (cmd: builtins.match ".*ln -sf.*lazy-nvim.*lazy.nvim.*" cmd != null) linkCommands &&
-          builtins.any (cmd: builtins.match ".*ln -sf.*mini-nvim.*mini.ai.*" cmd != null) linkCommands;
-      in hasCorrectCommands
-    ''
-    "true";
+  # createDevPath: regular plugins are linked by repo name, multi-module
+  # plugins by module name
+  test-dev-path-creates-symlinks = testLib.runTest "dev-path-creates-symlinks"
+    ''[ -L "${devPath}/lazy.nvim" ] && [ -L "${devPath}/nvim-lspconfig" ] && [ -L "${devPath}/mini.ai" ] && [ -L "${devPath}/mini.pairs" ]'';
 
-  # Test plugin type detection
-  test-plugin-type-detection = testLib.testNixExpr
-    "plugin-type-detection"
-    ''
-      let
-        # Test mapping structures
-        stringMapping = "lazy-nvim";
-        objectMapping = { package = "mini-nvim"; module = "mini.ai"; };
+  # createDevPath: symlinks point at the resolved plugin packages
+  test-dev-path-links-point-to-plugins = testLib.runTest "dev-path-links-point-to-plugins"
+    ''[ "$(readlink "${devPath}/lazy.nvim")" = "${fakeLazy}" ] && [ "$(readlink "${devPath}/mini.ai")" = "${fakeMini}" ] && [ "$(readlink "${devPath}/mini.pairs")" = "${fakeMini}" ]'';
 
-        # Test detection logic
-        isStringMapping = builtins.isString stringMapping;
-        isObjectMapping = builtins.isAttrs objectMapping && objectMapping ? package && objectMapping ? module;
-      in isStringMapping && isObjectMapping
-    ''
-    "true";
+  # createDevPath: duplicate module entries are deduplicated and unresolved
+  # (null) plugins are dropped, so exactly 4 links remain
+  test-dev-path-dedup-and-null-filtering = testLib.runTest "dev-path-dedup-and-null-filtering"
+    ''[ "$(ls "${devPath}" | wc -l)" -eq 4 ]'';
 
-  # Test repository name extraction edge cases
-  test-repo-name-edge-cases = testLib.testNixExpr
-    "repo-name-edge-cases"
-    ''
-      let
-        # Test various plugin name formats
-        testCases = [
-          { input = "folke/lazy.nvim"; expected = "lazy.nvim"; }
-          { input = "nvim-telescope/telescope.nvim"; expected = "telescope.nvim"; }
-          { input = "single-name"; expected = "single-name"; }
-          { input = "owner/repo-with-hyphens"; expected = "repo-with-hyphens"; }
-        ];
+  # generateDevPluginSpecs: produces lazy.nvim dev specs in the expected format
+  test-dev-specs-format = testLib.testEval
+    "dev-specs-format"
+    (builtins.head devSpecs)
+    ''{ "lazy.nvim", dev = true, pin = true },'';
 
-        getRepoName = specName:
-          let parts = builtins.filter (x: x != "") (builtins.split "/" specName);
-          in if builtins.length parts >= 2 then builtins.elemAt parts 2 else specName;
-
-        # Test all cases
-        results = map (case:
-          getRepoName case.input == case.expected
-        ) testCases;
-
-        allCorrect = builtins.all (x: x) results;
-      in allCorrect
-    ''
-    "true";
-
-  # Test link name generation for multi-module plugins
-  test-link-name-generation = testLib.testNixExpr
-    "link-name-generation"
-    ''
-      let
-        mappings = {
-          "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
-          "folke/lazy.nvim" = "lazy-nvim";
-        };
-
-        specs = [
-          { name = "nvim-mini/mini.ai"; }
-          { name = "folke/lazy.nvim"; }
-        ];
-
-        getLinkName = spec:
-          let
-            mapping = mappings.''${spec.name} or null;
-            getRepoName = specName:
-              let parts = builtins.filter (x: x != "") (builtins.split "/" specName);
-              in if builtins.length parts >= 2 then builtins.elemAt parts 2 else specName;
-          in
-            if mapping != null && builtins.isAttrs mapping && mapping ? module then
-              mapping.module
-            else
-              getRepoName spec.name;
-
-        # Test link name generation
-        miniLinkName = getLinkName (builtins.elemAt specs 0);
-        lazyLinkName = getLinkName (builtins.elemAt specs 1);
-
-        correctNames = miniLinkName == "mini.ai" && lazyLinkName == "lazy.nvim";
-      in correctNames
-    ''
-    "true";
+  # generateDevPluginSpecs: treesitter plugins and unresolved plugins are
+  # excluded, leaving only the one regular resolved plugin
+  test-dev-specs-exclusions = testLib.testEval
+    "dev-specs-exclusions"
+    (builtins.length devSpecs)
+    1;
 }
