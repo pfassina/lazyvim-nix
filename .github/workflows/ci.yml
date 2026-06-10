@@ -28,6 +28,9 @@ jobs:
 
       - name: Run test suite
         run: nix-build test/ -A runAll
+        env:
+          # test/default.nix imports <nixpkgs>; resolve it via the flake registry
+          NIX_PATH: nixpkgs=flake:nixpkgs
 
   lint:
     runs-on: ubuntu-latest
