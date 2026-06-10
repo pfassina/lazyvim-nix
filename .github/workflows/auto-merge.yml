@@ -10,7 +10,13 @@ permissions:
 
 jobs:
   auto-merge:
-    if: github.event.pull_request.user.login == 'pfassina' && !github.event.pull_request.draft
+    # Skip PRs from the updater workflows: they are created with PR_TOKEN and
+    # so carry the token owner's authorship, but should be reviewed manually.
+    if: >-
+      github.event.pull_request.user.login == 'pfassina' &&
+      !github.event.pull_request.draft &&
+      !startsWith(github.head_ref, 'update-lazyvim-plugins') &&
+      !startsWith(github.head_ref, 'fix-parser-hashes')
     runs-on: ubuntu-latest
     steps:
       - name: Enable squash auto-merge
