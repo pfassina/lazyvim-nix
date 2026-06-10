@@ -1,5 +1,5 @@
 # Nix-specific overrides for LazyVim plugins
-{...}: {
+_: {
   # Mason is completely disabled in Nix (essential for Nix compatibility)
   "mason.nvim" = {
     enabled = false;

@@ -1,5 +1,5 @@
 # Simplified integration tests
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
 {
   # Test that the module can be evaluated with minimal config

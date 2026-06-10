@@ -1,5 +1,5 @@
 # Critical integration tests for missing coverage areas (simplified)
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
 {
   # Test treesitter parser configuration evaluation

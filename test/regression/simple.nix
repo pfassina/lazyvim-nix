@@ -1,5 +1,5 @@
 # Simple regression tests using compile-time checks
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
 let
   # Load the files at evaluation time

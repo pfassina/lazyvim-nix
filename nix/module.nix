@@ -10,26 +10,26 @@ let
   dataLib = import ./lib/data-loading.nix { inherit lib pkgs; };
   pluginLib = import ./lib/plugin-resolution.nix {
     inherit lib pkgs;
-    pluginMappings = dataLib.pluginMappings;
-    ignoreBuildNotifications = cfg.ignoreBuildNotifications;
+    inherit (dataLib) pluginMappings;
+    inherit (cfg) ignoreBuildNotifications;
   };
   devPathLib = import ./lib/dev-path.nix {
     inherit lib pkgs;
-    pluginMappings = dataLib.pluginMappings;
+    inherit (dataLib) pluginMappings;
   };
   treesitterLib = import ./lib/treesitter.nix {
     inherit lib pkgs;
-    treesitterMappings = dataLib.treesitterMappings;
-    extractLang = dataLib.extractLang;
-    ignoreBuildNotifications = cfg.ignoreBuildNotifications;
+    inherit (dataLib) treesitterMappings;
+    inherit (dataLib) extractLang;
+    inherit (cfg) ignoreBuildNotifications;
   };
   dependenciesLib = import ./lib/dependencies.nix {
     inherit lib pkgs;
-    dependencies = dataLib.dependencies;
-    ignoreBuildNotifications = cfg.ignoreBuildNotifications;
+    inherit (dataLib) dependencies;
+    inherit (cfg) ignoreBuildNotifications;
   };
   configLib = import ./lib/config-generation.nix { inherit lib; };
-  fileLib = import ./lib/file-scanning.nix { inherit lib pkgs config; };
+  fileLib = import ./lib/file-scanning.nix { inherit lib; };
 
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
@@ -192,8 +192,8 @@ let
 
   # Generate lazy.nvim configuration by patching the official LazyVim starter
   lazyConfig = configLib.lazyConfig {
-    starterLua = dataLib.starterLua;
-    starterVersion = dataLib.starterVersion;
+    inherit (dataLib) starterLua;
+    inherit (dataLib) starterVersion;
     inherit devPath extrasImportSpecs availableDevSpecs;
   };
 
@@ -205,7 +205,6 @@ let
 
   # Detect conflicts and ensure no conflicts exist
   conflictChecks = fileLib.detectConflicts cfg scannedFiles;
-  _ = if cfg.enable then conflictChecks else null;
 
 in {
   # Import module options

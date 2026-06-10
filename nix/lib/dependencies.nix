@@ -16,8 +16,7 @@
               else if pkg ? ${lib.head parts} then
                 resolveNested pkg.${lib.head parts} (lib.tail parts)
               else null;
-          in
-            let resolved = resolveNested pkgs pathParts; in
+           resolved = resolveNested pkgs pathParts; in
             if resolved != null then resolved
             else if ignoreBuildNotifications then null
             else builtins.trace "Warning: Package '${pkgName}' not found in nixpkgs" null;

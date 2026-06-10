@@ -1,10 +1,10 @@
 # Unit tests for treesitter parser resolution
 # Imports the real nix/lib/treesitter.nix and nix/lib/data-loading.nix and
 # verifies parser derivation, dependency expansion, and extractLang behavior.
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 
   # The real data loading library (provides extractLang)
   dataLib = import ../../nix/lib/data-loading.nix { inherit lib pkgs; };

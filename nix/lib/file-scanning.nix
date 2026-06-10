@@ -1,5 +1,5 @@
 # File scanning and conflict detection utilities for LazyVim Nix module
-{ lib, pkgs, config }:
+{ lib }:
 
 {
   scanUserPlugins = config_path:
@@ -136,8 +136,7 @@
         (lib.attrNames cfg.plugins);
 
       # Build error messages
-      errorMessages = []
-        ++ lib.optional keymapsConflict ''
+      errorMessages = lib.optional keymapsConflict ''
           Conflict: Both configFiles provides 'lua/config/keymaps.lua' and config.keymaps is set.
           Please use only one method to configure keymaps:
           - Either remove config.keymaps from your configuration

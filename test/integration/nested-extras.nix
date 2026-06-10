@@ -1,10 +1,7 @@
 # Tests for nested extras support (e.g., lang.typescript.biome, lang.typescript.oxc)
-{ pkgs, testLib, moduleUnderTest }:
+{ testLib, ... }:
 
-let
-  lib = pkgs.lib;
-
-in {
+{
 
   # ── Metadata structure ──────────────────────────────────────────────
 

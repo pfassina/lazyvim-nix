@@ -66,13 +66,13 @@ let
       let
         # Build the grammar from source
         revShort = builtins.substring 0 7 spec.revision;
-        grammar = pkgs.tree-sitter.buildGrammar ({
+        grammar = pkgs.tree-sitter.buildGrammar {
           language = parserName;
           version = "0.0.0+rev-${revShort}";
           src = pkgs.fetchgit {
-            url = spec.url;
+            inherit (spec) url;
             rev = spec.revision;
-            sha256 = spec.sha256;
+            inherit (spec) sha256;
             fetchSubmodules = false;
           };
           # Add tree-sitter + nodejs for grammars that need parser generation
@@ -97,7 +97,7 @@ let
               tree-sitter generate
             fi
           '';
-        });
+        };
 
         # Wrap the grammar as a vim plugin with the parser in the right location
         vimPlugin =

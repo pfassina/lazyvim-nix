@@ -1,10 +1,10 @@
 # Unit tests for configuration generation
 # Imports the real nix/lib/config-generation.nix (and, through it, the
 # starter patcher) and verifies the generated lazy.nvim configuration.
-{ pkgs, testLib, moduleUnderTest }:
+{ pkgs, testLib, ... }:
 
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 
   # The real libraries under test
   configLib = import ../../nix/lib/config-generation.nix { inherit lib; };

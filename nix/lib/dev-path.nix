@@ -12,9 +12,9 @@ rec {
             mapping = pluginMappings.${spec.name} or null;
             isMultiModule = mapping != null && builtins.isAttrs mapping && mapping ? module;
           in {
-            spec = spec;
-            plugin = plugin;
-            isMultiModule = isMultiModule;
+            inherit spec;
+            inherit plugin;
+            inherit isMultiModule;
             linkName = if isMultiModule then mapping.module else getRepoName spec.name;
           }
         else null

@@ -110,7 +110,9 @@ jobs:
         if: steps.verify.outputs.needs_fix == 'true'
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # A PAT is required so the created PR triggers CI workflows;
+          # PRs created with GITHUB_TOKEN never run required checks.
+          token: ${{ secrets.PR_TOKEN || secrets.GITHUB_TOKEN }}
           commit-message: "fix: update broken tree-sitter parser hashes"
           title: "Fix broken tree-sitter parser hashes"
           body: |
