@@ -43,6 +43,9 @@ let
       "lang.unmapped" = [
         { name = "exotic-tool"; } # No nixpkg mapping at all
       ];
+      "lang.missing" = [
+        { name = "ghost-tool"; nixpkg = "this-package-does-not-exist-xyz"; }
+      ];
     };
   };
 
@@ -63,6 +66,7 @@ let
         python = { };
         go = { };
         unmapped = { };
+        missing = { };
       };
     };
   };
@@ -126,6 +130,14 @@ in {
     (systemPackages (lib.recursiveUpdate baseCfg {
       extras.lang.unmapped.installDependencies = true;
     }) [ "lang.unmapped" ])
+    [ ];
+
+  # Mapped names that don't exist in nixpkgs resolve to null and are filtered
+  test-missing-nixpkgs-package-skipped = testLib.testEval
+    "missing-nixpkgs-package-skipped"
+    (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.missing.installDependencies = true;
+    }) [ "lang.missing" ])
     [ ];
 
   # Packages appearing as both tool and runtime dependency are deduplicated

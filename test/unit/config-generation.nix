@@ -40,6 +40,21 @@ let
 
   generatedConfigFiles = extrasConfigFiles sampleExtras "nvim";
 
+  # A starter whose spec section is intact but whose checker section drifted
+  # from the expected upstream structure (exact indentation matters, so this
+  # is assembled line by line)
+  driftedCheckerStarter = lib.concatStringsSep "\n" [
+    "  spec = {"
+    "    -- add LazyVim and import its plugins"
+    ''    { "LazyVim/LazyVim", import = "lazyvim.plugins" },''
+    "    -- import/override with your plugins"
+    ''    { import = "plugins" },''
+    "  },"
+    "  checker = {"
+    "    enabled = true, -- check for plugin updates periodically"
+    "  },"
+  ];
+
 in {
   # extrasImportSpecs: one lazy.nvim import line per extra
   test-extras-import-specs-format = testLib.testEval
@@ -119,6 +134,18 @@ in {
           { "LazyVim/LazyVim", import = "lazyvim.plugins", restructured = true },
         },
       '';
+      inherit starterVersion;
+      devPath = "/nix/store/fake-dev-path";
+      extrasImportSpecs = [ ];
+      availableDevSpecs = [ ];
+    })).success
+    false;
+
+  # lazyConfig: a drifted checker section also fails loudly
+  test-lazy-config-throws-on-unpatchable-checker = testLib.testEval
+    "lazy-config-throws-on-unpatchable-checker"
+    (builtins.tryEval (lazyConfig {
+      starterLua = driftedCheckerStarter;
       inherit starterVersion;
       devPath = "/nix/store/fake-dev-path";
       extrasImportSpecs = [ ];

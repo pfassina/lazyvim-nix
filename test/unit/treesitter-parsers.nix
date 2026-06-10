@@ -28,7 +28,8 @@ let
     ignoreBuildNotifications = true;
   };
 
-  inherit (tsLib) automaticTreesitterParsers expandParserDependencies;
+  inherit (tsLib) automaticTreesitterParsers expandParserDependencies
+    treesitterGrammars treesitterGrammarsFromSource hasParserManifest;
 
   baseCfg = {
     enable = true;
@@ -118,6 +119,25 @@ in {
     "parser-dependency-closure-skips-non-manifest-requires"
     (builtins.elem "html_tags" (expandParserDependencies [ "html" ]))
     false;
+
+  # treesitterGrammars ("nixpkgs" strategy): produces a parser derivation
+  test-treesitter-grammars-is-derivation = testLib.testEval
+    "treesitter-grammars-is-derivation"
+    (lib.isDerivation (treesitterGrammars [ "lua" ]))
+    true;
+
+  # treesitterGrammarsFromSource ("latest" strategy): a parser missing from
+  # the manifest fails with a clear error instead of building silently
+  test-treesitter-from-source-missing-parser-throws = testLib.testEval
+    "treesitter-from-source-missing-parser-throws"
+    (builtins.tryEval (treesitterGrammarsFromSource [ "definitely_missing_parser" ])).success
+    false;
+
+  # The shipped parser manifest is detected as available
+  test-has-parser-manifest = testLib.testEval
+    "has-parser-manifest"
+    hasParserManifest
+    true;
 
   # extractLang: grammarPlugins / nvim-treesitter-parsers style (grammarName)
   test-extract-lang-grammar-plugins = testLib.testEval

@@ -99,6 +99,16 @@ in devPathTests // treesitterTests // scanUserPluginsTests // configGenerationTe
     } == null)
     true;
 
+  # When the target version is not in nixpkgs and no sha256 is available for
+  # a source build, resolution falls back to the nixpkgs package
+  test-resolve-plugin-falls-back-to-nixpkgs-without-sha256 = testLib.testEval
+    "resolve-plugin-falls-back-to-nixpkgs-without-sha256"
+    (resolvePlugin { pluginSource = "latest"; } {
+      name = "folke/lazy.nvim";
+      version_info = { tag = "v99.99.99"; sha256 = null; };
+    }).pname
+    pkgs.vimPlugins.lazy-nvim.pname;
+
   test-resolve-plugin-branch-requires-source-build = testLib.testEval
     "resolve-plugin-branch-requires-source-build"
     (resolvePlugin { pluginSource = "latest"; } {
@@ -135,6 +145,31 @@ in devPathTests // treesitterTests // scanUserPluginsTests // configGenerationTe
       };
     }).version
     "v2.0.0";
+
+  test-build-from-source-latest-version-beats-commit = testLib.testEval
+    "build-from-source-latest-version-beats-commit"
+    (buildVimPluginFromSource {
+      name = "folke/tokyonight.nvim";
+      version_info = {
+        latest_version = "v3.0.0";
+        commit = "abc1234";
+        sha256 = lib.fakeSha256;
+      };
+    }).version
+    "v3.0.0";
+
+  # Plugins hosted outside GitHub (e.g. Codeberg) are fetched from source_url
+  test-build-from-source-uses-source-url = testLib.testEval
+    "build-from-source-uses-source-url"
+    (buildVimPluginFromSource {
+      name = "owner/some-plugin";
+      source_url = "https://codeberg.org/owner/some-plugin";
+      version_info = {
+        tag = "v1.0.0";
+        sha256 = lib.fakeSha256;
+      };
+    }).meta.homepage
+    "https://codeberg.org/owner/some-plugin";
 
   test-build-from-source-pname-is-repo = testLib.testEval
     "build-from-source-pname-is-repo"
