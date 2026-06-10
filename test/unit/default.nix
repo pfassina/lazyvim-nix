@@ -1,25 +1,13 @@
 # Unit tests for LazyVim module functions
+# These tests import the real implementation from nix/lib/ and verify its
+# behavior - they intentionally do not re-implement any module logic.
 { pkgs, testLib, moduleUnderTest }:
 
 let
-  # Create a minimal test environment
-  testConfig = {
-    config = {
-      home.homeDirectory = "/tmp/test";
-      programs.lazyvim.enable = true;
-    };
-    lib = pkgs.lib;
-    inherit pkgs;
-  };
+  lib = pkgs.lib;
 
-  # Load the module with test config
-  testModule = moduleUnderTest testConfig;
-
-  # Extract the functions we want to test by evaluating the module
-  moduleLib = pkgs.lib;
-
-  # Test fixtures - sample plugin data
-  testPluginMappings = {
+  # Fixture mappings exercising both mapping shapes (string and multi-module)
+  fixtureMappings = {
     "L3MON4D3/LuaSnip" = "luasnip";
     "catppuccin/nvim" = "catppuccin-nvim";
     "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
@@ -27,239 +15,179 @@ let
     "folke/lazy.nvim" = "lazy-nvim";
   };
 
-  # Mock plugin specs for testing
-  testPluginSpecs = [
-    {
-      name = "folke/tokyonight.nvim";
-      owner = "folke";
-      repo = "tokyonight.nvim";
-      version_info = {
-        commit = "abc123";
-        tag = "v1.0.0";
-        sha256 = "fake-hash";
-      };
-    }
-    {
-      name = "nvim-telescope/telescope.nvim";
-      owner = "nvim-telescope";
-      repo = "telescope.nvim";
-      version_info = {};
-    }
-    {
-      name = "L3MON4D3/LuaSnip";
-      owner = "L3MON4D3";
-      repo = "LuaSnip";
-      version_info = {
-        commit = "def456";
-      };
-    }
-  ];
+  # The real plugin resolution library under test
+  pluginLib = import ../../nix/lib/plugin-resolution.nix {
+    inherit lib pkgs;
+    pluginMappings = fixtureMappings;
+    ignoreBuildNotifications = true;
+  };
 
-  # Plugin resolution function (extracted from module logic)
-  resolvePluginName = lazyName:
-    let
-      mapping = testPluginMappings.${lazyName} or null;
-    in
-      if mapping == null then
-        # Try automatic resolution
-        let
-          parts = moduleLib.splitString "/" lazyName;
-          repoName = if builtins.length parts == 2 then builtins.elemAt parts 1 else lazyName;
-          # Convert repo-name to repo_name and repo.nvim to repo-nvim
-          nixName = moduleLib.replaceStrings ["-" "."] ["_" "-"] repoName;
-        in nixName
-      else if builtins.isString mapping then
-        mapping
-      else
-        mapping.package;
+  inherit (pluginLib) resolvePluginName resolvePlugin buildVimPluginFromSource;
 
-# Import additional unit tests
-devPathTests = import ./dev-path.nix { inherit pkgs testLib moduleUnderTest; };
-treesitterTests = import ./treesitter-parsers.nix { inherit pkgs testLib moduleUnderTest; };
-scanUserPluginsTests = import ./scan-user-plugins.nix { inherit pkgs testLib moduleUnderTest; };
+  # Real shipped mappings, to validate their structure
+  realMappings = builtins.fromJSON (builtins.readFile ../../data/mappings.json);
 
-in devPathTests // treesitterTests // scanUserPluginsTests // {
-  # Test plugin name resolution
-  test-plugin-name-resolution-automatic = testLib.testNixExpr
-    "plugin-name-resolution-automatic"
-    ''
-      let
-        lazyName = "folke/tokyonight.nvim";
-        parts = builtins.filter (x: x != "") (builtins.split "/" lazyName);
-        repoName = if builtins.length parts >= 2 then builtins.elemAt parts 2 else lazyName;
-        nixName = builtins.replaceStrings ["-" "."] ["_" "-"] repoName;
-      in nixName
-    ''
-    "tokyonight-nvim";
+  # Import additional unit tests
+  devPathTests = import ./dev-path.nix { inherit pkgs testLib moduleUnderTest; };
+  treesitterTests = import ./treesitter-parsers.nix { inherit pkgs testLib moduleUnderTest; };
+  scanUserPluginsTests = import ./scan-user-plugins.nix { inherit pkgs testLib moduleUnderTest; };
+  configGenerationTests = import ./config-generation.nix { inherit pkgs testLib moduleUnderTest; };
+  dependencyResolutionTests = import ./dependency-resolution.nix { inherit pkgs testLib moduleUnderTest; };
 
-  test-plugin-name-resolution-manual-mapping = testLib.testNixExpr
-    "plugin-name-resolution-manual-mapping"
-    ''
-      let
-        mappings = {
-          "L3MON4D3/LuaSnip" = "luasnip";
-          "catppuccin/nvim" = "catppuccin-nvim";
-        };
-      in mappings."L3MON4D3/LuaSnip"
-    ''
+in devPathTests // treesitterTests // scanUserPluginsTests // configGenerationTests // dependencyResolutionTests // {
+  # resolvePluginName: manual mappings take precedence
+  test-resolve-manual-string-mapping = testLib.testEval
+    "resolve-manual-string-mapping"
+    (resolvePluginName "L3MON4D3/LuaSnip")
     "luasnip";
 
-  test-plugin-name-resolution-multi-module = testLib.testNixExpr
-    "plugin-name-resolution-multi-module"
-    ''
-      let
-        mappings = {
-          "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
-        };
-      in mappings."nvim-mini/mini.ai".package
-    ''
+  test-resolve-manual-mapping-overrides-automatic = testLib.testEval
+    "resolve-manual-mapping-overrides-automatic"
+    (resolvePluginName "catppuccin/nvim")
+    "catppuccin-nvim";
+
+  test-resolve-multi-module-mapping = testLib.testEval
+    "resolve-multi-module-mapping"
+    (resolvePluginName "nvim-mini/mini.ai")
     "mini-nvim";
 
-  test-plugin-name-resolution-hyphen-to-underscore = testLib.testNixExpr
-    "plugin-name-resolution-hyphen-to-underscore"
-    ''
-      let
-        parts = ["owner" "some-plugin"];
-        repoName = builtins.elemAt parts 1;
-        nixName = builtins.replaceStrings ["-" "."] ["_" "-"] repoName;
-      in nixName
-    ''
+  # resolvePluginName: automatic resolution patterns for unmapped plugins
+  test-resolve-nvim-suffix-with-dot = testLib.testEval
+    "resolve-nvim-suffix-with-dot"
+    (resolvePluginName "folke/tokyonight.nvim")
+    "tokyonight-nvim";
+
+  test-resolve-nvim-suffix-with-dash = testLib.testEval
+    "resolve-nvim-suffix-with-dash"
+    (resolvePluginName "owner/telescope-nvim")
+    "telescope-nvim";
+
+  test-resolve-nvim-prefix = testLib.testEval
+    "resolve-nvim-prefix"
+    (resolvePluginName "hrsh7th/nvim-cmp")
+    "nvim-cmp";
+
+  test-resolve-fallback-dashes-to-underscores = testLib.testEval
+    "resolve-fallback-dashes-to-underscores"
+    (resolvePluginName "owner/some-plugin")
     "some_plugin";
 
-  test-plugin-name-resolution-dot-to-hyphen = testLib.testNixExpr
-    "plugin-name-resolution-dot-to-hyphen"
-    ''
-      let
-        parts = ["owner" "plugin.nvim"];
-        repoName = builtins.elemAt parts 1;
-        nixName = builtins.replaceStrings ["-" "."] ["_" "-"] repoName;
-      in nixName
-    ''
-    "plugin-nvim";
-
-  # Test multi-module plugin detection
-  test-multi-module-detection = testLib.testNixExpr
-    "multi-module-detection"
-    ''
-      let
-        mapping = { package = "mini-nvim"; module = "mini.ai"; };
-        isMultiModule = builtins.isAttrs mapping && mapping ? module;
-      in isMultiModule
-    ''
-    "true";
-
-  # Test module name extraction
-  test-module-name-extraction = testLib.testNixExpr
-    "module-name-extraction"
-    ''
-      let
-        mapping = { package = "mini-nvim"; module = "mini.ai"; };
-      in mapping.module
-    ''
-    "mini.ai";
-
-  # Test automatic resolution edge cases
-  test-plugin-resolution-single-name = testLib.testNixExpr
-    "plugin-resolution-single-name"
-    ''
-      let
-        lazyName = "single-plugin";
-        parts = ["single-plugin"];  # No "/" separator
-        repoName = if builtins.length parts == 2 then builtins.elemAt parts 1 else lazyName;
-        nixName = builtins.replaceStrings ["-" "."] ["_" "-"] repoName;
-      in nixName
-    ''
+  test-resolve-name-without-owner = testLib.testEval
+    "resolve-name-without-owner"
+    (resolvePluginName "single-plugin")
     "single_plugin";
 
-  # Test empty plugin name handling
-  test-plugin-resolution-empty = testLib.testNixExpr
-    "plugin-resolution-empty"
-    ''
-      let
-        lazyName = "";
-        parts = [];
-        repoName = if builtins.length parts == 2 then builtins.elemAt parts 1 else lazyName;
-      in repoName
-    ''
+  test-resolve-empty-name = testLib.testEval
+    "resolve-empty-name"
+    (resolvePluginName "")
     "";
 
-  # Test plugin spec validation
-  test-plugin-spec-structure = testLib.testNixExpr
-    "plugin-spec-structure"
-    ''
-      let
-        spec = {
-          name = "folke/tokyonight.nvim";
-          owner = "folke";
-          repo = "tokyonight.nvim";
-          version_info = {};
-        };
-        hasRequiredFields = spec ? name && spec ? owner && spec ? repo;
-      in hasRequiredFields
-    ''
-    "true";
+  # resolvePlugin: strategy and fallback behavior
+  test-resolve-plugin-from-nixpkgs = testLib.testEval
+    "resolve-plugin-from-nixpkgs"
+    (resolvePlugin { pluginSource = "nixpkgs"; } {
+      name = "folke/lazy.nvim";
+      version_info = { };
+    }).pname
+    pkgs.vimPlugins.lazy-nvim.pname;
 
-  # Test version info handling
-  test-version-info-extraction = testLib.testNixExpr
-    "version-info-extraction"
-    ''
-      let
-        spec = {
-          name = "folke/tokyonight.nvim";
-          owner = "folke";
-          repo = "tokyonight.nvim";
-          version_info = {
-            commit = "abc123";
-            tag = "v1.0.0";
-            sha256 = "fake-hash";
-          };
-        };
-        commit = spec.version_info.commit;
-      in commit
-    ''
-    "abc123";
+  test-resolve-plugin-unresolvable-returns-null = testLib.testEval
+    "resolve-plugin-unresolvable-returns-null"
+    (resolvePlugin { pluginSource = "nixpkgs"; } {
+      name = "nonexistent/totally-fake-plugin-xyz";
+      version_info = { };
+    } == null)
+    true;
 
-  # Test that mappings are consistent (no cycles, valid structure)
-  test-mappings-consistency = testLib.testNixExpr
-    "mappings-consistency"
-    ''
-      let
-        mappings = {
-          "L3MON4D3/LuaSnip" = "luasnip";
-          "catppuccin/nvim" = "catppuccin-nvim";
-          "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
-          "nvim-mini/mini.pairs" = { package = "mini-nvim"; module = "mini.pairs"; };
-          "folke/lazy.nvim" = "lazy-nvim";
-        };
-        validateMapping = name: mapping:
-          builtins.isString mapping ||
-          (builtins.isAttrs mapping && mapping ? package && mapping ? module);
-        allValid = builtins.all (mapping: validateMapping "test" mapping) (builtins.attrValues mappings);
-      in allValid
-    ''
-    "true";
+  # When the target version is not in nixpkgs and no sha256 is available for
+  # a source build, resolution falls back to the nixpkgs package
+  test-resolve-plugin-falls-back-to-nixpkgs-without-sha256 = testLib.testEval
+    "resolve-plugin-falls-back-to-nixpkgs-without-sha256"
+    (resolvePlugin { pluginSource = "latest"; } {
+      name = "folke/lazy.nvim";
+      version_info = { tag = "v99.99.99"; sha256 = null; };
+    }).pname
+    pkgs.vimPlugins.lazy-nvim.pname;
 
-  # Test complex plugin name patterns
-  test-complex-plugin-names = testLib.testNixExpr
-    "complex-plugin-names"
-    ''
-      let
-        # Test telescope.nvim conversion
-        telescopeName = "nvim-telescope/telescope.nvim";
-        telescopeParts = builtins.filter (x: x != "") (builtins.split "/" telescopeName);
-        telescopeRepo = if builtins.length telescopeParts >= 2 then builtins.elemAt telescopeParts 2 else telescopeName;
-        telescopeNix = builtins.replaceStrings ["-" "."] ["_" "-"] telescopeRepo;
+  test-resolve-plugin-branch-requires-source-build = testLib.testEval
+    "resolve-plugin-branch-requires-source-build"
+    (resolvePlugin { pluginSource = "latest"; } {
+      name = "folke/tokyonight.nvim";
+      version_info = {
+        lazyvim_version = "main";
+        lazyvim_version_type = "branch";
+        sha256 = lib.fakeSha256;
+      };
+    }).version
+    "main";
 
-        # Test nvim-cmp conversion
-        cmpName = "hrsh7th/nvim-cmp";
-        cmpParts = builtins.filter (x: x != "") (builtins.split "/" cmpName);
-        cmpRepo = if builtins.length cmpParts >= 2 then builtins.elemAt cmpParts 2 else cmpName;
-        cmpNix = builtins.replaceStrings ["-" "."] ["_" "-"] cmpRepo;
+  # buildVimPluginFromSource: version selection priority
+  test-build-from-source-tag-beats-commit = testLib.testEval
+    "build-from-source-tag-beats-commit"
+    (buildVimPluginFromSource {
+      name = "folke/tokyonight.nvim";
+      version_info = {
+        tag = "v1.2.3";
+        commit = "abc1234";
+        sha256 = lib.fakeSha256;
+      };
+    }).version
+    "v1.2.3";
 
-        # Check results
-        telescopeCorrect = telescopeNix == "telescope-nvim";
-        cmpCorrect = cmpNix == "nvim_cmp";
-      in telescopeCorrect && cmpCorrect
-    ''
-    "true";
-} // (import ./dependency-resolution.nix { inherit pkgs testLib; })
+  test-build-from-source-lazyvim-version-beats-tag = testLib.testEval
+    "build-from-source-lazyvim-version-beats-tag"
+    (buildVimPluginFromSource {
+      name = "folke/tokyonight.nvim";
+      version_info = {
+        lazyvim_version = "v2.0.0";
+        tag = "v1.0.0";
+        sha256 = lib.fakeSha256;
+      };
+    }).version
+    "v2.0.0";
+
+  test-build-from-source-latest-version-beats-commit = testLib.testEval
+    "build-from-source-latest-version-beats-commit"
+    (buildVimPluginFromSource {
+      name = "folke/tokyonight.nvim";
+      version_info = {
+        latest_version = "v3.0.0";
+        commit = "abc1234";
+        sha256 = lib.fakeSha256;
+      };
+    }).version
+    "v3.0.0";
+
+  # Plugins hosted outside GitHub (e.g. Codeberg) are fetched from source_url
+  test-build-from-source-uses-source-url = testLib.testEval
+    "build-from-source-uses-source-url"
+    (buildVimPluginFromSource {
+      name = "owner/some-plugin";
+      source_url = "https://codeberg.org/owner/some-plugin";
+      version_info = {
+        tag = "v1.0.0";
+        sha256 = lib.fakeSha256;
+      };
+    }).meta.homepage
+    "https://codeberg.org/owner/some-plugin";
+
+  test-build-from-source-pname-is-repo = testLib.testEval
+    "build-from-source-pname-is-repo"
+    (buildVimPluginFromSource {
+      name = "folke/tokyonight.nvim";
+      version_info = {
+        tag = "v1.2.3";
+        sha256 = lib.fakeSha256;
+      };
+    }).pname
+    "tokyonight.nvim";
+
+  # Shipped data/mappings.json: every mapping is a string or { package, module }
+  test-real-mappings-structure-valid = testLib.testEval
+    "real-mappings-structure-valid"
+    (builtins.all (mapping:
+      builtins.isString mapping ||
+      (builtins.isAttrs mapping && mapping ? package && mapping ? module)
+    ) (builtins.attrValues realMappings))
+    true;
+}

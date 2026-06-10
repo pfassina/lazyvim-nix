@@ -563,6 +563,20 @@ function ExtractLazyVimPlugins(lazyvim_path, output_file, version, commit, opts)
 			target.tag = version_info.lazyvim_version
 			target.latest_tag = version_info.lazyvim_version
 			target.commit = remote_info.tags[version_info.lazyvim_version]
+		elseif version_info.lazyvim_version_type == "version" and version_info.lazyvim_version then
+			-- Semver range (e.g. "*"): lazy.nvim resolves this to the latest
+			-- stable semver tag, not the tip of the default branch. Fall back to
+			-- HEAD only when the repo publishes no semver tags.
+			local tag, tag_commit = select_latest_tag(remote_info.tags)
+			if tag and tag_commit then
+				target.mode = "tag"
+				target.tag = tag
+				target.latest_tag = tag
+				target.commit = tag_commit
+			else
+				target.mode = "head"
+				target.commit = remote_info.head
+			end
 		elseif version_info.lazyvim_version == false or (version_info.lazyvim_version_type == "version" and version_info.lazyvim_version == false) then
 			target.mode = "head"
 			target.commit = remote_info.head

@@ -1,5 +1,7 @@
 # Unit tests for dependency resolution logic
-{ pkgs, testLib }:
+# Imports the real nix/lib/dependencies.nix and verifies systemPackages
+# against mock dependency data and the real nixpkgs package set.
+{ pkgs, testLib, moduleUnderTest }:
 
 let
   lib = pkgs.lib;
@@ -18,7 +20,7 @@ let
           nixpkg = "python3Packages.ruff";
           runtime_dependencies = [
             { name = "python3"; nixpkg = "python3"; }
-            { name = "pip"; } # No nixpkg mapping
+            { name = "pip"; } # Package manager, intentionally unmapped
           ];
         }
       ];
@@ -38,330 +40,112 @@ let
           ];
         }
       ];
-      "formatting.prettier" = [
-        {
-          name = "prettier";
-          nixpkg = "prettier";
-          runtime_dependencies = [
-            { name = "nodejs"; nixpkg = "nodejs"; }
-            { name = "npm"; } # No nixpkg mapping
-          ];
-        }
+      "lang.unmapped" = [
+        { name = "exotic-tool"; } # No nixpkg mapping at all
+      ];
+      "lang.missing" = [
+        { name = "ghost-tool"; nixpkg = "this-package-does-not-exist-xyz"; }
       ];
     };
   };
 
-  # Helper to simulate resolvePackage function
-  resolvePackage = pkgName:
-    if pkgs ? ${pkgName} then pkgs.${pkgName}
-    else null;
+  # The real dependencies library under test
+  depsLib = import ../../nix/lib/dependencies.nix {
+    inherit lib pkgs;
+    dependencies = mockDependencies;
+    ignoreBuildNotifications = true;
+  };
 
-  # Helper to simulate core package resolution
-  resolveCorePackages = installCoreDeps:
-    if installCoreDeps then
-      lib.filter (pkg: pkg != null) (map (tool:
-        if tool ? nixpkg then resolvePackage tool.nixpkg else null
-      ) mockDependencies.core)
-    else [];
+  inherit (depsLib) systemPackages;
 
-  # Helper to simulate extra package resolution
-  resolveExtraPackages = extraName: installDeps: installRuntimeDeps:
-    let
-      extraTools = mockDependencies.extras.${extraName} or [];
-    in
-      if extraTools != [] then
-        let
-          # Get tool packages
-          toolPackages = if installDeps then
-            lib.filter (pkg: pkg != null) (map (tool:
-              if tool ? nixpkg then resolvePackage tool.nixpkg else null
-            ) extraTools)
-          else [];
+  baseCfg = {
+    enable = true;
+    installCoreDependencies = false;
+    extras = {
+      lang = {
+        python = { };
+        go = { };
+        unmapped = { };
+        missing = { };
+      };
+    };
+  };
 
-          # Get runtime dependency packages
-          runtimeDependencyPackages = if installRuntimeDeps then
-            lib.unique (lib.flatten (map (tool:
-              if tool ? runtime_dependencies then map (dep:
-                if dep ? nixpkg then resolvePackage dep.nixpkg else null
-              ) tool.runtime_dependencies else []
-            ) extraTools))
-          else [];
-
-          validRuntimeDeps = lib.filter (pkg: pkg != null) runtimeDependencyPackages;
-        in
-          toolPackages ++ validRuntimeDeps
-      else [];
+  namesOf = packages: map lib.getName packages;
 
 in {
-  # Simple test for dependency resolution JSON structure
-  test-expr-dependencies-json-structure = testLib.testNixExpr
-    "dependencies-json-structure"
-    ''
-      let
-        # Use mock data since file paths don't work in test evaluation context
-        dependencies = {
-          core = [
-            { name = "git"; nixpkg = "git"; }
-            { name = "rg"; nixpkg = "ripgrep"; }
-            { name = "fd"; nixpkg = "fd"; }
-          ];
-          extras = {
-            "lang.python" = [
-              {
-                name = "ruff";
-                nixpkg = "python3Packages.ruff";
-                runtime_dependencies = [
-                  { name = "python3"; nixpkg = "python3"; }
-                  { name = "pip"; }
-                ];
-              }
-            ];
-            "lang.go" = [
-              {
-                name = "gopls";
-                nixpkg = "gopls";
-                runtime_dependencies = [
-                  { name = "go"; nixpkg = "go"; }
-                ];
-              }
-            ];
-          };
-        };
-        hasCore = dependencies ? core;
-        hasExtras = dependencies ? extras;
-        coreIsArray = builtins.isList dependencies.core;
-      in hasCore && hasExtras && coreIsArray
-    ''
+  # Disabled module yields no packages
+  test-system-packages-disabled = testLib.testEval
+    "system-packages-disabled"
+    (systemPackages (baseCfg // { enable = false; }) [ "lang.python" ])
+    [ ];
+
+  # Core dependencies are resolved when installCoreDependencies is enabled
+  test-core-packages-installed = testLib.testEval
+    "core-packages-installed"
+    (namesOf (systemPackages (baseCfg // { installCoreDependencies = true; }) [ ]) ==
+      [ "git" "ripgrep" "fd" ])
     true;
 
-  # Test that dependencies.json contains expected core tools
-  test-expr-core-dependencies-content = testLib.testNixExpr
-    "core-dependencies-content"
-    ''
-      let
-        # Use mock data since file paths don't work in test evaluation context
-        dependencies = {
-          core = [
-            { name = "git"; nixpkg = "git"; }
-            { name = "rg"; nixpkg = "ripgrep"; }
-            { name = "fd"; nixpkg = "fd"; }
-          ];
-          extras = {
-            "lang.python" = [
-              {
-                name = "ruff";
-                nixpkg = "python3Packages.ruff";
-                runtime_dependencies = [
-                  { name = "python3"; nixpkg = "python3"; }
-                  { name = "pip"; }
-                ];
-              }
-            ];
-            "lang.go" = [
-              {
-                name = "gopls";
-                nixpkg = "gopls";
-                runtime_dependencies = [
-                  { name = "go"; nixpkg = "go"; }
-                ];
-              }
-            ];
-          };
-        };
-        coreTools = map (tool: tool.name) dependencies.core;
-        hasGit = builtins.elem "git" coreTools;
-        hasRipgrep = builtins.elem "rg" coreTools;
-        hasFd = builtins.elem "fd" coreTools;
-      in hasGit && hasRipgrep && hasFd
-    ''
+  # Core dependencies are skipped when installCoreDependencies is disabled
+  test-core-packages-skipped = testLib.testEval
+    "core-packages-skipped"
+    (systemPackages baseCfg [ ])
+    [ ];
+
+  # Extra tools are installed only when installDependencies is set
+  test-extra-tools-installed = testLib.testEval
+    "extra-tools-installed"
+    (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.python.installDependencies = true;
+    }) [ "lang.python" ]) == [ "ruff" ])
     true;
 
-  # Test that extras contain expected language configs
-  test-expr-extras-structure = testLib.testNixExpr
-    "extras-structure"
-    ''
-      let
-        # Use mock data since file paths don't work in test evaluation context
-        dependencies = {
-          core = [
-            { name = "git"; nixpkg = "git"; }
-            { name = "rg"; nixpkg = "ripgrep"; }
-            { name = "fd"; nixpkg = "fd"; }
-          ];
-          extras = {
-            "lang.python" = [
-              {
-                name = "ruff";
-                nixpkg = "python3Packages.ruff";
-                runtime_dependencies = [
-                  { name = "python3"; nixpkg = "python3"; }
-                  { name = "pip"; }
-                ];
-              }
-            ];
-            "lang.go" = [
-              {
-                name = "gopls";
-                nixpkg = "gopls";
-                runtime_dependencies = [
-                  { name = "go"; nixpkg = "go"; }
-                ];
-              }
-            ];
-          };
-        };
-        extras = dependencies.extras;
-        hasPython = extras ? "lang.python";
-        hasGo = extras ? "lang.go";
-      in hasPython && hasGo
-    ''
-    true;
-
-  # Test runtime_dependencies structure in extras
-  test-expr-runtime-dependencies-structure = testLib.testNixExpr
-    "runtime-dependencies-structure"
-    ''
-      let
-        # Use mock data since file paths don't work in test evaluation context
-        dependencies = {
-          core = [
-            { name = "git"; nixpkg = "git"; }
-            { name = "rg"; nixpkg = "ripgrep"; }
-            { name = "fd"; nixpkg = "fd"; }
-          ];
-          extras = {
-            "lang.python" = [
-              {
-                name = "ruff";
-                nixpkg = "python3Packages.ruff";
-                runtime_dependencies = [
-                  { name = "python3"; nixpkg = "python3"; }
-                  { name = "pip"; }
-                ];
-              }
-            ];
-            "lang.go" = [
-              {
-                name = "gopls";
-                nixpkg = "gopls";
-                runtime_dependencies = [
-                  { name = "go"; nixpkg = "go"; }
-                ];
-              }
-            ];
-          };
-        };
-        pythonTools = dependencies.extras."lang.python" or [];
-        hasRuntimeDeps = builtins.any (tool: tool ? runtime_dependencies) pythonTools;
-      in hasRuntimeDeps
-    ''
-    true;
-
-  # Test that basic list operations work as expected
-  test-expr-basic-list-operations = testLib.testNixExpr
-    "basic-list-operations"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        testList = [1 2 null 3 null];
-        filtered = lib.filter (x: x != null) testList;
-        unique = lib.unique [1 2 2 3];
-      in builtins.length filtered == 3 && builtins.length unique == 3
-    ''
-    true;
-
-  # Test package availability concept
-  test-expr-package-availability = testLib.testNixExpr
-    "package-availability"
-    ''
-      let
-        pkgs = import <nixpkgs> {};
-        hasGit = pkgs ? git;
-        hasRipgrep = pkgs ? ripgrep;
-        hasFd = pkgs ? fd;
-      in hasGit && hasRipgrep && hasFd
-    ''
-    true;
-
-  # Test nested package path resolution (the actual fix)
-  test-expr-nested-package-resolution = testLib.testNixExpr
+  # Nested package paths like python3Packages.ruff resolve to the real package
+  test-nested-package-resolution = testLib.testEval
     "nested-package-resolution"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
-        pkgs = import <nixpkgs> {};
-
-        # Test the actual resolvePackage function from dependencies.nix
-        resolvePackage = pkgName:
-          let
-            pathParts = lib.splitString "." pkgName;
-            resolveNested = pkg: parts:
-              if parts == [] then pkg
-              else if pkg ? ''${lib.head parts} then
-                resolveNested pkg.''${lib.head parts} (lib.tail parts)
-              else null;
-          in
-            let resolved = resolveNested pkgs pathParts; in
-            if resolved != null then resolved else null;
-
-        # Test cases
-        simplePackage = resolvePackage "git";
-        nestedPackage = resolvePackage "python3Packages.ruff";
-        nonExistentPackage = resolvePackage "nonexistent.package";
-        nonExistentNested = resolvePackage "python3Packages.nonexistent";
-
-        # Verify results
-        simpleWorks = simplePackage != null;
-        nestedWorks = nestedPackage != null;
-        nonExistentFails = nonExistentPackage == null;
-        nonExistentNestedFails = nonExistentNested == null;
-
-      in simpleWorks && nestedWorks && nonExistentFails && nonExistentNestedFails
-    ''
+    (builtins.elem pkgs.python3Packages.ruff (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.python.installDependencies = true;
+    }) [ "lang.python" ]))
     true;
 
-  # Test that old broken resolution would fail on nested packages
-  test-expr-old-resolution-fails = testLib.testNixExpr
-    "old-resolution-fails"
-    ''
-      let
-        pkgs = import <nixpkgs> {};
-
-        # Old broken resolvePackage function
-        oldResolvePackage = pkgName:
-          if pkgs ? ''${pkgName} then pkgs.''${pkgName}
-          else null;
-
-        # Test cases that should demonstrate the problem
-        simplePackage = oldResolvePackage "git";
-        nestedPackage = oldResolvePackage "python3Packages.ruff";
-
-        # Simple should work, nested should fail
-        simpleWorks = simplePackage != null;
-        nestedFails = nestedPackage == null;
-
-      in simpleWorks && nestedFails
-    ''
+  # Runtime dependencies are installed only when installRuntimeDependencies is
+  # set; unmapped package managers (pip) are skipped silently
+  test-runtime-dependencies-installed = testLib.testEval
+    "runtime-dependencies-installed"
+    (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.python.installRuntimeDependencies = true;
+    }) [ "lang.python" ]) == [ "python3" ])
     true;
 
-  # Test package path splitting logic
-  test-expr-path-splitting = testLib.testNixExpr
-    "path-splitting"
-    ''
-      let
-        lib = (import <nixpkgs> {}).lib;
+  # An enabled extra with no installation options contributes no packages
+  test-extra-without-install-options = testLib.testEval
+    "extra-without-install-options"
+    (systemPackages baseCfg [ "lang.python" ])
+    [ ];
 
-        # Test splitting logic
-        simplePath = lib.splitString "." "git";
-        nestedPath = lib.splitString "." "python3Packages.ruff";
-        deepPath = lib.splitString "." "a.b.c.d";
+  # Tools without a nixpkgs mapping are skipped without failing the build
+  test-unmapped-tool-skipped = testLib.testEval
+    "unmapped-tool-skipped"
+    (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.unmapped.installDependencies = true;
+    }) [ "lang.unmapped" ])
+    [ ];
 
-        # Verify results
-        simpleCorrect = simplePath == ["git"];
-        nestedCorrect = nestedPath == ["python3Packages" "ruff"];
-        deepCorrect = deepPath == ["a" "b" "c" "d"];
+  # Mapped names that don't exist in nixpkgs resolve to null and are filtered
+  test-missing-nixpkgs-package-skipped = testLib.testEval
+    "missing-nixpkgs-package-skipped"
+    (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.missing.installDependencies = true;
+    }) [ "lang.missing" ])
+    [ ];
 
-      in simpleCorrect && nestedCorrect && deepCorrect
-    ''
-    true;
+  # Packages appearing as both tool and runtime dependency are deduplicated
+  test-packages-deduplicated = testLib.testEval
+    "packages-deduplicated"
+    (builtins.length (lib.filter (name: name == "go") (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.go.installDependencies = true;
+      extras.lang.go.installRuntimeDependencies = true;
+    }) [ "lang.go" ]))))
+    1;
 }
