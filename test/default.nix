@@ -91,17 +91,48 @@ let
           '';
   };
 
-  # Load all test suites
-  unitTests = import ./unit { inherit pkgs testLib moduleUnderTest; };
-  integrationTests = import ./integration/simple.nix { inherit pkgs testLib moduleUnderTest; } //
-                     import ./integration/critical.nix { inherit pkgs testLib moduleUnderTest; } //
-                     import ./integration/issue33-fix.nix { inherit pkgs testLib moduleUnderTest; } //
-                     import ./integration/nested-extras.nix { inherit pkgs testLib moduleUnderTest; };
-  propertyTests = import ./property/simple.nix { inherit pkgs testLib moduleUnderTest; };
-  regressionTests = import ./regression/simple.nix { inherit pkgs testLib moduleUnderTest; } //
-                    import ./regression/lazyvim-compliance.nix { inherit pkgs testLib moduleUnderTest; } //
-                    import ./regression/fetchgit-hashes.nix { inherit pkgs testLib moduleUnderTest; };
-  e2eTests = import ./e2e/simple.nix { inherit pkgs testLib moduleUnderTest; };
+  # Auto-import all test files in a suite directory.
+  #
+  # Every regular *.nix file in `dir` is imported with the standard test
+  # signature `{ pkgs, testLib, moduleUnderTest }:` and the resulting
+  # attrsets are merged. Two files defining the same test attribute name is
+  # an evaluation error: a plain `//` merge would silently keep only one.
+  # Non-.nix entries, subdirectories, and symlinks are ignored.
+  importSuite = dir:
+    let
+      inherit (pkgs) lib;
+
+      testFiles = lib.filterAttrs
+        (name: type: type == "regular" && lib.hasSuffix ".nix" name)
+        (builtins.readDir dir);
+
+      # file name -> attrset of tests defined by that file
+      perFile = lib.mapAttrs
+        (name: _: import (dir + "/${name}") { inherit pkgs testLib moduleUnderTest; })
+        testFiles;
+
+      # test name -> list of file names defining it
+      definitions = lib.zipAttrs
+        (lib.mapAttrsToList (file: tests: lib.mapAttrs (_: _: file) tests) perFile);
+
+      duplicates = lib.filterAttrs (_: files: builtins.length files > 1) definitions;
+    in
+    if duplicates == { } then
+      lib.foldl' (acc: tests: acc // tests) { } (builtins.attrValues perFile)
+    else
+      throw ''
+        importSuite: duplicate test names in ${toString dir}:
+        ${lib.concatStringsSep "\n" (lib.mapAttrsToList
+          (testName: files: "  '${testName}' is defined in: ${lib.concatStringsSep ", " files}")
+          duplicates)}
+      '';
+
+  # Load all test suites by scanning the suite directories
+  unitTests = importSuite ./unit;
+  integrationTests = importSuite ./integration;
+  propertyTests = importSuite ./property;
+  regressionTests = importSuite ./regression;
+  e2eTests = importSuite ./e2e;
 
   # Combine all tests
   allTests = unitTests // integrationTests // propertyTests // regressionTests // e2eTests;

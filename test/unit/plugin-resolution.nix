@@ -1,4 +1,4 @@
-# Unit tests for LazyVim module functions
+# Unit tests for plugin name resolution and plugin building
 # These tests import the real implementation from nix/lib/ and verify its
 # behavior - they intentionally do not re-implement any module logic.
 { pkgs, testLib, moduleUnderTest }:
@@ -27,14 +27,7 @@ let
   # Real shipped mappings, to validate their structure
   realMappings = builtins.fromJSON (builtins.readFile ../../data/mappings.json);
 
-  # Import additional unit tests
-  devPathTests = import ./dev-path.nix { inherit pkgs testLib moduleUnderTest; };
-  treesitterTests = import ./treesitter-parsers.nix { inherit pkgs testLib moduleUnderTest; };
-  scanUserPluginsTests = import ./scan-user-plugins.nix { inherit pkgs testLib moduleUnderTest; };
-  configGenerationTests = import ./config-generation.nix { inherit pkgs testLib moduleUnderTest; };
-  dependencyResolutionTests = import ./dependency-resolution.nix { inherit pkgs testLib moduleUnderTest; };
-
-in devPathTests // treesitterTests // scanUserPluginsTests // configGenerationTests // dependencyResolutionTests // {
+in {
   # resolvePluginName: manual mappings take precedence
   test-resolve-manual-string-mapping = testLib.testEval
     "resolve-manual-string-mapping"
