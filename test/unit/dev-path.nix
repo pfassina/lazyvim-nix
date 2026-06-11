@@ -44,7 +44,9 @@ let
 
   devPath = createDevPath devPathSpecs devPathResolved;
 
-  # generateDevPluginSpecs must exclude treesitter plugins and unresolved ones
+  # generateDevPluginSpecs must exclude nvim-treesitter (it gets a dedicated
+  # spec from the starter patcher) and unresolved plugins; everything else,
+  # including nvim-treesitter-textobjects, is dev-managed
   devSpecs = generateDevPluginSpecs devPathLib [
     { name = "folke/lazy.nvim"; }
     { name = "nvim-treesitter/nvim-treesitter"; }
@@ -94,10 +96,10 @@ in {
     (builtins.head devSpecs)
     ''{ "lazy.nvim", dev = true, pin = true },'';
 
-  # generateDevPluginSpecs: treesitter plugins and unresolved plugins are
-  # excluded, leaving only the one regular resolved plugin
+  # generateDevPluginSpecs: nvim-treesitter and unresolved plugins are
+  # excluded, leaving lazy.nvim and nvim-treesitter-textobjects
   test-dev-specs-exclusions = testLib.testEval
     "dev-specs-exclusions"
     (builtins.length devSpecs)
-    1;
+    2;
 }

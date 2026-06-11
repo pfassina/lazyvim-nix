@@ -48,10 +48,11 @@ rec {
   # Generate dev plugin specs for available plugins
   generateDevPluginSpecs = self: allPluginSpecs: resolvedPlugins:
     let
+      # nvim-treesitter is excluded here because the starter patcher injects a
+      # dedicated spec for it (see starter-patcher.nix defaultTreesitterSpec).
       devPluginSpecs = lib.zipListsWith (spec: plugin:
         if plugin != null &&
-           spec.name != "nvim-treesitter/nvim-treesitter" &&
-           spec.name != "nvim-treesitter/nvim-treesitter-textobjects" then
+           spec.name != "nvim-treesitter/nvim-treesitter" then
           ''{ "${self.getRepoName spec.name}", dev = true, pin = true },''
         else
           null
