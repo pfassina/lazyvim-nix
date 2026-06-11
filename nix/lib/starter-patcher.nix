@@ -30,29 +30,16 @@ let
     fallback = false,
   },'';
 
-  # The treesitter spec for Nix-managed parsers
+  # The treesitter spec for Nix-managed parsers.
+  # Parsers and queries are pre-built by Nix and linked into
+  # stdpath("data")/site, where nvim-treesitter (main branch) discovers them.
+  # LazyVim's own spec provides opts/event/config; only disable the build
+  # step and point lazy.nvim at the Nix-managed plugin.
   defaultTreesitterSpec = ''
 {
       "nvim-treesitter/nvim-treesitter",
-      event = { "BufReadPost", "BufNewFile", "BufWritePre", "VeryLazy" },
-      cmd = { "TSUpdate", "TSInstall", "TSLog", "TSUninstall" },
       -- [NIX] Parser compilation is skipped when using Nix
       build = false,
-      opts = {
-        auto_install = false,
-        ensure_installed = {},
-        highlight = { enable = true },
-        indent = { enable = true },
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = "<C-space>",
-            node_incremental = "<C-space>",
-            scope_incremental = false,
-            node_decremental = "<bs>",
-          },
-        },
-      },
       dev = true,
       pin = true,
     },'';
