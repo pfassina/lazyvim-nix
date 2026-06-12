@@ -135,6 +135,27 @@ programs.lazyvim = {
 };
 ```
 
+Plugin specs can also be written as Nix attrsets instead of Lua strings, using the `lazyConfig` helper from the flake's `lib` output:
+
+```nix
+programs.lazyvim.plugins = {
+  colorscheme = inputs.lazyvim-nix.lib.lazyConfig {
+    plugin = "catppuccin/nvim";
+    opts = { flavour = "mocha"; };
+  };
+
+  # A list generates multiple specs in one file; embed Lua code
+  # (e.g. functions) with lib.generators.mkLuaInline from nixpkgs
+  editor = inputs.lazyvim-nix.lib.lazyConfig [
+    { plugin = "neovim/nvim-lspconfig"; opts.servers.nixd = { }; }
+    { plugin = "folke/noice.nvim";
+      opts.routes = lib.generators.mkLuaInline "function() return my_routes end"; }
+  ];
+};
+```
+
+This works anywhere a Lua string is expected, including extras `config` overrides.
+
 #### Option 2: File-based Configuration
 
 For larger configurations, you can organize your LazyVim config files in a directory:
