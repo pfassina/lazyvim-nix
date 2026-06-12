@@ -347,11 +347,29 @@ with lib;
             end,
           }
         ''';
+
+        # Generated from Nix attrsets via the flake's lib helpers
+        tokyonight-from-nix = inputs.lazyvim-nix.lib.lazyConfig {
+          plugin = "folke/tokyonight.nvim";
+          opts = { style = "night"; transparent = true; };
+        };
+
+        # Embed Lua code (e.g. functions) with lib.generators.mkLuaInline
+        noice-from-nix = inputs.lazyvim-nix.lib.lazyConfig {
+          plugin = "folke/noice.nvim";
+          opts.routes = lib.generators.mkLuaInline "function() return my_routes end";
+        };
       }
     '';
     description = ''
       Plugin configuration files. Each key becomes a file lua/plugins/{key}.lua
       with the corresponding Lua code. These files are automatically loaded by LazyVim.
+
+      Values are raw Lua. To generate them from Nix attrsets instead, use the
+      flake's helpers: `inputs.lazyvim-nix.lib.lazyConfig` (single spec or list
+      of specs) and `inputs.lazyvim-nix.lib.lazyPlugin` (single spec table).
+      Use `lib.generators.mkLuaInline` from nixpkgs to embed Lua code, such as
+      functions, inside a spec attrset.
     '';
   };
 }

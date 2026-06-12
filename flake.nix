@@ -36,6 +36,9 @@
       homeManagerModules.default = ./nix/module.nix;
       homeManagerModules.lazyvim = ./nix/module.nix;
 
+      # Helpers for writing programs.lazyvim.plugins values as Nix attrsets
+      lib = import ./nix/lib/lua-generation.nix { inherit (nixpkgs) lib; };
+
       overlays.default = final: _prev: {
         lazyvimPluginData = builtins.fromJSON (builtins.readFile ./data/plugins.json);
         lazyvimPluginMappings = builtins.fromJSON (builtins.readFile ./data/mappings.json);
