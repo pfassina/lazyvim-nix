@@ -304,6 +304,12 @@ in {
         source = fileInfo.file;
       }
     ) scannedFiles.pluginFiles)
+    # Add runtime files from configFiles (after/, snippets/, queries/, ...)
+    // (lib.mapAttrs' (name: fileInfo:
+      lib.nameValuePair fileInfo.targetPath {
+        source = fileInfo.file;
+      }
+    ) scannedFiles.runtimeFiles)
     # Generate extras config override files
     // extrasConfigFiles
     # Add default plugin file when no plugins are defined to prevent LazyVim error

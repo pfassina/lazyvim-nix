@@ -90,7 +90,8 @@ in {
   test-scan-config-files-null-path = testLib.testEval
     "scan-config-files-null-path"
     (let result = scanConfigFiles null "nvim";
-     in result.configFiles == { } && result.pluginFiles == { })
+     in result.configFiles == { } && result.pluginFiles == { }
+        && result.runtimeFiles == { })
     true;
 
   # scanConfigFiles: a nonexistent path fails loudly
@@ -123,6 +124,37 @@ in {
     (builtins.attrNames scannedConfigFiles.configFiles == [ "keymaps" "options" ] &&
      builtins.attrNames scannedConfigFiles.pluginFiles == [ "colorscheme" ])
     true;
+
+  # scanConfigFiles: runtime files keep their relative path at the config root
+  test-scan-config-files-runtime-preserves-path = testLib.testEval
+    "scan-config-files-runtime-preserves-path"
+    scannedConfigFiles.runtimeFiles."after/queries/elixir/injections.scm".targetPath
+    "nvim/after/queries/elixir/injections.scm";
+
+  # scanConfigFiles: runtime files are not limited to Lua
+  test-scan-config-files-runtime-non-lua = testLib.testEval
+    "scan-config-files-runtime-non-lua"
+    scannedConfigFiles.runtimeFiles."snippets/global.json".targetPath
+    "nvim/snippets/global.json";
+
+  # scanConfigFiles: ftplugin Lua files land under ftplugin/, not lua/
+  test-scan-config-files-runtime-ftplugin = testLib.testEval
+    "scan-config-files-runtime-ftplugin"
+    scannedConfigFiles.runtimeFiles."ftplugin/nix.lua".targetPath
+    "nvim/ftplugin/nix.lua";
+
+  # scanConfigFiles: only the curated runtime dirs are copied; pack/ and
+  # parser/ are excluded, as are root-level files
+  test-scan-config-files-runtime-allowlist-only = testLib.testEval
+    "scan-config-files-runtime-allowlist-only"
+    (builtins.attrNames scannedConfigFiles.runtimeFiles)
+    [ "after/queries/elixir/injections.scm" "ftplugin/nix.lua" "snippets/global.json" ];
+
+  # scanConfigFiles: runtime files never leak into plugin categorization
+  test-scan-config-files-runtime-not-in-plugins = testLib.testEval
+    "scan-config-files-runtime-not-in-plugins"
+    (builtins.attrNames scannedConfigFiles.pluginFiles)
+    [ "colorscheme" ];
 
   # detectConflicts: no conflict when inline config is empty
   test-detect-conflicts-none = testLib.testEval
