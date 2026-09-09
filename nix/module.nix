@@ -30,6 +30,7 @@ let
   };
   configLib = import ./lib/config-generation.nix { inherit lib; };
   fileLib = import ./lib/file-scanning.nix { inherit lib; };
+  packagePathsLib = import ./lib/package-paths.nix { inherit lib; };
 
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
@@ -206,6 +207,12 @@ let
   # Detect conflicts and ensure no conflicts exist
   conflictChecks = fileLib.detectConflicts cfg scannedFiles;
 
+  packagePathConfigFiles = packagePathsLib.configFiles {
+    inherit (cfg) appName;
+    inherit enabledExtraNames;
+    typescriptSveltePlugin = pkgs.typescript-svelte-plugin;
+  };
+
 in {
   # Import module options
   options.programs.lazyvim = import ./options.nix { inherit lib dataLib; };
@@ -312,6 +319,8 @@ in {
     ) scannedFiles.runtimeFiles)
     # Generate extras config override files
     // extrasConfigFiles
+    # Resolve extra package paths from Nix store paths
+    // packagePathConfigFiles
     # Add default plugin file when no plugins are defined to prevent LazyVim error
     // (
       let
