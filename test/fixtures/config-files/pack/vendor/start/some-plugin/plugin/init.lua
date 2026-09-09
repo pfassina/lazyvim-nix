@@ -1,0 +1,1 @@
+-- must not be copied: pack/ bypasses Nix plugin management

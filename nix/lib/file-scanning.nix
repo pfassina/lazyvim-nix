@@ -39,11 +39,24 @@
   # Helper function to scan config files from a directory
   scanConfigFiles = configPath: appName:
     if configPath == null then
-      { configFiles = {}; pluginFiles = {}; }
+      { configFiles = {}; pluginFiles = {}; runtimeFiles = {}; }
     else if !builtins.pathExists configPath then
       builtins.throw "configFiles path does not exist: ${toString configPath}"
     else
       let
+        # Runtime directories copied verbatim to the config root. These hold
+        # runtime data Neovim discovers via 'runtimepath' (see :h runtimepath),
+        # e.g. after/queries/*.scm, snippets/, ftplugin/. Deliberately excluded:
+        # pack/ (would sideload plugins around the Nix plugin system) and
+        # parser/ (treesitter parsers are managed via treesitterParsers).
+        runtimeDirs = [
+          "after" "colors" "ftplugin" "indent" "lsp"
+          "queries" "snippets" "spell" "syntax"
+        ];
+
+        isRuntimeFile = relPath:
+          lib.any (dir: lib.hasPrefix "${dir}/" relPath) runtimeDirs;
+
         # Get all files in the directory recursively
         allFiles = lib.filesystem.listFilesRecursive configPath;
 
@@ -96,8 +109,21 @@
             else
               null;
 
-        # Process all files and filter out nulls
-        processedFiles = lib.filter (f: f != null) (map processFile allFiles);
+        # Process all files and filter out nulls; runtime files are handled
+        # separately below and must not go through Lua categorization
+        processedFiles = lib.filter (f: f != null)
+          (map processFile
+            (lib.filter (file: !isRuntimeFile (getRelativePath file)) allFiles));
+
+        # Runtime files keep their relative path at the config root
+        # (e.g. after/queries/elixir/injections.scm -> nvim/after/queries/...)
+        runtimeFiles = lib.listToAttrs (map (file:
+          let relPath = getRelativePath file; in
+          lib.nameValuePair relPath {
+            inherit file;
+            targetPath = "${appName}/${relPath}";
+          }
+        ) (lib.filter (file: isRuntimeFile (getRelativePath file)) allFiles));
 
         # Separate config files from plugin files
         configFilesList = lib.filter (f:
@@ -120,7 +146,7 @@
             lib.nameValuePair pluginName f
         ) pluginFilesList);
       in
-        { inherit configFiles pluginFiles; };
+        { inherit configFiles pluginFiles runtimeFiles; };
 
   # Detect conflicts between configFiles and existing options
   detectConflicts = cfg: scannedFiles:
