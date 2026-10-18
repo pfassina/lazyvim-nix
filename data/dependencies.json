@@ -1,605 +1,924 @@
 {
-  "_comment": "LazyVim system dependencies with verified nixpkgs mappings - tools and their runtime_dependencies",
-  "core": [
-    {
-      "name": "git",
-      "nixpkg": "git"
-    },
-    {
-      "name": "rg",
-      "nixpkg": "ripgrep"
-    },
-    {
-      "name": "fd",
-      "nixpkg": "fd"
-    },
-    {
-      "name": "fdfind",
-      "nixpkg": "fd"
-    },
-    {
-      "name": "lazygit",
-      "nixpkg": "lazygit"
-    },
-    {
-      "name": "fzf",
-      "nixpkg": "fzf"
-    },
-    {
-      "name": "curl",
-      "nixpkg": "curl"
-    }
-  ],
-  "extras": {
-    "editor.fzf": [
+   "_comment" : "LazyVim system dependencies with verified nixpkgs mappings - tools and their runtime_dependencies",
+   "core" : [
       {
-        "name": "delta",
-        "nixpkg": "delta"
+         "name" : "git",
+         "nixpkg" : "git"
       },
       {
-        "name": "jump1"
+         "name" : "rg",
+         "nixpkg" : "ripgrep"
       },
       {
-        "name": "ignore_current_line"
+         "name" : "fd",
+         "nixpkg" : "fd"
       },
       {
-        "name": "has"
-      }
-    ],
-    "editor.inc-rename": [
-      {
-        "name": "inc_rename"
+         "name" : "fdfind",
+         "nixpkg" : "fd"
       },
       {
-        "name": "expr"
+         "name" : "lazygit",
+         "nixpkg" : "lazygit"
       },
       {
-        "name": "has"
-      }
-    ],
-    "editor.snacks_picker": [
-      {
-        "name": "has"
-      }
-    ],
-    "editor.telescope": [
-      {
-        "name": "reuse_win"
-      }
-    ],
-    "formatting.black": [
-      {
-        "name": "black",
-        "nixpkg": "python3Packages.black",
-        "runtime_dependencies": [
-          {
-            "name": "python3",
-            "nixpkg": "python3"
-          },
-          {
-            "name": "pip"
-          }
-        ]
-      }
-    ],
-    "formatting.prettier": [
-      {
-        "name": "prettier",
-        "nixpkg": "prettier",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.ansible": [
-      {
-        "name": "ansible-lint",
-        "nixpkg": "ansible-lint",
-        "runtime_dependencies": [
-          {
-            "name": "python3",
-            "nixpkg": "python3"
-          },
-          {
-            "name": "pip"
-          }
-        ]
-      }
-    ],
-    "lang.clangd": [
-      {
-        "name": "clangd",
-        "nixpkg": "clang-tools"
+         "name" : "fzf",
+         "nixpkg" : "fzf"
       },
       {
-        "name": "codelldb",
-        "nixpkg": "vscode-extensions.vadimcn.vscode-lldb"
+         "name" : "curl",
+         "nixpkg" : "curl"
       }
-    ],
-    "lang.cmake": [
-      {
-        "name": "cmakelang",
-        "nixpkg": "python3Packages.cmakelang",
-        "runtime_dependencies": [
-          {
-            "name": "python3",
-            "nixpkg": "python3"
-          },
-          {
-            "name": "pip"
-          }
-        ]
-      },
-      {
-        "name": "cmakelint",
-        "nixpkg": "python3Packages.cmakelint",
-        "runtime_dependencies": [
-          {
-            "name": "python3",
-            "nixpkg": "python3"
-          },
-          {
-            "name": "pip"
-          }
-        ]
-      }
-    ],
-    "lang.docker": [
-      {
-        "name": "hadolint",
-        "nixpkg": "hadolint"
-      }
-    ],
-    "lang.dotnet": [
-      {
-        "name": "fsautocomplete",
-        "nixpkg": "fsautocomplete",
-        "runtime_dependencies": [
-          {
-            "name": "dotnet-sdk",
-            "nixpkg": "dotnet-sdk"
-          }
-        ]
-      },
-      {
-        "name": "csharpier",
-        "nixpkg": "csharpier",
-        "runtime_dependencies": [
-          {
-            "name": "dotnet-sdk",
-            "nixpkg": "dotnet-sdk"
-          }
-        ]
-      },
-      {
-        "name": "netcoredbg",
-        "nixpkg": "netcoredbg"
-      },
-      {
-        "name": "fantomas",
-        "nixpkg": "fantomas",
-        "runtime_dependencies": [
-          {
-            "name": "dotnet-sdk",
-            "nixpkg": "dotnet-sdk"
-          }
-        ]
-      }
-    ],
-    "lang.elm": [
-      {
-        "name": "elm-format",
-        "nixpkg": "elmPackages.elm-format",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.gleam": [
-      {
-        "name": "gleam",
-        "nixpkg": "gleam"
-      }
-    ],
-    "lang.go": [
-      {
-        "name": "gopls",
-        "nixpkg": "gopls",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      },
-      {
-        "name": "goimports",
-        "nixpkg": "go",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      },
-      {
-        "name": "gofumpt",
-        "nixpkg": "gofumpt",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      },
-      {
-        "name": "gomodifytags",
-        "nixpkg": "gomodifytags",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      },
-      {
-        "name": "impl",
-        "nixpkg": "impl",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      },
-      {
-        "name": "golangci-lint",
-        "nixpkg": "golangci-lint"
-      },
-      {
-        "name": "delve",
-        "nixpkg": "delve",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      }
-    ],
-    "lang.haskell": [
-      {
-        "name": "haskell-language-server",
-        "nixpkg": "haskell-language-server"
-      },
-      {
-        "name": "haskell-debug-adapter"
-      }
-    ],
-    "lang.helm": [
-      {
-        "name": "helm",
-        "nixpkg": "kubernetes-helm"
-      }
-    ],
-    "lang.java": [
-      {
-        "name": "java-debug-adapter"
-      },
-      {
-        "name": "java-test"
-      }
-    ],
-    "lang.json": [
-      {
-        "name": "jsonls",
-        "nixpkg": "vscode-langservers-extracted"
-      }
-    ],
-    "lang.kotlin": [
-      {
-        "name": "ktlint",
-        "nixpkg": "ktlint"
-      }
-    ],
-    "lang.markdown": [
-      {
-        "name": "markdownlint-cli2",
-        "nixpkg": "markdownlint-cli2",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      },
-      {
-        "name": "markdown-toc",
-        "nixpkg": "markdown-toc",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.php": [
-      {
-        "name": "phpcs"
-      },
-      {
-        "name": "php-cs-fixer"
-      }
-    ],
-    "lang.prisma": [
-      {
-        "name": "prisma"
-      }
-    ],
-    "lang.python": [
-      {
-        "name": "ruff",
-        "nixpkg": "python3Packages.ruff"
-      }
-    ],
-    "lang.rego": [
-      {
-        "name": "regols",
-        "nixpkg": "regols",
-        "runtime_dependencies": [
-          {
-            "name": "go",
-            "nixpkg": "go"
-          }
-        ]
-      }
-    ],
-    "lang.ruby": [
-      {
-        "name": "erb-formatter",
-        "nixpkg": "rubyPackages.erb_formatter",
-        "runtime_dependencies": [
-          {
-            "name": "ruby",
-            "nixpkg": "ruby"
-          },
-          {
-            "name": "gem"
-          }
-        ]
-      },
-      {
-        "name": "erb-lint",
-        "runtime_dependencies": [
-          {
-            "name": "ruby",
-            "nixpkg": "ruby"
-          },
-          {
-            "name": "gem"
-          }
-        ]
-      }
-    ],
-    "lang.rust": [
-      {
-        "name": "rust-analyzer",
-        "nixpkg": "rust-analyzer"
-      },
-      {
-        "name": "codelldb",
-        "nixpkg": "vscode-extensions.vadimcn.vscode-lldb"
-      },
-      {
-        "name": "bacon",
-        "nixpkg": "bacon",
-        "runtime_dependencies": [
-          {
-            "name": "cargo",
-            "nixpkg": "cargo"
-          },
-          {
-            "name": "rustc",
-            "nixpkg": "rustc"
-          }
-        ]
-      }
-    ],
-    "lang.sql": [
-      {
-        "name": "sqlfluff",
-        "nixpkg": "sqlfluff",
-        "runtime_dependencies": [
-          {
-            "name": "python3",
-            "nixpkg": "python3"
-          },
-          {
-            "name": "pip"
-          }
-        ]
-      }
-    ],
-    "lang.tailwind": [
-      {
-        "name": "tailwindcss",
-        "nixpkg": "tailwindcss"
-      }
-    ],
-    "lang.terraform": [
-      {
-        "name": "terraform",
-        "nixpkg": "terraform"
-      },
-      {
-        "name": "tflint",
-        "nixpkg": "tflint"
-      }
-    ],
-    "lang.tex": [
-      {
-        "name": "pplatex"
-      }
-    ],
-    "lang.thrift": [
-      {
-        "name": "thriftls"
-      }
-    ],
-    "lang.toml": [
-      {
-        "name": "taplo",
-        "nixpkg": "taplo"
-      }
-    ],
-    "lang.twig": [
-      {
-        "name": "twigcs"
-      },
-      {
-        "name": "twig-cs-fixer",
-        "runtime_dependencies": [
-          {
-            "name": "php",
-            "nixpkg": "php"
-          },
-          {
-            "name": "composer"
-          }
-        ]
-      }
-    ],
-    "lang.typescript.biome": [
-      {
-        "name": "biome",
-        "nixpkg": "biome",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.typescript.init": [
-      {
-        "name": "js-debug-adapter"
-      }
-    ],
-    "lang.typescript.oxc": [
-      {
-        "name": "oxlint",
-        "nixpkg": "oxlint",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      },
-      {
-        "name": "diagnostic"
-      },
-      {
-        "name": "oxfmt",
-        "nixpkg": "oxfmt",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.typescript.tsc": [
-      {
-        "name": "tsgo",
-        "nixpkg": "typescript-go",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.typescript.vtsls": [
-      {
-        "name": "vtsls",
-        "nixpkg": "vtsls",
-        "runtime_dependencies": [
-          {
-            "name": "nodejs",
-            "nixpkg": "nodejs"
-          },
-          {
-            "name": "npm"
-          }
-        ]
-      }
-    ],
-    "lang.typst": [
-      {
-        "name": "tinymist",
-        "nixpkg": "tinymist"
-      }
-    ],
-    "lang.zig": [
-      {
-        "name": "zls"
-      }
-    ],
-    "linting.eslint": [
-      {
-        "name": "eslint",
-        "nixpkg": "eslint"
-      }
-    ],
-    "util.dot": [
-      {
-        "name": "shellcheck",
-        "nixpkg": "shellcheck"
-      }
-    ],
-    "util.gitui": [
-      {
-        "name": "gitui",
-        "nixpkg": "gitui"
-      }
-    ]
-  },
-  "generated": "2026-09-09 07:12:49",
-  "lazyvim_path": "/tmp/nix-shell.G2Ca0g/tmp.mT33C7eH6e/LazyVim",
-  "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
+   ],
+   "extras" : {
+      "ai.avante" : [
+         {
+            "name" : "cargo",
+            "nixpkg" : "cargo"
+         },
+         {
+            "name" : "rustc",
+            "nixpkg" : "rustc"
+         }
+      ],
+      "ai.copilot" : [
+         {
+            "name" : "nodejs",
+            "nixpkg" : "nodejs"
+         }
+      ],
+      "editor.fzf" : [
+         {
+            "name" : "delta",
+            "nixpkg" : "delta"
+         }
+      ],
+      "editor.snacks_picker" : [
+         {
+            "name" : "chafa",
+            "nixpkg" : "chafa"
+         }
+      ],
+      "formatting.black" : [
+         {
+            "name" : "black",
+            "nixpkg" : "python3Packages.black",
+            "runtime_dependencies" : [
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         }
+      ],
+      "formatting.prettier" : [
+         {
+            "name" : "prettier",
+            "nixpkg" : "prettier",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.angular" : [
+         {
+            "name" : "angularls",
+            "nixpkg" : "angular-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.ansible" : [
+         {
+            "name" : "ansible-lint",
+            "nixpkg" : "ansible-lint",
+            "runtime_dependencies" : [
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         },
+         {
+            "name" : "ansiblels",
+            "nixpkg" : "ansible-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.astro" : [
+         {
+            "name" : "astro-language-server",
+            "nixpkg" : "astro-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.clangd" : [
+         {
+            "name" : "clangd",
+            "nixpkg" : "clang-tools"
+         },
+         {
+            "name" : "codelldb",
+            "nixpkg" : "vscode-extensions.vadimcn.vscode-lldb"
+         }
+      ],
+      "lang.clojure" : [
+         {
+            "name" : "clojure-lsp",
+            "nixpkg" : "clojure-lsp"
+         }
+      ],
+      "lang.cmake" : [
+         {
+            "name" : "neocmake",
+            "nixpkg" : "neocmakelsp"
+         },
+         {
+            "name" : "cmakelang",
+            "nixpkg" : "python3Packages.cmakelang",
+            "runtime_dependencies" : [
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         },
+         {
+            "name" : "cmakelint",
+            "nixpkg" : "python3Packages.cmakelint",
+            "runtime_dependencies" : [
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         }
+      ],
+      "lang.dart" : [
+         {
+            "name" : "dart",
+            "nixpkg" : "dart"
+         }
+      ],
+      "lang.docker" : [
+         {
+            "name" : "hadolint",
+            "nixpkg" : "hadolint"
+         },
+         {
+            "name" : "dockerls",
+            "nixpkg" : "dockerfile-language-server-nodejs",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.dotnet" : [
+         {
+            "name" : "fsautocomplete",
+            "nixpkg" : "fsautocomplete",
+            "runtime_dependencies" : [
+               {
+                  "name" : "dotnet-sdk",
+                  "nixpkg" : "dotnet-sdk"
+               }
+            ]
+         },
+         {
+            "name" : "csharpier",
+            "nixpkg" : "csharpier",
+            "runtime_dependencies" : [
+               {
+                  "name" : "dotnet-sdk",
+                  "nixpkg" : "dotnet-sdk"
+               }
+            ]
+         },
+         {
+            "name" : "netcoredbg",
+            "nixpkg" : "netcoredbg"
+         },
+         {
+            "name" : "fantomas",
+            "nixpkg" : "fantomas",
+            "runtime_dependencies" : [
+               {
+                  "name" : "dotnet-sdk",
+                  "nixpkg" : "dotnet-sdk"
+               }
+            ]
+         }
+      ],
+      "lang.elixir" : [
+         {
+            "name" : "elixirls",
+            "nixpkg" : "elixir-ls",
+            "runtime_dependencies" : [
+               {
+                  "name" : "elixir",
+                  "nixpkg" : "elixir"
+               }
+            ]
+         }
+      ],
+      "lang.elm" : [
+         {
+            "name" : "elm-format",
+            "nixpkg" : "elmPackages.elm-format",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "elmls",
+            "nixpkg" : "elmPackages.elm-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.erlang" : [
+         {
+            "name" : "erlangls",
+            "nixpkg" : "erlang-ls",
+            "runtime_dependencies" : [
+               {
+                  "name" : "erlang",
+                  "nixpkg" : "erlang"
+               }
+            ]
+         }
+      ],
+      "lang.gleam" : [
+         {
+            "name" : "gleam",
+            "nixpkg" : "gleam"
+         }
+      ],
+      "lang.go" : [
+         {
+            "name" : "gopls",
+            "nixpkg" : "gopls",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         },
+         {
+            "name" : "gofumpt",
+            "nixpkg" : "gofumpt",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         },
+         {
+            "name" : "goimports",
+            "nixpkg" : "go",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         },
+         {
+            "name" : "gomodifytags",
+            "nixpkg" : "gomodifytags",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         },
+         {
+            "name" : "impl",
+            "nixpkg" : "impl",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         },
+         {
+            "name" : "golangci-lint",
+            "nixpkg" : "golangci-lint"
+         },
+         {
+            "name" : "delve",
+            "nixpkg" : "delve",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         }
+      ],
+      "lang.haskell" : [
+         {
+            "name" : "haskell-language-server",
+            "nixpkg" : "haskell-language-server"
+         },
+         {
+            "name" : "fourmolu",
+            "nixpkg" : "haskellPackages.fourmolu"
+         },
+         {
+            "name" : "hlint",
+            "nixpkg" : "hlint"
+         },
+         {
+            "name" : "haskell-debug-adapter",
+            "nixpkg" : "haskellPackages.haskell-dap"
+         }
+      ],
+      "lang.helm" : [
+         {
+            "name" : "helm",
+            "nixpkg" : "kubernetes-helm"
+         },
+         {
+            "name" : "helm_ls",
+            "nixpkg" : "helm-ls"
+         }
+      ],
+      "lang.java" : [
+         {
+            "name" : "jdtls",
+            "nixpkg" : "jdt-language-server"
+         },
+         {
+            "name" : "java-debug-adapter",
+            "nixpkg" : "vscode-extensions.vscjava.vscode-java-debug"
+         },
+         {
+            "name" : "java-test",
+            "nixpkg" : "vscode-extensions.vscjava.vscode-java-test"
+         }
+      ],
+      "lang.json" : [
+         {
+            "name" : "jsonls",
+            "nixpkg" : "vscode-langservers-extracted",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.julia" : [
+         {
+            "name" : "julia",
+            "nixpkg" : "julia"
+         }
+      ],
+      "lang.kotlin" : [
+         {
+            "name" : "ktlint",
+            "nixpkg" : "ktlint"
+         },
+         {
+            "name" : "kotlin_language_server",
+            "nixpkg" : "kotlin-language-server"
+         }
+      ],
+      "lang.markdown" : [
+         {
+            "name" : "markdownlint-cli2",
+            "nixpkg" : "markdownlint-cli2",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "markdown-toc",
+            "nixpkg" : "markdown-toc",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "marksman",
+            "nixpkg" : "marksman"
+         },
+         {
+            "name" : "prettier",
+            "nixpkg" : "prettier",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.nix" : [
+         {
+            "name" : "nil_ls",
+            "nixpkg" : "nil"
+         },
+         {
+            "name" : "statix",
+            "nixpkg" : "statix"
+         },
+         {
+            "name" : "nixfmt",
+            "nixpkg" : "nixfmt"
+         }
+      ],
+      "lang.nushell" : [
+         {
+            "name" : "nushell",
+            "nixpkg" : "nushell"
+         }
+      ],
+      "lang.ocaml" : [
+         {
+            "name" : "ocamllsp",
+            "nixpkg" : "ocamlPackages.ocaml-lsp",
+            "runtime_dependencies" : [
+               {
+                  "name" : "ocaml",
+                  "nixpkg" : "ocaml"
+               }
+            ]
+         }
+      ],
+      "lang.php" : [
+         {
+            "name" : "phpcs",
+            "nixpkg" : "phpPackages.phpcs",
+            "runtime_dependencies" : [
+               {
+                  "name" : "php",
+                  "nixpkg" : "php"
+               }
+            ]
+         },
+         {
+            "name" : "php-cs-fixer",
+            "nixpkg" : "phpPackages.php-cs-fixer",
+            "runtime_dependencies" : [
+               {
+                  "name" : "php",
+                  "nixpkg" : "php"
+               }
+            ]
+         },
+         {
+            "name" : "phpactor",
+            "nixpkg" : "phpactor",
+            "runtime_dependencies" : [
+               {
+                  "name" : "php",
+                  "nixpkg" : "php"
+               }
+            ]
+         }
+      ],
+      "lang.prisma" : [
+         {
+            "name" : "prismals",
+            "nixpkg" : "nodePackages.@prisma/language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.python" : [
+         {
+            "name" : "ruff",
+            "nixpkg" : "python3Packages.ruff",
+            "runtime_dependencies" : [
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         },
+         {
+            "name" : "pyright",
+            "nixpkg" : "pyright",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               },
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         }
+      ],
+      "lang.r" : [
+         {
+            "name" : "r_language_server",
+            "nixpkg" : "rPackages.languageserver"
+         }
+      ],
+      "lang.rego" : [
+         {
+            "name" : "regols",
+            "nixpkg" : "regols",
+            "runtime_dependencies" : [
+               {
+                  "name" : "go",
+                  "nixpkg" : "go"
+               }
+            ]
+         }
+      ],
+      "lang.ruby" : [
+         {
+            "name" : "ruby_lsp",
+            "nixpkg" : "rubyPackages.ruby-lsp",
+            "runtime_dependencies" : [
+               {
+                  "name" : "ruby",
+                  "nixpkg" : "ruby"
+               }
+            ]
+         },
+         {
+            "name" : "erb-formatter",
+            "nixpkg" : "rubyPackages.erb_formatter",
+            "runtime_dependencies" : [
+               {
+                  "name" : "ruby",
+                  "nixpkg" : "ruby"
+               }
+            ]
+         },
+         {
+            "name" : "erb-lint",
+            "nixpkg" : "rubyPackages.erb_lint",
+            "runtime_dependencies" : [
+               {
+                  "name" : "ruby",
+                  "nixpkg" : "ruby"
+               }
+            ]
+         }
+      ],
+      "lang.rust" : [
+         {
+            "name" : "rust-analyzer",
+            "nixpkg" : "rust-analyzer"
+         },
+         {
+            "name" : "codelldb",
+            "nixpkg" : "vscode-extensions.vadimcn.vscode-lldb"
+         },
+         {
+            "name" : "bacon",
+            "nixpkg" : "bacon",
+            "runtime_dependencies" : [
+               {
+                  "name" : "cargo",
+                  "nixpkg" : "cargo"
+               },
+               {
+                  "name" : "rustc",
+                  "nixpkg" : "rustc"
+               }
+            ]
+         }
+      ],
+      "lang.scala" : [
+         {
+            "name" : "metals",
+            "nixpkg" : "metals"
+         }
+      ],
+      "lang.solidity" : [
+         {
+            "name" : "solidity_ls",
+            "nixpkg" : "solc"
+         }
+      ],
+      "lang.sql" : [
+         {
+            "name" : "sqlfluff",
+            "nixpkg" : "sqlfluff",
+            "runtime_dependencies" : [
+               {
+                  "name" : "python3",
+                  "nixpkg" : "python3"
+               }
+            ]
+         }
+      ],
+      "lang.svelte" : [
+         {
+            "name" : "svelte-language-server",
+            "nixpkg" : "svelte-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.tailwind" : [
+         {
+            "name" : "tailwindcss",
+            "nixpkg" : "tailwindcss-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.terraform" : [
+         {
+            "name" : "terraform",
+            "nixpkg" : "terraform"
+         },
+         {
+            "name" : "tflint",
+            "nixpkg" : "tflint"
+         },
+         {
+            "name" : "terraformls",
+            "nixpkg" : "terraform-ls"
+         }
+      ],
+      "lang.tex" : [
+         {
+            "name" : "texlab",
+            "nixpkg" : "texlab"
+         }
+      ],
+      "lang.thrift" : [
+         {
+            "name" : "thriftls",
+            "nixpkg" : "thrift"
+         }
+      ],
+      "lang.toml" : [
+         {
+            "name" : "taplo",
+            "nixpkg" : "taplo"
+         }
+      ],
+      "lang.typescript" : [
+         {
+            "name" : "vtsls",
+            "nixpkg" : "vtsls",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "typescript",
+            "nixpkg" : "typescript",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "js-debug-adapter",
+            "nixpkg" : "vscode-js-debug",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.typescript.biome" : [
+         {
+            "name" : "biome",
+            "nixpkg" : "biome",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.typescript.init" : [
+         {
+            "name" : "js-debug-adapter",
+            "nixpkg" : "vscode-js-debug",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.typescript.oxc" : [
+         {
+            "name" : "oxlint",
+            "nixpkg" : "oxlint",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "oxfmt",
+            "nixpkg" : "oxfmt",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.typescript.tsc" : [
+         {
+            "name" : "tsgo",
+            "nixpkg" : "typescript-go",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         },
+         {
+            "name" : "typescript",
+            "nixpkg" : "typescript",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.typescript.vtsls" : [
+         {
+            "name" : "vtsls",
+            "nixpkg" : "vtsls",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.typst" : [
+         {
+            "name" : "tinymist",
+            "nixpkg" : "tinymist"
+         },
+         {
+            "name" : "typstyle",
+            "nixpkg" : "typstyle"
+         }
+      ],
+      "lang.vue" : [
+         {
+            "name" : "vue_ls",
+            "nixpkg" : "vue-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.yaml" : [
+         {
+            "name" : "yamlls",
+            "nixpkg" : "yaml-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "lang.zig" : [
+         {
+            "name" : "zls",
+            "nixpkg" : "zls",
+            "runtime_dependencies" : [
+               {
+                  "name" : "zig",
+                  "nixpkg" : "zig"
+               }
+            ]
+         }
+      ],
+      "linting.eslint" : [
+         {
+            "name" : "eslint",
+            "nixpkg" : "eslint",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "util.chezmoi" : [
+         {
+            "name" : "chezmoi",
+            "nixpkg" : "chezmoi"
+         }
+      ],
+      "util.dot" : [
+         {
+            "name" : "shellcheck",
+            "nixpkg" : "shellcheck"
+         },
+         {
+            "name" : "bashls",
+            "nixpkg" : "bash-language-server",
+            "runtime_dependencies" : [
+               {
+                  "name" : "nodejs",
+                  "nixpkg" : "nodejs"
+               }
+            ]
+         }
+      ],
+      "util.gh" : [
+         {
+            "name" : "gh",
+            "nixpkg" : "gh"
+         }
+      ],
+      "util.gitui" : [
+         {
+            "name" : "gitui",
+            "nixpkg" : "gitui"
+         }
+      ],
+      "util.octo" : [
+         {
+            "name" : "gh",
+            "nixpkg" : "gh"
+         }
+      ]
+   },
+   "generated" : "2026-10-18 20:56:00"
 }

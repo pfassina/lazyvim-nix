@@ -32,6 +32,7 @@ data/dependencies-verification-report.json
 # Keep docs directory local only
 /docs/
 
-# Keep CLAUDE.md local only
+# Keep agent instruction files local only
 CLAUDE.md
 AGENTS.md
+GEMINI.md

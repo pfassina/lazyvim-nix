@@ -20,9 +20,11 @@ These files are generated and should not be hand-edited unless your PR's explici
 
 - `data/plugins.json`
 - `data/extras.json`
-- `data/treesitter-mappings.json`
+- `data/treesitter.json`
+- `data/dependencies.json`
+- `data/parser-manifest.json`
 
-If you're adding or changing a plugin mapping, edit `nix/plugin-mappings.nix` and follow the two-phase process described in `CLAUDE.md` (Updating Plugins → Two-Phase Plugin Extraction).
+If you're adding or changing a plugin mapping, edit `data/mappings.json` and follow the process described in `INSTRUCTIONS.md` (Standard Operating Workflows → Workflow 2: Adding or Fixing a Plugin Mapping).
 
 ## Before opening a PR
 

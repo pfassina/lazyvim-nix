@@ -55,9 +55,9 @@
             extraConfig = lib.attrByPath (lib.tail parts) {} cfg.extras.${category};
             extraTools = dependencies.extras.${extraName} or [];
 
-            # Check installation options
-            shouldInstallDependencies = extraConfig.installDependencies or false;
-            shouldInstallRuntimeDependencies = extraConfig.installRuntimeDependencies or false;
+            # Check installation options (default: true unless explicitly set to false)
+            shouldInstallDependencies = extraConfig.installDependencies or true;
+            shouldInstallRuntimeDependencies = extraConfig.installRuntimeDependencies or true;
           in
             if extraTools != [] then
               let

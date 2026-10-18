@@ -172,23 +172,25 @@ with lib;
         enable = mkEnableOption "this LazyVim extra";
         installDependencies = mkOption {
           type = types.bool;
-          default = false;
+          default = true;
           description = ''
             Whether to install the main tools for this extra.
 
-            For example, for lang.python this would install tools like 'ruff'.
-            When false (default), tools must be provided via extraPackages.
+            For example, for lang.python this will install tools like 'ruff'.
+            Defaults to true so enabling an extra automatically provides required
+            LSPs, formatters, and linters via Nix packages.
+            Set to false to manage tools manually via extraPackages.
           '';
         };
         installRuntimeDependencies = mkOption {
           type = types.bool;
-          default = false;
+          default = true;
           description = ''
             Whether to install runtime dependencies for this extra's tools.
 
-            For example, for lang.python this would install python3 and pip.
-            When false (default), runtime dependencies must be available in PATH
-            or provided via extraPackages.
+            For example, for lang.python this will install python3.
+            Defaults to true so compilers and interpreters are available.
+            Set to false to manage runtimes manually.
           '';
         };
         config = mkOption {
