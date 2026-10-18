@@ -93,59 +93,58 @@ in {
     (systemPackages baseCfg [ ])
     [ ];
 
-  # Extra tools are installed only when installDependencies is set
-  test-extra-tools-installed = testLib.testEval
-    "extra-tools-installed"
-    (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
-      extras.lang.python.installDependencies = true;
-    }) [ "lang.python" ]) == [ "ruff" ])
+  # By default, an enabled extra installs both tools and runtime dependencies
+  test-extra-default-installation = testLib.testEval
+    "extra-default-installation"
+    (namesOf (systemPackages baseCfg [ "lang.python" ]) == [ "ruff" "python3" ])
     true;
 
   # Nested package paths like python3Packages.ruff resolve to the real package
   test-nested-package-resolution = testLib.testEval
     "nested-package-resolution"
-    (builtins.elem pkgs.python3Packages.ruff (systemPackages (lib.recursiveUpdate baseCfg {
-      extras.lang.python.installDependencies = true;
-    }) [ "lang.python" ]))
+    (builtins.elem pkgs.python3Packages.ruff (systemPackages baseCfg [ "lang.python" ]))
     true;
 
-  # Runtime dependencies are installed only when installRuntimeDependencies is
-  # set; unmapped package managers (pip) are skipped silently
-  test-runtime-dependencies-installed = testLib.testEval
-    "runtime-dependencies-installed"
+  # Tools only: installRuntimeDependencies disabled
+  test-extra-tools-only = testLib.testEval
+    "extra-tools-only"
     (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
-      extras.lang.python.installRuntimeDependencies = true;
+      extras.lang.python.installRuntimeDependencies = false;
+    }) [ "lang.python" ]) == [ "ruff" ])
+    true;
+
+  # Runtime dependencies only: installDependencies disabled; unmapped package managers (pip) skipped
+  test-runtime-dependencies-only = testLib.testEval
+    "runtime-dependencies-only"
+    (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.python.installDependencies = false;
     }) [ "lang.python" ]) == [ "python3" ])
     true;
 
-  # An enabled extra with no installation options contributes no packages
-  test-extra-without-install-options = testLib.testEval
-    "extra-without-install-options"
-    (systemPackages baseCfg [ "lang.python" ])
+  # An enabled extra with both installation options set to false contributes no packages
+  test-extra-with-install-disabled = testLib.testEval
+    "extra-with-install-disabled"
+    (systemPackages (lib.recursiveUpdate baseCfg {
+      extras.lang.python.installDependencies = false;
+      extras.lang.python.installRuntimeDependencies = false;
+    }) [ "lang.python" ])
     [ ];
 
   # Tools without a nixpkgs mapping are skipped without failing the build
   test-unmapped-tool-skipped = testLib.testEval
     "unmapped-tool-skipped"
-    (systemPackages (lib.recursiveUpdate baseCfg {
-      extras.lang.unmapped.installDependencies = true;
-    }) [ "lang.unmapped" ])
+    (systemPackages baseCfg [ "lang.unmapped" ])
     [ ];
 
   # Mapped names that don't exist in nixpkgs resolve to null and are filtered
   test-missing-nixpkgs-package-skipped = testLib.testEval
     "missing-nixpkgs-package-skipped"
-    (systemPackages (lib.recursiveUpdate baseCfg {
-      extras.lang.missing.installDependencies = true;
-    }) [ "lang.missing" ])
+    (systemPackages baseCfg [ "lang.missing" ])
     [ ];
 
   # Packages appearing as both tool and runtime dependency are deduplicated
   test-packages-deduplicated = testLib.testEval
     "packages-deduplicated"
-    (builtins.length (lib.filter (name: name == "go") (namesOf (systemPackages (lib.recursiveUpdate baseCfg {
-      extras.lang.go.installDependencies = true;
-      extras.lang.go.installRuntimeDependencies = true;
-    }) [ "lang.go" ]))))
+    (builtins.length (lib.filter (name: name == "go") (namesOf (systemPackages baseCfg [ "lang.go" ]))))
     1;
 }

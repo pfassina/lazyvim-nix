@@ -52,21 +52,12 @@ programs.lazyvim = {
 
   extras = {
     lang.nix.enable = true;
-    lang.python = {
-      enable = true;
-      installDependencies = true;        # Install ruff
-      installRuntimeDependencies = true; # Install python3
-    };
-    lang.go = {
-      enable = true;
-      installDependencies = true;        # Install gopls, gofumpt, etc.
-      installRuntimeDependencies = true; # Install go compiler
-    };
+    lang.python.enable = true; # Dependencies (ruff, python3) installed automatically
+    lang.go.enable = true;     # Dependencies (gopls, go) installed automatically
   };
 
   # Additional packages (optional)
   extraPackages = with pkgs; [
-    nixd       # Nix LSP
     alejandra  # Nix formatter
   ];
 
@@ -82,7 +73,7 @@ programs.lazyvim = {
 
 ### Dependency Control
 
-Control which packages get installed automatically:
+When language extras are enabled, their required language servers, linters, formatters, and runtime dependencies are installed automatically from nixpkgs by default:
 
 ```nix
 programs.lazyvim = {
@@ -92,18 +83,20 @@ programs.lazyvim = {
   installCoreDependencies = true;  # default: true
 
   extras = {
+    # Installed automatically by default:
+    lang.python.enable = true;
+
+    # Or opt-out per extra to manage packages manually via extraPackages:
     lang.typescript = {
       enable = true;
-      installDependencies = false;        # Skip typescript tools
-      installRuntimeDependencies = true;  # But install nodejs
+      installDependencies = false;        # Skip typescript language tools
+      installRuntimeDependencies = false; # Skip nodejs runtime
     };
   };
 };
 ```
 
-**Note:** Dependencies are opt-in per language. Set to `false` to manage packages manually via `extraPackages`.
-
-**⚠️ Experimental:** Automatic dependency installation is experimental and might not cover all required packages. Use `extraPackages` for missing dependencies.
+**Note:** Both `installDependencies` and `installRuntimeDependencies` default to `true` for all extras with available nixpkgs packages. Set either to `false` if you prefer to manage packages manually or provide custom versions via `extraPackages`.
 
 ### Custom Configuration
 
