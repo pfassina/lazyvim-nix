@@ -35,6 +35,7 @@ let
     [ ''require("lazy").setup({'' "\n})" ] [ "return {" "\n}" ]
     (starterPatcher.patchStarterConfig {
     inherit devPath;
+    lazyNvimPath = "${pkgs.vimPlugins.lazy-nvim}";
     availableDevSpecs = devSpecs;
     extrasImportSpecs = [];
     starterLua = builtins.readFile ../../data/starter-lazy.lua;

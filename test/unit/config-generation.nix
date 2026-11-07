@@ -34,6 +34,7 @@ let
   patchedConfig = lazyConfig {
     inherit starterLua starterVersion;
     devPath = "/nix/store/fake-dev-path";
+    lazyNvimPath = "/nix/store/fake-lazy-nvim";
     extrasImportSpecs = extrasImportSpecs sampleExtras;
     availableDevSpecs = [ ''{ "lazy.nvim", dev = true, pin = true },'' ];
   };
@@ -131,6 +132,28 @@ in {
       '';
       inherit starterVersion;
       devPath = "/nix/store/fake-dev-path";
+      lazyNvimPath = "/nix/store/fake-lazy-nvim";
+      extrasImportSpecs = [ ];
+      availableDevSpecs = [ ];
+    })).success
+    false;
+
+  # lazyConfig: lazy.nvim is loaded from the Nix store, never cloned
+  test-lazy-config-uses-nix-lazypath = testLib.testEval
+    "lazy-config-uses-nix-lazypath"
+    (lib.hasInfix ''local lazypath = "/nix/store/fake-lazy-nvim"'' patchedConfig
+      && !(lib.hasInfix ''stdpath("data") .. "/lazy/lazy.nvim"'' patchedConfig))
+    true;
+
+  # lazyConfig: a drifted lazy.nvim bootstrap also fails loudly
+  test-lazy-config-throws-on-unpatchable-lazypath = testLib.testEval
+    "lazy-config-throws-on-unpatchable-lazypath"
+    (builtins.tryEval (lazyConfig {
+      starterLua = builtins.replaceStrings
+        [ ''"/lazy/lazy.nvim"'' ] [ ''"/lazy/lazy-renamed.nvim"'' ] starterLua;
+      inherit starterVersion;
+      devPath = "/nix/store/fake-dev-path";
+      lazyNvimPath = "/nix/store/fake-lazy-nvim";
       extrasImportSpecs = [ ];
       availableDevSpecs = [ ];
     })).success
@@ -143,6 +166,7 @@ in {
       starterLua = driftedCheckerStarter;
       inherit starterVersion;
       devPath = "/nix/store/fake-dev-path";
+      lazyNvimPath = "/nix/store/fake-lazy-nvim";
       extrasImportSpecs = [ ];
       availableDevSpecs = [ ];
     })).success

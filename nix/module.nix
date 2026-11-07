@@ -134,6 +134,16 @@ let
     in
       if found != null then found else pkgs.vimPlugins.nvim-treesitter;
 
+  # The resolved lazy.nvim, loaded directly by the generated init.lua
+  resolvedLazyPlugin =
+    let
+      lazyPlugins = lib.zipListsWith (spec: plugin:
+        if spec.name == "folke/lazy.nvim" then plugin else null
+      ) allPluginSpecs resolvedPlugins;
+      found = lib.findFirst (p: p != null) null lazyPlugins;
+    in
+      if found != null then found else pkgs.vimPlugins.lazy-nvim;
+
   # Create the dev path with proper symlinks
   devPath = devPathLib.createDevPath allPluginSpecs resolvedPlugins;
 
@@ -195,6 +205,7 @@ let
     inherit (dataLib) starterLua;
     inherit (dataLib) starterVersion;
     inherit devPath extrasImportSpecs availableDevSpecs;
+    lazyNvimPath = "${resolvedLazyPlugin}";
   };
 
   # Generate extras config override files

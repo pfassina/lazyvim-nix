@@ -32,11 +32,12 @@ in
     starterLua,
     starterVersion,
     devPath,
+    lazyNvimPath,
     extrasImportSpecs,
     availableDevSpecs
   }:
     starterPatcher.patchStarterConfig {
-      inherit starterLua starterVersion devPath extrasImportSpecs availableDevSpecs;
+      inherit starterLua starterVersion devPath lazyNvimPath extrasImportSpecs availableDevSpecs;
       treesitterSpec = starterPatcher.defaultTreesitterSpec;
     };
 }

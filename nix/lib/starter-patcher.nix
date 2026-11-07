@@ -59,6 +59,8 @@ let
 
   upstreamCheckerPattern = "  checker = {\n    enabled = true, -- check for plugin updates periodically\n    notify = false, -- notify on update\n  }, -- automatically check for plugin updates";
 
+  upstreamLazypathPattern = ''local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"'';
+
   nixCheckerReplacement = "  checker = {\n    enabled = false, -- [NIX] Disabled - Nix manages plugin versions\n    notify = false,\n  },\n  -- [NIX] Disable config change notifications since Nix generates config\n  change_detection = { notify = false },";
 
 in {
@@ -67,6 +69,7 @@ in {
   patchStarterConfig = {
     starterLua,
     devPath,
+    lazyNvimPath,
     extrasImportSpecs,
     availableDevSpecs,
     treesitterSpec ? defaultTreesitterSpec,
@@ -90,9 +93,16 @@ in {
         [ nixCheckerReplacement ]
         withNixSpec;
 
+      # Step 3: Load lazy.nvim from the Nix store so the bootstrap never clones
+      withNixLazypath = builtins.replaceStrings
+        [ upstreamLazypathPattern ]
+        [ ''local lazypath = "${lazyNvimPath}" -- [NIX] Nix-managed lazy.nvim'' ]
+        withNixChecker;
+
       # Verify patches were applied (the original patterns should no longer exist)
       specPatched = !lib.hasInfix "-- add LazyVim and import its plugins" withNixChecker;
       checkerPatched = !lib.hasInfix "enabled = true, -- check for plugin updates periodically" withNixChecker;
+      lazypathPatched = lib.hasInfix "-- [NIX] Nix-managed lazy.nvim" withNixLazypath;
 
       # Build the final config with header comment
       patchedConfig = ''
@@ -101,7 +111,7 @@ in {
         -- Patched for Nix compatibility by lazyvim-nix flake
         -- Sections marked [NIX] are Nix-specific modifications
 
-        ${withNixChecker}'';
+        ${withNixLazypath}'';
 
     in
       # Assert that patches were applied successfully
@@ -117,6 +127,13 @@ in {
           ERROR: Failed to patch LazyVim starter checker section.
           The upstream starter structure may have changed.
           Expected pattern not found: "enabled = true, -- check for plugin updates periodically"
+          Please review data/starter-lazy.lua and update nix/lib/starter-patcher.nix
+        ''
+      else if !lazypathPatched then
+        builtins.throw ''
+          ERROR: Failed to patch LazyVim starter lazy.nvim bootstrap.
+          The upstream starter structure may have changed.
+          Expected pattern not found: ${upstreamLazypathPattern}
           Please review data/starter-lazy.lua and update nix/lib/starter-patcher.nix
         ''
       else
