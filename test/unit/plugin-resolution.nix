@@ -84,6 +84,19 @@ in {
     }).pname
     pkgs.vimPlugins.lazy-nvim.pname;
 
+  # nixpkgs strategy + unpinned "*" should use the nixpkgs package, not source-build the tag
+  test-resolve-plugin-nixpkgs-wildcard-uses-nixpkgs = testLib.testEval
+    "resolve-plugin-nixpkgs-wildcard-uses-nixpkgs"
+    (resolvePlugin { pluginSource = "nixpkgs"; } {
+      name = "folke/lazy.nvim";
+      version_info = {
+        lazyvim_version = "*";
+        tag = "v99.99.99";  # mocks extract-plugins.lua's latest upstream release, not a pin
+        sha256 = lib.fakeSha256;
+      };
+    }).version
+    pkgs.vimPlugins.lazy-nvim.version;
+
   test-resolve-plugin-unresolvable-returns-null = testLib.testEval
     "resolve-plugin-unresolvable-returns-null"
     (resolvePlugin { pluginSource = "nixpkgs"; } {
