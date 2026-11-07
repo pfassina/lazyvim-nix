@@ -135,6 +135,12 @@ programs.lazyvim = {
 };
 ```
 
+Nix-managed plugin overrides should use the full `owner/repo` identifier, as above.
+They merge with LazyVim's specs by repository URL, including plugins with a custom
+`name` such as `catppuccin`. Dev paths use `owner--repo` links rather than the
+overridable plugin name, so repositories sharing a basename keep separate Nix
+packages. Multi-module packages retain their module links.
+
 Plugin specs can also be written as Nix attrsets instead of Lua strings, using the `lazyConfig` helper from the flake's `lib` output:
 
 ```nix
