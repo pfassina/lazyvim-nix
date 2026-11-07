@@ -526,11 +526,11 @@
       "is_nested": true,
       "name": "typescript.oxc"
     },
-    "typescript.tsgo": {
+    "typescript.tsc": {
       "category": "lang",
-      "import": "lazyvim.plugins.extras.lang.typescript.tsgo",
+      "import": "lazyvim.plugins.extras.lang.typescript.tsc",
       "is_nested": true,
-      "name": "typescript.tsgo"
+      "name": "typescript.tsc"
     },
     "typescript.vtsls": {
       "category": "lang",

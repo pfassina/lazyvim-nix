@@ -174,11 +174,23 @@ my-lazyvim-config/
 │   ├── keymaps.lua
 │   ├── options.lua
 │   └── autocmds.lua
-└── plugins/
-    ├── colorscheme.lua
-    ├── lsp-config.lua
-    └── editor.lua
+├── plugins/
+│   ├── colorscheme.lua
+│   ├── lsp-config.lua
+│   └── editor.lua
+├── after/
+│   └── queries/
+│       └── elixir/
+│           └── injections.scm
+├── ftplugin/
+│   └── nix.lua
+└── snippets/
+    └── global.json
 ```
+
+Besides `config/` and `plugins/` (also accepted under a `lua/` prefix), the following runtime directories are copied to the Neovim config root as-is: `after/`, `colors/`, `ftplugin/`, `indent/`, `lsp/`, `queries/`, `snippets/`, `spell/`, and `syntax/`. This lets you ship treesitter query extensions, filetype plugins, snippets, and similar runtime files alongside your Lua config.
+
+`pack/` and `parser/` are intentionally **not** copied: plugins are managed through the Nix plugin system, and treesitter parsers through the `treesitterParsers` option.
 
 **Note:** You can mix `configFiles` with inline `config` and `plugins` options, but you cannot configure the same file in both places. For example, if `configFiles` contains `config/keymaps.lua`, you cannot also set `config.keymaps`.
 

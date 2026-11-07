@@ -15,9 +15,9 @@
         hasTypescript = lang ? typescript;
         hasBiome = lang ? "typescript.biome";
         hasOxc = lang ? "typescript.oxc";
-        hasTsgo = lang ? "typescript.tsgo";
+        hasTsc = lang ? "typescript.tsc";
         hasVtsls = lang ? "typescript.vtsls";
-      in hasTypescript && hasBiome && hasOxc && hasTsgo && hasVtsls
+      in hasTypescript && hasBiome && hasOxc && hasTsc && hasVtsls
     ''
     "true";
 
@@ -40,9 +40,9 @@
         extras = builtins.fromJSON (builtins.readFile ${../../data/extras.json});
         biome = extras.lang."typescript.biome";
         oxc = extras.lang."typescript.oxc";
-        tsgo = extras.lang."typescript.tsgo";
+        tsc = extras.lang."typescript.tsc";
         vtsls = extras.lang."typescript.vtsls";
-      in biome.is_nested && oxc.is_nested && tsgo.is_nested && vtsls.is_nested
+      in biome.is_nested && oxc.is_nested && tsc.is_nested && vtsls.is_nested
     ''
     "true";
 
@@ -54,11 +54,11 @@
         extras = builtins.fromJSON (builtins.readFile ${../../data/extras.json});
         biome = extras.lang."typescript.biome";
         oxc = extras.lang."typescript.oxc";
-        tsgo = extras.lang."typescript.tsgo";
+        tsc = extras.lang."typescript.tsc";
         vtsls = extras.lang."typescript.vtsls";
       in biome.import == "lazyvim.plugins.extras.lang.typescript.biome"
          && oxc.import == "lazyvim.plugins.extras.lang.typescript.oxc"
-         && tsgo.import == "lazyvim.plugins.extras.lang.typescript.tsgo"
+         && tsc.import == "lazyvim.plugins.extras.lang.typescript.tsc"
          && vtsls.import == "lazyvim.plugins.extras.lang.typescript.vtsls"
     ''
     "true";
@@ -174,7 +174,7 @@
                   enable = true;
                   biome.enable = true;
                   oxc.enable = true;
-                  tsgo.enable = true;
+                  tsc.enable = true;
                   vtsls.enable = true;
                 };
               };
@@ -328,7 +328,7 @@
           config = "";
           biome = { enable = true; config = ""; };
           oxc = { enable = false; config = ""; };
-          tsgo = { config = ""; };
+          tsc = { config = ""; };
           vtsls = { config = ""; };
         };
 
@@ -338,8 +338,8 @@
         hasParent = builtins.elem "typescript" names;
         hasBiome = builtins.elem "typescript.biome" names;
         hasOxc = builtins.elem "typescript.oxc" names;
-        hasTsgo = builtins.elem "typescript.tsgo" names;
-      in hasParent && hasBiome && !hasOxc && !hasTsgo
+        hasTsc = builtins.elem "typescript.tsc" names;
+      in hasParent && hasBiome && !hasOxc && !hasTsc
     ''
     "true";
 
@@ -505,9 +505,9 @@
         extras = deps.extras or {};
         hasBiome = extras ? "lang.typescript.biome";
         hasOxc = extras ? "lang.typescript.oxc";
-        hasTsgo = extras ? "lang.typescript.tsgo";
+        hasTsc = extras ? "lang.typescript.tsc";
         hasVtsls = extras ? "lang.typescript.vtsls";
-      in hasBiome && hasOxc && hasTsgo && hasVtsls
+      in hasBiome && hasOxc && hasTsc && hasVtsls
     ''
     "true";
 
@@ -521,11 +521,11 @@
         biomeHasNixpkg = builtins.any (t: t ? nixpkg) biomeTools;
         oxcTools = deps.extras."lang.typescript.oxc" or [];
         oxcHasNixpkg = builtins.any (t: t ? nixpkg) oxcTools;
-        tsgoTools = deps.extras."lang.typescript.tsgo" or [];
-        tsgoHasNixpkg = builtins.any (t: t ? nixpkg) tsgoTools;
+        tscTools = deps.extras."lang.typescript.tsc" or [];
+        tscHasNixpkg = builtins.any (t: t ? nixpkg) tscTools;
         vtslsTools = deps.extras."lang.typescript.vtsls" or [];
         vtslsHasNixpkg = builtins.any (t: t ? nixpkg) vtslsTools;
-      in biomeHasNixpkg && oxcHasNixpkg && tsgoHasNixpkg && vtslsHasNixpkg
+      in biomeHasNixpkg && oxcHasNixpkg && tscHasNixpkg && vtslsHasNixpkg
     ''
     "true";
 

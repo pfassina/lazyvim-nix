@@ -159,23 +159,23 @@
     "lang.dotnet": [
       {
         "name": "fsautocomplete",
+        "nixpkg": "fsautocomplete",
         "runtime_dependencies": [
           {
             "name": "dotnet-sdk",
             "nixpkg": "dotnet-sdk"
           }
-        ],
-        "nixpkg": "fsautocomplete"
+        ]
       },
       {
         "name": "csharpier",
+        "nixpkg": "csharpier",
         "runtime_dependencies": [
           {
             "name": "dotnet-sdk",
             "nixpkg": "dotnet-sdk"
           }
-        ],
-        "nixpkg": "csharpier"
+        ]
       },
       {
         "name": "netcoredbg",
@@ -183,13 +183,13 @@
       },
       {
         "name": "fantomas",
+        "nixpkg": "fantomas",
         "runtime_dependencies": [
           {
             "name": "dotnet-sdk",
             "nixpkg": "dotnet-sdk"
           }
-        ],
-        "nixpkg": "fantomas"
+        ]
       }
     ],
     "lang.elm": [
@@ -358,16 +358,7 @@
     "lang.python": [
       {
         "name": "ruff",
-        "nixpkg": "python3Packages.ruff",
-        "runtime_dependencies": [
-          {
-            "name": "python3",
-            "nixpkg": "python3"
-          },
-          {
-            "name": "pip"
-          }
-        ]
+        "nixpkg": "python3Packages.ruff"
       }
     ],
     "lang.rego": [
@@ -532,8 +523,7 @@
         ]
       },
       {
-        "name": "git",
-        "nixpkg": "git"
+        "name": "diagnostic"
       },
       {
         "name": "oxfmt",
@@ -549,7 +539,7 @@
         ]
       }
     ],
-    "lang.typescript.tsgo": [
+    "lang.typescript.tsc": [
       {
         "name": "tsgo",
         "nixpkg": "typescript-go",
@@ -609,7 +599,7 @@
       }
     ]
   },
-  "generated": "2026-06-04 16:58:52",
-  "lazyvim_path": "/tmp/nix-shell.KEYijX/tmp.DxgA5z4V1X/LazyVim",
+  "generated": "2026-09-09 07:12:49",
+  "lazyvim_path": "/tmp/nix-shell.G2Ca0g/tmp.mT33C7eH6e/LazyVim",
   "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
 }

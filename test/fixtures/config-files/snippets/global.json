@@ -1,0 +1,6 @@
+{
+  "greet": {
+    "prefix": "hi",
+    "body": "hello"
+  }
+}

@@ -1,6 +1,6 @@
 # Plugin Mapping Analysis Report
-Generated: 2026-06-04 16:58:52
-Total unmapped plugins: 8
+Generated: 2026-09-09 07:12:49
+Total unmapped plugins: 7
 Package verification: ENABLED
 
 ## ❌ Failed Mappings
@@ -13,8 +13,6 @@ These plugins could not be automatically mapped:
   - Tried: mini.snippets
 - **nvim-mini/mini.files**
   - Tried: mini.files
-- **R-nvim/R.nvim**
-  - Tried: R-nvim, R.nvim
 - **nvim-mini/mini.animate**
   - Tried: mini.animate
 - **alker0/chezmoi.vim**
