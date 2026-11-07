@@ -25,7 +25,13 @@ let
   },
   -- [NIX] Dev path for Nix-symlinked plugins
   dev = {
-    path = "${devPath}",
+    path = function(plugin)
+      -- Resolve by repository URL, not lazy.nvim's overridable plugin name.
+      local repo = (plugin.url or plugin[1] or ""):gsub("%.git$", "")
+      local owner, name = repo:match("([^/:]+)/([^/]+)$")
+      assert(owner and name, "Nix dev plugin has no owner/repo URL: " .. repo)
+      return "${devPath}/" .. owner .. "--" .. name
+    end,
     patterns = {},  -- Don't automatically match, use explicit dev = true
     fallback = false,
   },'';

@@ -1,105 +1,121 @@
-# Unit tests for dev path creation and symlink handling
-# Imports the real nix/lib/dev-path.nix, builds an actual dev path derivation
-# from fake plugin packages, and inspects the resulting symlinks.
+# Exercise repository identities with real lazy.nvim spec merging and dev paths.
 { pkgs, testLib, ... }:
 
 let
   inherit (pkgs) lib;
-
-  fixtureMappings = {
-    "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
-    "nvim-mini/mini.pairs" = { package = "mini-nvim"; module = "mini.pairs"; };
-    "folke/lazy.nvim" = "lazy-nvim";
-  };
-
-  # The real dev path library under test
   devPathLib = import ../../nix/lib/dev-path.nix {
     inherit lib pkgs;
-    pluginMappings = fixtureMappings;
+    pluginMappings = {
+      "nvim-mini/mini.ai" = { package = "mini-nvim"; module = "mini.ai"; };
+      "nvim-mini/mini.pairs" = { package = "mini-nvim"; module = "mini.pairs"; };
+    };
   };
-
-  inherit (devPathLib) createDevPath getRepoName generateDevPluginSpecs;
-
-  # Cheap stand-ins for resolved plugin packages
+  inherit (devPathLib) createDevPath getLinkName generateDevPluginSpecs;
   fakePlugin = name: pkgs.runCommand "fake-${name}" {} ''
     mkdir -p $out
     echo "${name}" > $out/marker
   '';
-  fakeLazy = fakePlugin "lazy-nvim";
-  fakeLsp = fakePlugin "nvim-lspconfig";
+  fakeCatppuccin = fakePlugin "catppuccin";
+  fakeOther = fakePlugin "other-nvim";
   fakeMini = fakePlugin "mini-nvim";
-
-  # Specs cover: regular plugins, two modules of one multi-module package, a
-  # duplicate entry for the same module (must deduplicate), and an unresolved
-  # plugin (null, must be filtered out).
-  devPathSpecs = [
-    { name = "folke/lazy.nvim"; }
-    { name = "neovim/nvim-lspconfig"; }
+  specs = [
+    { name = "catppuccin/nvim"; }
+    { name = "other/nvim"; }
     { name = "nvim-mini/mini.ai"; }
     { name = "nvim-mini/mini.pairs"; }
     { name = "nvim-mini/mini.ai"; }
     { name = "owner/unresolved-plugin"; }
   ];
-  devPathResolved = [ fakeLazy fakeLsp fakeMini fakeMini fakeMini null ];
-
-  devPath = createDevPath devPathSpecs devPathResolved;
-
-  # generateDevPluginSpecs must exclude nvim-treesitter (it gets a dedicated
-  # spec from the starter patcher) and unresolved plugins; everything else,
-  # including nvim-treesitter-textobjects, is dev-managed
-  devSpecs = generateDevPluginSpecs devPathLib [
-    { name = "folke/lazy.nvim"; }
-    { name = "nvim-treesitter/nvim-treesitter"; }
-    { name = "nvim-treesitter/nvim-treesitter-textobjects"; }
-    { name = "owner/unresolved-plugin"; }
-  ] [ fakeLazy fakeMini fakeMini null ];
-
+  resolved = [ fakeCatppuccin fakeOther fakeMini fakeMini fakeMini null ];
+  devPath = createDevPath specs resolved;
+  devSpecs = generateDevPluginSpecs devPathLib specs resolved;
+  starterPatcher = import ../../nix/lib/starter-patcher.nix { inherit lib; };
+  # Only the upstream patch anchors are needed to obtain the real generated
+  # dev.path callback without executing the starter's bootstrap or imports.
+  config = pkgs.writeText "dev-path-config.lua" (starterPatcher.patchStarterConfig {
+    inherit devPath;
+    availableDevSpecs = devSpecs;
+    extrasImportSpecs = [];
+    starterLua = ''
+return {
+  spec = {
+    -- add LazyVim and import its plugins
+    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    -- import/override with your plugins
+    { import = "plugins" },
+  },
+  checker = {
+    enabled = true, -- check for plugin updates periodically
+    notify = false, -- notify on update
+  }, -- automatically check for plugin updates
+}
+'';
+  });
+  behavior = pkgs.writeText "dev-path-behavior.lua" ''
+    vim.opt.rtp:prepend("${pkgs.vimPlugins.lazy-nvim}")
+    local config = dofile("${config}")
+    local Config = require("lazy.core.config")
+    Config.options = vim.tbl_deep_extend("force", Config.defaults, {
+      root = vim.fn.stdpath("data") .. "/lazy",
+      dev = config.dev,
+    })
+    local specs = {
+      -- LazyVim's colorscheme spec uses a name unlike the repository basename.
+      { "catppuccin/nvim", name = "catppuccin", opts = { flavour = "mocha" } },
+      { "other/nvim", name = "other" },
+      ${lib.concatStringsSep "\n      " devSpecs}
+    }
+    local Spec = require("lazy.core.plugin").Spec
+    local spec = Spec.new(specs, { pkg = false })
+    assert(#spec.notifs == 0, vim.inspect(spec.notifs))
+    local plugins = spec.plugins
+    assert(plugins.nvim == nil, "phantom basename-only nvim plugin")
+    assert(plugins.catppuccin.dev and plugins.catppuccin.pin)
+    assert(plugins.catppuccin.opts.flavour == "mocha", "renamed spec did not merge")
+    assert(plugins.catppuccin.dir == "${devPath}/catppuccin--nvim")
+    assert(vim.uv.fs_realpath(plugins.catppuccin.dir) == "${fakeCatppuccin}")
+    -- A second repository with the same basename must retain its own package.
+    assert(vim.uv.fs_realpath(config.dev.path({ url = "https://github.com/other/nvim.git", name = "renamed" })) == "${fakeOther}")
+    assert(config.dev.path({ "catppuccin/nvim", name = "renamed" }) == plugins.catppuccin.dir)
+    for _, module in ipairs({ "mini.ai", "mini.pairs" }) do
+      assert(vim.uv.fs_realpath(plugins[module].dir) == "${fakeMini}")
+      assert(vim.uv.fs_realpath("${devPath}/" .. module) == "${fakeMini}")
+    end
+    print("Renamed catppuccin merges by URL; repository dev paths and mini modules resolve Nix packages")
+  '';
 in {
-  # getRepoName: real function edge cases
-  test-get-repo-name-standard = testLib.testEval
-    "get-repo-name-standard"
-    (getRepoName "folke/lazy.nvim")
-    "lazy.nvim";
+  test-dev-link-name = testLib.testEval "dev-link-name"
+    (getLinkName "catppuccin/nvim") "catppuccin--nvim";
 
-  test-get-repo-name-with-dots = testLib.testEval
-    "get-repo-name-with-dots"
-    (getRepoName "nvim-telescope/telescope.nvim")
-    "telescope.nvim";
-
-  test-get-repo-name-with-hyphens = testLib.testEval
-    "get-repo-name-with-hyphens"
-    (getRepoName "owner/repo-with-hyphens")
-    "repo-with-hyphens";
-
-  test-get-repo-name-no-owner = testLib.testEval
-    "get-repo-name-no-owner"
-    (getRepoName "single-name")
-    "single-name";
-
-  # createDevPath: regular plugins are linked by repo name, multi-module
-  # plugins by module name
   test-dev-path-creates-symlinks = testLib.runTest "dev-path-creates-symlinks"
-    ''[ -L "${devPath}/lazy.nvim" ] && [ -L "${devPath}/nvim-lspconfig" ] && [ -L "${devPath}/mini.ai" ] && [ -L "${devPath}/mini.pairs" ]'';
+    ''[ -L "${devPath}/catppuccin--nvim" ] && [ -L "${devPath}/other--nvim" ] && [ -L "${devPath}/mini.ai" ] && [ -L "${devPath}/mini.pairs" ]'';
 
-  # createDevPath: symlinks point at the resolved plugin packages
   test-dev-path-links-point-to-plugins = testLib.runTest "dev-path-links-point-to-plugins"
-    ''[ "$(readlink "${devPath}/lazy.nvim")" = "${fakeLazy}" ] && [ "$(readlink "${devPath}/mini.ai")" = "${fakeMini}" ] && [ "$(readlink "${devPath}/mini.pairs")" = "${fakeMini}" ]'';
+    ''[ "$(readlink "${devPath}/catppuccin--nvim")" = "${fakeCatppuccin}" ] && [ "$(readlink "${devPath}/other--nvim")" = "${fakeOther}" ]'';
 
-  # createDevPath: duplicate module entries are deduplicated and unresolved
-  # (null) plugins are dropped, so exactly 4 links remain
+  # Four repository links plus two preserved module aliases; duplicates and
+  # unresolved plugins must not add links.
   test-dev-path-dedup-and-null-filtering = testLib.runTest "dev-path-dedup-and-null-filtering"
-    ''[ "$(ls "${devPath}" | wc -l)" -eq 4 ]'';
+    ''[ "$(ls "${devPath}" | wc -l)" -eq 6 ]'';
 
-  # generateDevPluginSpecs: produces lazy.nvim dev specs in the expected format
-  test-dev-specs-format = testLib.testEval
-    "dev-specs-format"
-    (builtins.head devSpecs)
-    ''{ "lazy.nvim", dev = true, pin = true },'';
+  test-dev-specs-format = testLib.testEval "dev-specs-format"
+    (builtins.head devSpecs) ''{ "catppuccin/nvim", dev = true, pin = true },'';
 
-  # generateDevPluginSpecs: nvim-treesitter and unresolved plugins are
-  # excluded, leaving lazy.nvim and nvim-treesitter-textobjects
-  test-dev-specs-exclusions = testLib.testEval
-    "dev-specs-exclusions"
-    (builtins.length devSpecs)
-    2;
+  test-dev-specs-exclusions = testLib.testEval "dev-specs-exclusions"
+    (builtins.length (generateDevPluginSpecs devPathLib [
+      { name = "nvim-treesitter/nvim-treesitter"; }
+      { name = "nvim-treesitter/nvim-treesitter-textobjects"; }
+      { name = "owner/unresolved-plugin"; }
+    ] [ fakeMini fakeMini null ])) 1;
+
+  test-dev-path-lazy-identity = pkgs.runCommand "test-dev-path-lazy-identity" {
+    nativeBuildInputs = [ pkgs.neovim-unwrapped ];
+  } ''
+    export HOME=$TMPDIR/home
+    export XDG_CONFIG_HOME=$HOME/config XDG_DATA_HOME=$HOME/data
+    export XDG_STATE_HOME=$HOME/state XDG_CACHE_HOME=$HOME/cache
+    mkdir -p "$HOME"
+    nvim --headless -u NONE -l ${behavior}
+    touch $out
+  '';
 }
