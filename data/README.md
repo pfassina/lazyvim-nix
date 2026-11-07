@@ -55,6 +55,23 @@ Contains the full parser install metadata extracted from the pinned upstream
 revision, optional subdirectory, and prefetched hash needed to build parsers from
 the same source of truth as the shipped queries.
 
+With `pluginSource = "latest"`, evaluation rejects a manifest whose
+`nvim_treesitter_commit` differs from the resolved plugin's source revision.
+This uses the resolver's actual selection, including version/tag precedence and
+nixpkgs fallbacks, rather than trusting `version_info.commit` alone.
+
+Run `nix develop --command ./scripts/update-plugins.sh` to reconcile the
+manifest, including when plugin metadata is reused from the release cache.
+Extraction failures stop the update; a newly generated manifest is installed
+only after its JSON and commit are validated. Hashes are reused across plugin
+commits only when the parser URL, revision, location, and dependencies match.
+
+Check consistency without building parsers:
+
+```bash
+nix-instantiate --eval --strict --expr 'import ./scripts/check-parser-manifest.nix {}'
+```
+
 ## plugins.json
 
 **Purpose**: Complete LazyVim plugin specifications

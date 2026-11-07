@@ -28,6 +28,12 @@ jobs:
           name: nix-community
           skipPush: true
 
+      # Hash repair must not bless parsers from a different plugin revision.
+      - name: Check parser manifest consistency
+        run: nix-instantiate --eval --strict --expr 'import ./scripts/check-parser-manifest.nix {}'
+        env:
+          NIX_PATH: nixpkgs=flake:nixpkgs
+
       - name: Verify and fix parser hashes
         id: verify
         run: |

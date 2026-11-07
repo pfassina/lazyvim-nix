@@ -214,6 +214,13 @@ in {
     # Force evaluation of conflict checks (this will throw if conflicts exist)
     _module.args._conflictCheck = conflictChecks;
 
+    assertions = lib.optional (cfg.pluginSource == "latest") (
+      import ./lib/parser-coherence.nix {
+        manifest = builtins.fromJSON (builtins.readFile ../data/parser-manifest.json);
+        plugin = resolvedTreesitterPlugin;
+      }
+    );
+
     # Ensure neovim is enabled
     programs.neovim = {
       enable = true;

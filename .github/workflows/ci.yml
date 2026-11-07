@@ -26,6 +26,11 @@ jobs:
           restore-prefixes-first-match: nix-${{ runner.os }}-test-
           gc-max-store-size-linux: 4G
 
+      - name: Check parser manifest consistency
+        run: nix-instantiate --eval --strict --expr 'import ./scripts/check-parser-manifest.nix {}'
+        env:
+          NIX_PATH: nixpkgs=flake:nixpkgs
+
       - name: Run test suite
         run: nix-build test/ -A runAll
         env:

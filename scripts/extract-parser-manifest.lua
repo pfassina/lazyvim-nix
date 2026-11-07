@@ -180,11 +180,9 @@ local function arrays_equal(a, b)
     return true
 end
 
-local function can_reuse_entry(existing, nvim_ts_commit, parser_name, expected_revision, expected_url, expected_location, expected_requires)
+-- Hashes are reusable across plugin commits when all parser inputs still match.
+local function can_reuse_entry(existing, parser_name, expected_revision, expected_url, expected_location, expected_requires)
     if not existing then
-        return false
-    end
-    if existing.nvim_treesitter_commit ~= nvim_ts_commit then
         return false
     end
     if not existing.parsers or not existing.parsers[parser_name] then
@@ -236,8 +234,8 @@ local function main()
     local output_path = arg[3]
     local nvim_ts_commit = arg[4]
 
-    if not nvim_ts_path or not output_path then
-        print("Usage: extract-parser-manifest.lua <nvim-ts-path> <existing-manifest.json> <output.json> [nvim-ts-commit]")
+    if not nvim_ts_path or not output_path or not nvim_ts_commit or not nvim_ts_commit:match("^%x+$") or #nvim_ts_commit ~= 40 then
+        print("Usage: extract-parser-manifest.lua <nvim-ts-path> <existing-manifest.json> <output.json> <nvim-ts-commit (40 hex digits)>")
         os.exit(1)
     end
 
@@ -269,7 +267,7 @@ local function main()
         local requires = spec and spec.requires or nil
 
         if url and revision then
-            if can_reuse_entry(existing, nvim_ts_commit, parser_name, revision, url, location, requires) then
+            if can_reuse_entry(existing, parser_name, revision, url, location, requires) then
                 result.parsers[parser_name] = existing.parsers[parser_name]
                 reusable_count = reusable_count + 1
             else
