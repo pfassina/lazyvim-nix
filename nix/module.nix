@@ -30,6 +30,8 @@ let
   };
   configLib = import ./lib/config-generation.nix { inherit lib; };
   fileLib = import ./lib/file-scanning.nix { inherit lib; };
+  defaultExtrasLib = import ./lib/default-extras.nix { inherit lib pkgs; };
+  selectionLib = import ./lib/plugin-selection.nix { inherit lib; };
 
   # Helper function to collect enabled extras
   getEnabledExtras = extrasConfig:
@@ -82,8 +84,33 @@ let
     in
       lib.filter (x: x != null) (lib.flatten allCategories);
 
-  # Get list of enabled extras
-  enabledExtras = if cfg.enable then getEnabledExtras (cfg.extras or {}) else [];
+  explicitExtras = if cfg.enable then getEnabledExtras (cfg.extras or {}) else [];
+  lazyvimSpec = lib.findFirst (p: p.name == "LazyVim/LazyVim")
+    (throw "LazyVim is missing from data/plugins.json") dataLib.pluginData.plugins;
+  optionsFile = if scannedFiles.configFiles ? options then
+    scannedFiles.configFiles.options.file
+  else pkgs.writeText "lazyvim-user-options.lua" cfg.config.options;
+  defaultExtras = if cfg.enable then defaultExtrasLib.resolve {
+    neovim = config.programs.neovim.package;
+    lazyvim = pluginLib.resolvePlugin cfg lazyvimSpec;
+    inherit optionsFile;
+    explicitExtras = map (extra: "${extra.category}.${extra.name}") explicitExtras;
+    configPath = cfg.configFiles;
+  } else { enabled = []; disabled = []; plugins = []; };
+  implicitExtras = map (name:
+    let parts = lib.splitString "." name;
+        category = builtins.head parts;
+        extraName = lib.concatStringsSep "." (builtins.tail parts);
+        extraKey = builtins.replaceStrings [ "-" ] [ "_" ] extraName;
+    in dataLib.extrasMetadata.${category}.${extraKey} // {
+      config = "";
+      hasConfig = false;
+    }
+  ) (lib.filter (name: !(lib.any
+    (extra: "${extra.category}.${extra.name}" == name) explicitExtras)) defaultExtras.enabled);
+  enabledExtras = (lib.filter (extra:
+    !(builtins.elem "${extra.category}.${extra.name}" defaultExtras.disabled)
+  ) explicitExtras) ++ implicitExtras;
 
   # Enabled extra identifiers (category.name) for downstream tooling
   enabledExtraNames = map (extra: "${extra.category}.${extra.name}") enabledExtras;
@@ -118,10 +145,23 @@ let
       builtins.filter isExtraEnabled allExtrasPlugins;
 
   # Merge core plugins with enabled extras plugins and user plugins
-  allPluginSpecs = corePlugins ++ extrasPlugins ++ userPlugins;
+  allPluginSpecs = selectionLib.withDependencies dataLib.pluginData.plugins (
+    let
+      selected = corePlugins ++ extrasPlugins ++ userPlugins;
+      selectedNames = map (spec: spec.name) selected;
+      byName = lib.listToAttrs (map (spec: lib.nameValuePair spec.name spec)
+        dataLib.pluginData.plugins);
+      discovered = map (name: (byName.${name} or { inherit name; }) // {
+        dependencyOnly = true;
+      }) (lib.filter (name: !(builtins.elem name selectedNames)) defaultExtras.plugins);
+    in selected ++ discovered
+  );
 
   # Resolve all plugins using the smart resolver
-  resolvedPlugins = map (pluginLib.resolvePlugin cfg) allPluginSpecs;
+  resolvedPlugins = map (spec:
+    if spec.dependencyOnly or false then pluginLib.resolveDependency cfg spec
+    else pluginLib.resolvePlugin cfg spec
+  ) allPluginSpecs;
 
   # Extract the resolved nvim-treesitter plugin for query file linking
   # Must come from the same resolved list to match the parser strategy

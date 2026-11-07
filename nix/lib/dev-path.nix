@@ -53,7 +53,7 @@ rec {
       devPluginSpecs = lib.zipListsWith (spec: plugin:
         if plugin != null &&
            spec.name != "nvim-treesitter/nvim-treesitter" then
-          ''{ "${self.getRepoName spec.name}", dev = true, pin = true },''
+          ''{ "${self.getRepoName spec.name}", dev = true, pin = true${lib.optionalString (spec.dependencyOnly or false) ", optional = true, lazy = true"} },''
         else
           null
       ) allPluginSpecs resolvedPlugins;

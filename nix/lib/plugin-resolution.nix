@@ -45,7 +45,9 @@ let
         };
     in
       if owner != null && repo != null then
-        pkgs.vimUtils.buildVimPlugin {
+        if pluginSpec.name == "saghen/blink.cmp" then
+          (import ./blink-cmp.nix { inherit lib pkgs; }) { inherit src; version = rev; }
+        else pkgs.vimUtils.buildVimPlugin {
           pname = repo;
           version = rev;
           inherit src;
@@ -113,7 +115,8 @@ let
       tagVersion = versionInfo.tag or null;
       commitVersion = versionInfo.commit or null;
       nixpkgsVersion = if nixPlugin != null then
-        nixPlugin.src.rev or nixPlugin.version or null
+        let rev = nixPlugin.src.rev or nixPlugin.version or null;
+        in if builtins.isString rev then lib.removePrefix "refs/tags/" rev else rev
       else null;
 
       # Determine LazyVim-specified source requirements
@@ -197,6 +200,14 @@ let
         else
           finalPlugin
       );
+  # Dependency-only repositories have no generated version data. Prefer their
+  # mapped package, then the literal nixpkgs repository name (e.g. snippets).
+  resolveDependency = cfg: spec:
+    let
+      resolved = self.resolvePlugin cfg spec;
+      repo = lib.last (lib.splitString "/" spec.name);
+    in if resolved != null then resolved else pkgs.vimPlugins.${repo} or null;
   };
+
 in
   self

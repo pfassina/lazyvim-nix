@@ -80,6 +80,33 @@ programs.lazyvim = {
 
 **Note:** Treesitter grammars are [installed automatically](https://github.com/pfassina/lazyvim-nix/wiki/Configuration-Reference#treesitterparsers) based on enabled language extras.
 
+### Default Extras
+
+LazyVim's implicit completion, picker and explorer extras are included in Nix
+plugin, parser and tool selection, even when `extras` is empty. The module runs
+the pinned LazyVim's `get_defaults()` in headless Neovim, honoring explicit extras
+and `vim.g.lazyvim_cmp`, `vim.g.lazyvim_picker` and `vim.g.lazyvim_explorer` from
+`config.options` or the options file in `configFiles`.
+
+```nix
+programs.lazyvim.config.options = ''
+  vim.g.lazyvim_cmp = "nvim-cmp";
+'';
+```
+
+This selection uses import-from-derivation: the options file also executes during
+evaluation in a build with isolated HOME/XDG directories. Keep its default-selection
+settings independent of mutable home files and runtime-only plugins.
+
+Dependencies without generated plugin entries are resolved against `pkgs.vimPlugins`
+(including explicit mappings). Their dev fragments are optional, so a dependency
+marked optional by LazyVim is not enabled just because Nix can provide it. These
+packages follow the pinned nixpkgs version when no generated version metadata exists.
+The real LazyVim specs are normalized during selection, so merged fragments and
+nested dependencies are included even when the generated dependency list omits them.
+Dependency dev fragments stay lazy. Blink's Rust matcher is packaged by Nix, including
+when its pinned version must be built from source rather than taken from nixpkgs.
+
 ### Dependency Control
 
 Control which packages get installed automatically:
