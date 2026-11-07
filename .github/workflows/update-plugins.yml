@@ -155,6 +155,7 @@ jobs:
 
             ## Changes
             - Updated `data/plugins.json` with latest LazyVim plugin list
+            - Reconciled `data/parser-manifest.json` with the selected nvim-treesitter revision
             - Updated `data/extras.json` with latest LazyVim extras metadata
             ${{ steps.check-updates.outputs.starter_updated == 'true' && '- Updated `data/starter-lazy.lua` with latest LazyVim starter config' || '' }}
             - LazyVim version: ${{ steps.check-updates.outputs.latest_version }}
@@ -179,6 +180,7 @@ jobs:
           delete-branch: true
           add-paths: |
             data/plugins.json
+            data/parser-manifest.json
             data/mappings.json
             data/extras.json
             data/dependencies.json

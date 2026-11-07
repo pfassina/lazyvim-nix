@@ -1,5 +1,5 @@
 # Run with nix-instantiate --eval --strict --expr 'import ./scripts/check-parser-manifest.nix {}'.
-{ pkgs ? import <nixpkgs> { } }:
+{ pkgs ? (builtins.getFlake (toString ../.)).inputs.nixpkgs.legacyPackages.${builtins.currentSystem} }:
 let
   data = import ../nix/lib/data-loading.nix { inherit pkgs; inherit (pkgs) lib; };
   resolver = import ../nix/lib/plugin-resolution.nix {
