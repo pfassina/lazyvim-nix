@@ -10,12 +10,22 @@ let
   plugins = [ pkgs.vimPlugins.lazy-nvim pkgs.vimPlugins.friendly-snippets pkgs.vimPlugins.blink-compat ];
   path = dev.createDevPath specs plugins;
   fragments = dev.generateDevPluginSpecs dev specs plugins;
+  patcher = import ../../nix/lib/starter-patcher.nix { inherit lib; };
+  config = pkgs.writeText "dependency-dev-options.lua" (builtins.replaceStrings
+    [ ''require("lazy").setup({'' "\n})" ] [ "return {" "\n}" ]
+    (patcher.patchStarterConfig {
+      devPath = path;
+      availableDevSpecs = fragments;
+      extrasImportSpecs = [];
+      starterLua = builtins.readFile ../../data/starter-lazy.lua;
+    }));
   check = pkgs.writeText "dependency-dev-specs.lua" ''
     vim.opt.rtp:prepend("${pkgs.vimPlugins.lazy-nvim}")
+    local generated = dofile("${config}")
     local Config = require("lazy.core.config")
     Config.options = vim.tbl_deep_extend("force", Config.defaults, {
       root = vim.fn.stdpath("data") .. "/lazy",
-      dev = { path = "${path}", fallback = false, patterns = {} },
+      dev = generated.dev,
     })
     local specs = {
       { "saghen/blink.cmp", dependencies = {
@@ -40,7 +50,8 @@ in {
     export HOME="$TMPDIR/home"
     export XDG_CONFIG_HOME="$HOME/config" XDG_DATA_HOME="$HOME/data"
     export XDG_STATE_HOME="$HOME/state" XDG_CACHE_HOME="$HOME/cache"
-    mkdir -p "$HOME"
+    mkdir -p "$XDG_DATA_HOME/nvim/lazy"
+    ln -s ${pkgs.vimPlugins.lazy-nvim} "$XDG_DATA_HOME/nvim/lazy/lazy.nvim"
     nvim --headless -u NONE -l ${check}
     touch "$out"
   '';
