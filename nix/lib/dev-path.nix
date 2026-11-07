@@ -15,7 +15,8 @@ rec {
             inherit spec;
             inherit plugin;
             inherit isMultiModule;
-            linkName = if isMultiModule then mapping.module else getRepoName spec.name;
+            linkNames = [ (getLinkName spec.name) ]
+              ++ lib.optional isMultiModule mapping.module;
           }
         else null
       ) allPluginSpecs allResolvedPlugins;
@@ -27,7 +28,9 @@ rec {
       deduplicatedPlugins =
         let
           # Group by link name
-          grouped = lib.groupBy (p: p.linkName) validPlugins;
+          grouped = lib.groupBy (p: p.linkName) (lib.concatMap
+            (p: map (linkName: { inherit linkName; inherit (p) plugin; }) p.linkNames)
+            validPlugins);
           # Take first entry for each unique link name
           deduplicated = lib.mapAttrsToList (linkName: plugins: lib.head plugins) grouped;
         in deduplicated;
@@ -40,10 +43,8 @@ rec {
         ${lib.concatStringsSep "\n" linkCommands}
       '';
 
-  # Extract repository name from plugin spec (needed for config generation)
-  getRepoName = specName:
-    let parts = lib.splitString "/" specName;
-    in if lib.length parts == 2 then lib.elemAt parts 1 else specName;
+  # Repository identity is independent of lazy.nvim's overridable plugin name.
+  getLinkName = specName: lib.replaceStrings [ "/" ] [ "--" ] specName;
 
   # Generate dev plugin specs for available plugins
   generateDevPluginSpecs = self: allPluginSpecs: resolvedPlugins:
@@ -53,7 +54,7 @@ rec {
       devPluginSpecs = lib.zipListsWith (spec: plugin:
         if plugin != null &&
            spec.name != "nvim-treesitter/nvim-treesitter" then
-          ''{ "${self.getRepoName spec.name}", dev = true, pin = true },''
+          ''{ "${spec.name}", dev = true, pin = true },''
         else
           null
       ) allPluginSpecs resolvedPlugins;

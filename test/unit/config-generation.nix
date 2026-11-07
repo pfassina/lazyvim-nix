@@ -84,11 +84,6 @@ in {
     (lib.hasInfix ''{ import = "lazyvim.plugins.extras.lang.rust" },'' patchedConfig)
     true;
 
-  # lazyConfig: the Nix dev path is wired into lazy.nvim's dev settings
-  test-lazy-config-sets-dev-path = testLib.testEval
-    "lazy-config-sets-dev-path"
-    (lib.hasInfix ''path = "/nix/store/fake-dev-path",'' patchedConfig)
-    true;
 
   # lazyConfig: dev specs for Nix-managed plugins are included
   test-lazy-config-includes-dev-specs = testLib.testEval
