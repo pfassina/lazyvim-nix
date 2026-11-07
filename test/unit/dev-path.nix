@@ -30,27 +30,15 @@ let
   devPath = createDevPath specs resolved;
   devSpecs = generateDevPluginSpecs devPathLib specs resolved;
   starterPatcher = import ../../nix/lib/starter-patcher.nix { inherit lib; };
-  # Only the upstream patch anchors are needed to obtain the real generated
-  # dev.path callback without executing the starter's bootstrap or imports.
-  config = pkgs.writeText "dev-path-config.lua" (starterPatcher.patchStarterConfig {
+  # Return the generated options so the test can normalize its own plugin specs.
+  config = pkgs.writeText "dev-path-config.lua" (builtins.replaceStrings
+    [ ''require("lazy").setup({'' "\n})" ] [ "return {" "\n}" ]
+    (starterPatcher.patchStarterConfig {
     inherit devPath;
     availableDevSpecs = devSpecs;
     extrasImportSpecs = [];
-    starterLua = ''
-return {
-  spec = {
-    -- add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- import/override with your plugins
-    { import = "plugins" },
-  },
-  checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
-}
-'';
-  });
+    starterLua = builtins.readFile ../../data/starter-lazy.lua;
+  }));
   behavior = pkgs.writeText "dev-path-behavior.lua" ''
     vim.opt.rtp:prepend("${pkgs.vimPlugins.lazy-nvim}")
     local config = dofile("${config}")
@@ -114,7 +102,8 @@ in {
     export HOME=$TMPDIR/home
     export XDG_CONFIG_HOME=$HOME/config XDG_DATA_HOME=$HOME/data
     export XDG_STATE_HOME=$HOME/state XDG_CACHE_HOME=$HOME/cache
-    mkdir -p "$HOME"
+    mkdir -p "$XDG_DATA_HOME/nvim/lazy"
+    ln -s ${pkgs.vimPlugins.lazy-nvim} "$XDG_DATA_HOME/nvim/lazy/lazy.nvim"
     nvim --headless -u NONE -l ${behavior}
     touch $out
   '';
