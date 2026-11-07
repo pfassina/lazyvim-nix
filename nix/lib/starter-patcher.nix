@@ -29,7 +29,10 @@ let
       -- Resolve by repository URL, not lazy.nvim's overridable plugin name.
       local repo = (plugin.url or plugin[1] or ""):gsub("%.git$", "")
       local owner, name = repo:match("([^/:]+)/([^/]+)$")
-      assert(owner and name, "Nix dev plugin has no owner/repo URL: " .. repo)
+      if not (owner and name) then
+        -- No owner/repo URL (e.g. a user's local dev spec): fall back to the name
+        return "${devPath}/" .. plugin.name
+      end
       return "${devPath}/" .. owner .. "--" .. name
     end,
     patterns = {},  -- Don't automatically match, use explicit dev = true

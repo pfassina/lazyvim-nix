@@ -65,6 +65,7 @@ let
     -- A second repository with the same basename must retain its own package.
     assert(vim.uv.fs_realpath(config.dev.path({ url = "https://github.com/other/nvim.git", name = "renamed" })) == "${fakeOther}")
     assert(config.dev.path({ "catppuccin/nvim", name = "renamed" }) == plugins.catppuccin.dir)
+    assert(config.dev.path({ name = "local-plugin" }) == "${devPath}/local-plugin", "no-URL plugin must fall back to its name")
     for _, module in ipairs({ "mini.ai", "mini.pairs" }) do
       assert(vim.uv.fs_realpath(plugins[module].dir) == "${fakeMini}")
       assert(vim.uv.fs_realpath("${devPath}/" .. module) == "${fakeMini}")
