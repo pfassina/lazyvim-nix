@@ -30,7 +30,7 @@ let
   };
   configLib = import ./lib/config-generation.nix { inherit lib; };
   fileLib = import ./lib/file-scanning.nix { inherit lib; };
-  defaultExtrasLib = import ./lib/default-extras.nix { inherit lib pkgs; };
+  defaultExtrasLib = import ./lib/default-extras.nix { inherit pkgs; };
   selectionLib = import ./lib/plugin-selection.nix { inherit lib; };
 
   # Helper function to collect enabled extras

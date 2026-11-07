@@ -9,7 +9,7 @@ let
   };
   lazyvim = resolver.resolvePlugin { pluginSource = "latest"; }
     (lib.findFirst (p: p.name == "LazyVim/LazyVim") null data.plugins);
-  defaults = import ../../nix/lib/default-extras.nix { inherit lib pkgs; };
+  defaults = import ../../nix/lib/default-extras.nix { inherit pkgs; };
   inspect = options: explicitExtras: defaults.resolve {
     inherit lazyvim explicitExtras;
     neovim = pkgs.neovim-unwrapped;

@@ -1,5 +1,5 @@
 # Evaluate LazyVim's own default selection, including executable user options.
-{ lib, pkgs }:
+{ pkgs }:
 {
   resolve = { neovim, lazyvim, optionsFile, explicitExtras, configPath ? null }:
     let
