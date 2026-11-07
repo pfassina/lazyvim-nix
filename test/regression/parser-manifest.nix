@@ -15,12 +15,15 @@ let
     inherit lib pkgs;
     config = {
       home.homeDirectory = "/nonexistent";
+      programs.neovim.package = pkgs.neovim-unwrapped;
       programs.lazyvim = {
         enable = true;
         appName = "nvim";
         pluginSource = strategy;
         ignoreBuildNotifications = true;
         extras = {};
+        configFiles = null;
+        config.options = "";
       };
     };
   }).config.content.assertions;
