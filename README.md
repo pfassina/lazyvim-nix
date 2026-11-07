@@ -80,6 +80,8 @@ programs.lazyvim = {
 
 **Note:** Treesitter grammars are [installed automatically](https://github.com/pfassina/lazyvim-nix/wiki/Configuration-Reference#treesitterparsers) based on enabled language extras.
 
+Installed Treesitter parsers and their filtered queries are validated at build time using `programs.neovim.package` (including overrides). Parser load failures or incompatible query nodes fail the build with language/query diagnostics, rather than surfacing only when opening a file. Query-only inheritance directories are available during validation but do not require their own parser.
+
 ### Dependency Control
 
 Control which packages get installed automatically:

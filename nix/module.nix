@@ -190,6 +190,12 @@ let
     done
   '';
 
+  validatedQueries = import ./lib/validate-treesitter.nix { inherit pkgs; } {
+    neovim = config.programs.neovim.package;
+    parsers = treesitterGrammars;
+    queries = filteredQueries;
+  };
+
   # Generate lazy.nvim configuration by patching the official LazyVim starter
   lazyConfig = configLib.lazyConfig {
     inherit (dataLib) starterLua;
@@ -237,7 +243,7 @@ in {
         source = "${treesitterGrammars}/parser";
       };
       "${cfg.appName}/site/queries" = mkIf (automaticTreesitterParsers != []) {
-        source = "${filteredQueries}";
+        source = "${validatedQueries}";
       };
     };
 
