@@ -183,6 +183,7 @@ jobs:
             data/extras.json
             data/dependencies.json
             data/mapping-analysis-report.md
+            data/parser-manifest.json
             data/starter-lazy.lua
             data/starter-version.txt
           

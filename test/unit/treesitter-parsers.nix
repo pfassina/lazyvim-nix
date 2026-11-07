@@ -41,6 +41,12 @@ let
   # Real shipped parser manifest (used by expandParserDependencies)
   parserManifest = builtins.fromJSON (builtins.readFile ../../data/parser-manifest.json);
 
+  # nvim-treesitter commit whose queries are installed (from the shipped plugins.json)
+  pluginsData = builtins.fromJSON (builtins.readFile ../../data/plugins.json);
+  pinnedTreesitterCommit =
+    (lib.findFirst (p: p.name == "nvim-treesitter/nvim-treesitter") { } pluginsData.plugins)
+    .version_info.commit or null;
+
 in {
   # Core parsers are always included
   test-core-parsers-always-included = testLib.testEval
@@ -189,6 +195,14 @@ in {
      parserManifest.parsers ? gotmpl &&
      parserManifest.parsers ? xml &&
      parserManifest.parsers ? dtd)
+    true;
+
+  # Parsers are built from the manifest while queries come from the pinned
+  # nvim-treesitter plugin; a mismatch yields "Invalid node type" query errors.
+  test-parser-manifest-matches-pinned-treesitter = testLib.testEval
+    "parser-manifest-matches-pinned-treesitter"
+    (pinnedTreesitterCommit != null
+     && parserManifest.nvim_treesitter_commit == pinnedTreesitterCommit)
     true;
 
   test-parser-manifest-preserves-requires = testLib.testEval

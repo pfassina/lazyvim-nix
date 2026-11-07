@@ -86,6 +86,22 @@ fi
 
 RELEASE_CACHE_KEY="${LAZYVIM_COMMIT}-${CACHE_SCHEMA_VERSION}-${VERIFY_SUFFIX}"
 RELEASE_CACHE_DIR="$RELEASE_CACHE_ROOT/$RELEASE_CACHE_KEY"
+RELEASE_CACHE_PARSER_MANIFEST_MATCH=0
+
+# The LazyVim release cache can outlive a floating nvim-treesitter commit.
+# Reuse it only when its parser manifest matches the query plugin revision.
+if [ -f "$RELEASE_CACHE_DIR/plugins.json" ] \
+    && [ -f "$RELEASE_CACHE_DIR/parser-manifest.json" ]; then
+    CACHED_PLUGINS_TS_COMMIT=$(jq -r '.plugins[] | select(.name == "nvim-treesitter/nvim-treesitter") | .version_info.commit // empty' "$RELEASE_CACHE_DIR/plugins.json" 2>/dev/null || true)
+    CACHED_MANIFEST_TS_COMMIT=$(jq -r '.nvim_treesitter_commit // empty' "$RELEASE_CACHE_DIR/parser-manifest.json" 2>/dev/null || true)
+
+    if [ -n "$CACHED_PLUGINS_TS_COMMIT" ] \
+        && [ "$CACHED_PLUGINS_TS_COMMIT" = "$CACHED_MANIFEST_TS_COMMIT" ]; then
+        RELEASE_CACHE_PARSER_MANIFEST_MATCH=1
+    else
+        echo "==> Release cache has a stale parser manifest; regenerating metadata"
+    fi
+fi
 
 echo "==> Materializing LazyVim $LATEST_TAG ($LAZYVIM_COMMIT) ..."
 mkdir -p "$TEMP_DIR/LazyVim"
@@ -132,7 +148,8 @@ if [ -z "${LAZYVIM_FORCE_REGEN:-}" ] \
     && [ -f "$RELEASE_CACHE_DIR/plugins.json" ] \
     && [ -f "$RELEASE_CACHE_DIR/dependencies.json" ] \
     && [ -f "$RELEASE_CACHE_DIR/treesitter.json" ] \
-    && [ -f "$RELEASE_CACHE_DIR/parser-manifest.json" ]; then
+    && [ -f "$RELEASE_CACHE_DIR/parser-manifest.json" ] \
+    && [ "$RELEASE_CACHE_PARSER_MANIFEST_MATCH" -eq 1 ]; then
     if [ -n "$VERIFY_PACKAGES" ] && [ ! -f "$RELEASE_CACHE_DIR/dependencies-verification-report.json" ]; then
         echo "==> Release cache missing verification report; regenerating"
     else
@@ -213,73 +230,76 @@ if [ "$USED_RELEASE_CACHE" -eq 0 ]; then
     # Get nvim-treesitter commit from plugins.json
     NVIM_TS_COMMIT=$(jq -r '.plugins[] | select(.name == "nvim-treesitter/nvim-treesitter") | .version_info.commit // empty' "$REPO_ROOT/data/plugins.json")
 
-    if [ -n "$NVIM_TS_COMMIT" ]; then
-        echo "    nvim-treesitter commit: $NVIM_TS_COMMIT"
-
-        # Check if we can reuse cached parser manifest
-        EXISTING_TS_COMMIT=""
-        if [ -f "$REPO_ROOT/data/parser-manifest.json" ]; then
-            EXISTING_TS_COMMIT=$(jq -r '.nvim_treesitter_commit // empty' "$REPO_ROOT/data/parser-manifest.json" 2>/dev/null || true)
-        fi
-
-        if [ "$EXISTING_TS_COMMIT" = "$NVIM_TS_COMMIT" ]; then
-            echo "    Parser manifest already up-to-date"
-        else
-            # Fetch nvim-treesitter source at the correct commit
-            NVIM_TS_CACHE="$CACHE_DIR/nvim-treesitter"
-            mkdir -p "$NVIM_TS_CACHE"
-
-            if [ ! -d "$NVIM_TS_CACHE/.git" ]; then
-                echo "    Cloning nvim-treesitter..."
-                git clone --filter=blob:none https://github.com/nvim-treesitter/nvim-treesitter.git "$NVIM_TS_CACHE" >/dev/null 2>&1 || {
-                    echo "Warning: Failed to clone nvim-treesitter, skipping parser extraction"
-                    NVIM_TS_COMMIT=""
-                }
-            fi
-
-            if [ -n "$NVIM_TS_COMMIT" ]; then
-                echo "    Fetching nvim-treesitter at $NVIM_TS_COMMIT..."
-                git -C "$NVIM_TS_CACHE" fetch --depth 1 origin "$NVIM_TS_COMMIT" >/dev/null 2>&1 || {
-                    echo "Warning: Failed to fetch nvim-treesitter commit, skipping parser extraction"
-                    NVIM_TS_COMMIT=""
-                }
-            fi
-
-            if [ -n "$NVIM_TS_COMMIT" ]; then
-                # Extract nvim-treesitter to temp directory
-                mkdir -p "$TEMP_DIR/nvim-treesitter"
-                git -C "$NVIM_TS_CACHE" archive "$NVIM_TS_COMMIT" | tar -x -C "$TEMP_DIR/nvim-treesitter" || {
-                    echo "Warning: Failed to extract nvim-treesitter, skipping parser extraction"
-                    NVIM_TS_COMMIT=""
-                }
-            fi
-
-            if [ -n "$NVIM_TS_COMMIT" ]; then
-                # Run parser extraction script
-                nvim --headless -u NONE -l "$SCRIPT_DIR/extract-parser-manifest.lua" \
-                    "$TEMP_DIR/nvim-treesitter" \
-                    "$REPO_ROOT/data/parser-manifest.json" \
-                    "$REPO_ROOT/data/parser-manifest.json" \
-                    "$NVIM_TS_COMMIT" || {
-                        echo "Warning: Failed to extract parser manifest"
-                    }
-
-                if [ -f "$REPO_ROOT/data/parser-manifest.json" ]; then
-                    if ! jq . "$REPO_ROOT/data/parser-manifest.json" > /dev/null 2>&1; then
-                        echo "Warning: Generated parser-manifest.json is not valid JSON"
-                        rm -f "$REPO_ROOT/data/parser-manifest.json"
-                    else
-                        jq . "$REPO_ROOT/data/parser-manifest.json" > "$TEMP_DIR/parser-manifest.pretty.json"
-                        mv "$TEMP_DIR/parser-manifest.pretty.json" "$REPO_ROOT/data/parser-manifest.json"
-                        PARSER_COUNT=$(jq '.parsers | keys | length' "$REPO_ROOT/data/parser-manifest.json" 2>/dev/null || echo "0")
-                        echo "    Extracted $PARSER_COUNT parser manifest entries"
-                    fi
-                fi
-            fi
-        fi
-    else
-        echo "    Warning: Could not find nvim-treesitter commit in plugins.json"
+    if [ -z "$NVIM_TS_COMMIT" ]; then
+        echo "Error: Could not find nvim-treesitter commit in plugins.json"
+        exit 1
     fi
+
+    echo "    nvim-treesitter commit: $NVIM_TS_COMMIT"
+
+    # Check if we can reuse cached parser manifest
+    EXISTING_TS_COMMIT=""
+    if [ -f "$REPO_ROOT/data/parser-manifest.json" ]; then
+        EXISTING_TS_COMMIT=$(jq -r '.nvim_treesitter_commit // empty' "$REPO_ROOT/data/parser-manifest.json" 2>/dev/null || true)
+    fi
+
+    if [ "$EXISTING_TS_COMMIT" = "$NVIM_TS_COMMIT" ]; then
+        echo "    Parser manifest already up-to-date"
+    else
+        # Fetch nvim-treesitter source at the correct commit
+        NVIM_TS_CACHE="$CACHE_DIR/nvim-treesitter"
+        mkdir -p "$NVIM_TS_CACHE"
+
+        if [ ! -d "$NVIM_TS_CACHE/.git" ]; then
+            echo "    Cloning nvim-treesitter..."
+            git clone --filter=blob:none https://github.com/nvim-treesitter/nvim-treesitter.git "$NVIM_TS_CACHE" >/dev/null 2>&1 || {
+                echo "Error: Failed to clone nvim-treesitter"
+                exit 1
+            }
+        fi
+
+        echo "    Fetching nvim-treesitter at $NVIM_TS_COMMIT..."
+        git -C "$NVIM_TS_CACHE" fetch --depth 1 origin "$NVIM_TS_COMMIT" >/dev/null 2>&1 || {
+            echo "Error: Failed to fetch nvim-treesitter commit $NVIM_TS_COMMIT"
+            exit 1
+        }
+
+        # Extract nvim-treesitter to temp directory
+        mkdir -p "$TEMP_DIR/nvim-treesitter"
+        git -C "$NVIM_TS_CACHE" archive "$NVIM_TS_COMMIT" | tar -x -C "$TEMP_DIR/nvim-treesitter" || {
+            echo "Error: Failed to extract nvim-treesitter"
+            exit 1
+        }
+
+        # Run parser extraction script
+        nvim --headless -u NONE -l "$SCRIPT_DIR/extract-parser-manifest.lua" \
+            "$TEMP_DIR/nvim-treesitter" \
+            "$REPO_ROOT/data/parser-manifest.json" \
+            "$REPO_ROOT/data/parser-manifest.json" \
+            "$NVIM_TS_COMMIT" || {
+                echo "Error: Failed to extract parser manifest"
+                exit 1
+            }
+
+        if ! jq . "$REPO_ROOT/data/parser-manifest.json" > "$TEMP_DIR/parser-manifest.pretty.json" 2>/dev/null; then
+            echo "Error: Generated parser-manifest.json is not valid JSON"
+            exit 1
+        fi
+        mv "$TEMP_DIR/parser-manifest.pretty.json" "$REPO_ROOT/data/parser-manifest.json"
+        PARSER_COUNT=$(jq '.parsers | keys | length' "$REPO_ROOT/data/parser-manifest.json")
+        echo "    Extracted $PARSER_COUNT parser manifest entries"
+    fi
+fi
+
+# Parser binaries are built from parser-manifest.json while queries come from the
+# nvim-treesitter commit in plugins.json; they must match. Check before writing
+# the release cache so a stale manifest is never cached or committed.
+PLUGINS_TS_COMMIT=$(jq -r '.plugins[] | select(.name == "nvim-treesitter/nvim-treesitter") | .version_info.commit // empty' "$REPO_ROOT/data/plugins.json")
+MANIFEST_TS_COMMIT=$(jq -r '.nvim_treesitter_commit // empty' "$REPO_ROOT/data/parser-manifest.json" 2>/dev/null || true)
+if [ -z "$PLUGINS_TS_COMMIT" ] || [ "$PLUGINS_TS_COMMIT" != "$MANIFEST_TS_COMMIT" ]; then
+    echo "Error: parser-manifest.json nvim-treesitter commit (${MANIFEST_TS_COMMIT:-missing}) does not match plugins.json (${PLUGINS_TS_COMMIT:-missing})"
+    echo "       Re-run with LAZYVIM_FORCE_REGEN=1 to regenerate the parser manifest"
+    exit 1
 fi
 
 if [ -z "$VERIFY_PACKAGES" ]; then
