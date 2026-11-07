@@ -35,6 +35,11 @@ Enable in your home-manager configuration:
 
 That's it! Open `nvim` and enjoy LazyVim.
 
+lazy.nvim itself is supplied by the Nix start package; the generated starter
+does not clone it or prepend a downloaded copy to the runtime path. If the
+upstream bootstrap changes, configuration generation fails with instructions
+to regenerate the starter and update the exact bootstrap patch.
+
 ### Version Pinning
 
 Pin to a specific LazyVim release:

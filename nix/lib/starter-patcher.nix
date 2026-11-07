@@ -50,6 +50,24 @@ let
 
   upstreamCheckerPattern = "  checker = {\n    enabled = true, -- check for plugin updates periodically\n    notify = false, -- notify on update\n  }, -- automatically check for plugin updates";
 
+  upstreamBootstrapPattern = ''
+    local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+    if not (vim.uv or vim.loop).fs_stat(lazypath) then
+      local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+      local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+      if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({
+          { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+          { out, "WarningMsg" },
+          { "\nPress any key to exit..." },
+        }, true, {})
+        vim.fn.getchar()
+        os.exit(1)
+      end
+    end
+    vim.opt.rtp:prepend(lazypath)
+  '';
+
   nixCheckerReplacement = "  checker = {\n    enabled = false, -- [NIX] Disabled - Nix manages plugin versions\n    notify = false,\n  },\n  -- [NIX] Disable config change notifications since Nix generates config\n  change_detection = { notify = false },";
 
 in {
@@ -81,6 +99,16 @@ in {
         [ nixCheckerReplacement ]
         withNixSpec;
 
+      # Step 3: Use lazy.nvim from the Nix start package, without cloning it
+      withNixBootstrap = builtins.replaceStrings
+        [ upstreamBootstrapPattern ]
+        [ "-- [NIX] lazy.nvim is provided by the Nix start package.\n" ]
+        withNixChecker;
+
+      # Check presence as well as replacement: an absent bootstrap is drift too.
+      bootstrapPatched = lib.hasInfix upstreamBootstrapPattern starterLua
+        && withNixBootstrap != withNixChecker;
+
       # Verify patches were applied (the original patterns should no longer exist)
       specPatched = !lib.hasInfix "-- add LazyVim and import its plugins" withNixChecker;
       checkerPatched = !lib.hasInfix "enabled = true, -- check for plugin updates periodically" withNixChecker;
@@ -92,7 +120,7 @@ in {
         -- Patched for Nix compatibility by lazyvim-nix flake
         -- Sections marked [NIX] are Nix-specific modifications
 
-        ${withNixChecker}'';
+        ${withNixBootstrap}'';
 
     in
       # Assert that patches were applied successfully
@@ -109,6 +137,13 @@ in {
           The upstream starter structure may have changed.
           Expected pattern not found: "enabled = true, -- check for plugin updates periodically"
           Please review data/starter-lazy.lua and update nix/lib/starter-patcher.nix
+        ''
+      else if !bootstrapPatched then
+        builtins.throw ''
+          ERROR: Failed to patch LazyVim starter lazy.nvim bootstrap block.
+          The expected upstream bootstrap block is missing or has changed.
+          Regenerate data/starter-lazy.lua with scripts/update-plugins.sh and
+          update the exact bootstrap pattern in nix/lib/starter-patcher.nix.
         ''
       else
         patchedConfig;

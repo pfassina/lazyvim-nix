@@ -55,6 +55,18 @@ let
     "  },"
   ];
 
+  bootstraplessStarter = lib.concatStringsSep "\n"
+    (lib.drop 15 (lib.splitString "\n" starterLua));
+
+  bootstrapFails = starter:
+    !(builtins.tryEval (lazyConfig {
+      starterLua = starter;
+      inherit starterVersion;
+      devPath = "/nix/store/fake-dev-path";
+      extrasImportSpecs = [ ];
+      availableDevSpecs = [ ];
+    })).success;
+
 in {
   # extrasImportSpecs: one lazy.nvim import line per extra
   test-extras-import-specs-format = testLib.testEval
@@ -115,6 +127,33 @@ in {
     "lazy-config-replaces-upstream-spec"
     (lib.hasInfix "-- add LazyVim and import its plugins" patchedConfig)
     false;
+
+  # lazy.nvim comes from the Nix start package, not a cloned runtime path.
+  test-lazy-config-removes-bootstrap = testLib.testEval
+    "lazy-config-removes-bootstrap"
+    (lib.hasInfix "-- [NIX] lazy.nvim is provided by the Nix start package." patchedConfig
+      && !(lib.hasInfix ''"git", "clone"'' patchedConfig)
+      && !(lib.hasInfix "lazypath" patchedConfig)
+      && !(lib.hasInfix "vim.opt.rtp:prepend" patchedConfig))
+    true;
+
+  test-lazy-config-throws-on-missing-bootstrap = testLib.testEval
+    "lazy-config-throws-on-missing-bootstrap"
+    (bootstrapFails bootstraplessStarter)
+    true;
+
+  test-lazy-config-throws-on-changed-bootstrap = testLib.testEval
+    "lazy-config-throws-on-changed-bootstrap"
+    (bootstrapFails (builtins.replaceStrings
+      [ "--branch=stable" ] [ "--branch=main" ] starterLua))
+    true;
+
+  # Losing the old lazypath marker must not make drift silently acceptable.
+  test-lazy-config-throws-on-renamed-bootstrap = testLib.testEval
+    "lazy-config-throws-on-renamed-bootstrap"
+    (bootstrapFails (builtins.replaceStrings
+      [ "lazypath" ] [ "bootstrap_path" ] starterLua))
+    true;
 
   # lazyConfig: the starter version is recorded in the header
   test-lazy-config-records-starter-version = testLib.testEval
