@@ -1,6 +1,43 @@
 # Critical integration tests for missing coverage areas (simplified)
-{ testLib, ... }:
+{ pkgs, testLib, moduleUnderTest, ... }:
 
+let
+  evalLazyvim = lazyvimConfig: extraConfig:
+    (pkgs.lib.evalModules {
+      modules = [
+        moduleUnderTest
+        ({ lib, ... }: {
+          options = {
+            home = lib.mkOption { type = lib.types.attrsOf lib.types.anything; default = {}; };
+            programs.neovim = lib.mkOption {
+              type = lib.types.submodule {
+                freeformType = lib.types.attrsOf lib.types.anything;
+                options = {
+                  defaultEditor = lib.mkEnableOption "neovim as default editor";
+                  viAlias = lib.mkEnableOption "vi alias";
+                  vimAlias = lib.mkEnableOption "vim alias";
+                };
+              };
+              default = {};
+            };
+            xdg = {
+              dataFile = lib.mkOption { type = lib.types.attrsOf lib.types.anything; default = {}; };
+              configFile = lib.mkOption { type = lib.types.attrsOf lib.types.anything; default = {}; };
+            };
+          };
+          config = {
+            _module.args.pkgs = pkgs;
+            home = {
+              homeDirectory = "/tmp/test";
+              username = "testuser";
+              stateVersion = "23.11";
+            };
+            programs.lazyvim = { enable = true; } // lazyvimConfig;
+          } // extraConfig;
+        })
+      ];
+    }).config;
+in
 {
   # Test treesitter parser configuration evaluation
   test-treesitter-parsers = testLib.testNixExpr
@@ -247,4 +284,80 @@
       in builtins.isAttrs module
     ''
     "true";
+
+  # Test defaultEditor, viAlias, and vimAlias default to false
+  test-neovim-alias-and-editor-defaults = testLib.testEval
+    "neovim-alias-and-editor-defaults"
+    (let
+      cfg = evalLazyvim {} {};
+    in {
+      lazyvim = { inherit (cfg.programs.lazyvim) defaultEditor viAlias vimAlias; };
+      neovim = { inherit (cfg.programs.neovim) defaultEditor viAlias vimAlias; };
+    } == {
+      lazyvim = { defaultEditor = false; viAlias = false; vimAlias = false; };
+      neovim = { defaultEditor = false; viAlias = false; vimAlias = false; };
+    })
+    true;
+
+  # Test defaultEditor forwards to programs.neovim.defaultEditor
+  test-default-editor-enabled = testLib.testEval
+    "default-editor-enabled"
+    (let
+      cfg = evalLazyvim { defaultEditor = true; } {};
+    in {
+      inherit (cfg.programs.neovim) defaultEditor viAlias vimAlias;
+    } == {
+      defaultEditor = true;
+      viAlias = false;
+      vimAlias = false;
+    })
+    true;
+
+  # Test viAlias forwards to programs.neovim.viAlias
+  test-vi-alias-enabled = testLib.testEval
+    "vi-alias-enabled"
+    (let
+      cfg = evalLazyvim { viAlias = true; } {};
+    in {
+      inherit (cfg.programs.neovim) defaultEditor viAlias vimAlias;
+    } == {
+      defaultEditor = false;
+      viAlias = true;
+      vimAlias = false;
+    })
+    true;
+
+  # Test vimAlias forwards to programs.neovim.vimAlias
+  test-vim-alias-enabled = testLib.testEval
+    "vim-alias-enabled"
+    (let
+      cfg = evalLazyvim { vimAlias = true; } {};
+    in {
+      inherit (cfg.programs.neovim) defaultEditor viAlias vimAlias;
+    } == {
+      defaultEditor = false;
+      viAlias = false;
+      vimAlias = true;
+    })
+    true;
+
+  # Test direct programs.neovim.{defaultEditor,viAlias,vimAlias} overrides do not conflict
+  test-neovim-options-direct-override = testLib.testEval
+    "neovim-options-direct-override"
+    (let
+      cfg = evalLazyvim {} {
+        programs.neovim = {
+          defaultEditor = true;
+          viAlias = true;
+          vimAlias = true;
+        };
+      };
+    in {
+      inherit (cfg.programs.neovim) defaultEditor viAlias vimAlias;
+    } == {
+      defaultEditor = true;
+      viAlias = true;
+      vimAlias = true;
+    })
+    true;
 }
