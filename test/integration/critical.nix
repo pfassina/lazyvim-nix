@@ -33,8 +33,9 @@ let
               stateVersion = "23.11";
             };
             programs.lazyvim = { enable = true; } // lazyvimConfig;
-          } // extraConfig;
+          };
         })
+        extraConfig
       ];
     }).config;
 in
@@ -353,11 +354,16 @@ in
         };
       };
     in {
-      inherit (cfg.programs.neovim) defaultEditor viAlias vimAlias;
+      lazyvimEnabled = cfg.programs.lazyvim.enable;
+      neovim = { inherit (cfg.programs.neovim) enable defaultEditor viAlias vimAlias; };
     } == {
-      defaultEditor = true;
-      viAlias = true;
-      vimAlias = true;
+      lazyvimEnabled = true;
+      neovim = {
+        enable = true;
+        defaultEditor = true;
+        viAlias = true;
+        vimAlias = true;
+      };
     })
     true;
 }
