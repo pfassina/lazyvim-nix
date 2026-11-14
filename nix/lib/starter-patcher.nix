@@ -33,7 +33,9 @@ let
         -- No owner/repo URL (e.g. a user's local dev spec): fall back to the name
         return "${devPath}/" .. plugin.name
       end
-      return "${devPath}/" .. owner .. "--" .. name
+      -- Keep the repository name as basename; lazy.nvim needs it to load
+      -- lazy plugins on require().
+      return "${devPath}/" .. owner .. "--" .. name .. "/" .. name
     end,
     patterns = {},  -- Don't automatically match, use explicit dev = true
     fallback = false,
