@@ -411,6 +411,8 @@ local function resolve_package_name(dep_name)
         gleam = "gleam",
         tinymist = "tinymist",
         ["haskell-language-server"] = "haskell-language-server",
+        hls = "haskell-language-server",
+        hlint = "hlint",
         jsonls = "vscode-langservers-extracted",
         ["elm-format"] = "elmPackages.elm-format",
         ["elm-language-server"] = "elmPackages.elm-language-server",
