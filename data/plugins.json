@@ -1,7 +1,7 @@
 {
-  "version": "v16.0.1",
-  "commit": "999700997f72227187d49d8b92667183dc7fc809",
-  "generated": "2026-09-09 07:12:49",
+  "version": "v16.0.2",
+  "commit": "0fa4a847929fc6beae40a3063615a58115678c34",
+  "generated": "2026-11-21 09:24:53",
   "extraction_report": {
     "total_plugins": 105,
     "mapped_plugins": 98,
@@ -36,9 +36,9 @@
       "is_core": false,
       "lazy": true,
       "version_info": {
-        "commit": "ee807ac4e62591720de2f6ad0abbfb966c4c7b97",
-        "sha256": "1iqq5hkmylrnc1nj06qfky33yvplqvp291m7imyxxqdj2q7zz0p9",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "782a254c62a61af1d4febddd0d6dbc5ea414a027",
+        "sha256": "16cwf2vfrzy3km28dnyryxqmi93l31yvkkdf5ddz8yaihwnfz009",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -52,12 +52,12 @@
       "is_core": false,
       "cmd": "CopilotChat",
       "version_info": {
-        "commit": "004ced055d8db59561cfcddc5f141ccd8d5a033b",
-        "lazyvim_version": "004ced055d8db59561cfcddc5f141ccd8d5a033b",
+        "commit": "2b7da97d655416462d4d5c38d0eb1f1eacc900a2",
+        "lazyvim_version": "2b7da97d655416462d4d5c38d0eb1f1eacc900a2",
         "lazyvim_version_type": "commit",
         "branch": "main",
-        "sha256": "0mzkcgly3fb3hwvsjw8x54njnyclb4jsxryf4g1lnjypkdgfpnj0",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "1kpcx5ai49qq58b8p7123l02aa7kyanr6d5i9q98gsglpfb2cnf5",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -124,9 +124,9 @@
         "BufNewFile *.lean"
       ],
       "version_info": {
-        "commit": "5a2c1dff42ca1055dc8977f1ad3217e42ce72659",
-        "sha256": "01mfgv4c5qj6g2dd7n2mh29y2swa4nx26rrkbx893mqm4dzmlsp3",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "5f759412341a370ac7a9e3308fb99d597f2970b3",
+        "sha256": "1ifq3v67rv1i99lyk902rnidgz1q92jk3a0d5df0lgipcmi5sln8",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -141,12 +141,12 @@
       "lazy": false,
       "priority": 10000,
       "version_info": {
-        "commit": "999700997f72227187d49d8b92667183dc7fc809",
+        "commit": "0fa4a847929fc6beae40a3063615a58115678c34",
         "lazyvim_version": "*",
         "lazyvim_version_type": "version",
-        "tag": "v16.0.1",
-        "sha256": "0kphi6jxs3w0r2q1xjf73irs8aw2q61xxhv28qybmgb4naif6v0s",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "tag": "v16.0.2",
+        "sha256": "1rmk8fnn0v8bsh0sz833lgx0lllz1449bw4dzn4h9m91lzi7smby",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -163,9 +163,9 @@
         "GrugFarWithin"
       ],
       "version_info": {
-        "commit": "11595bf747edc270bce2069d1020502ad4ae56cf",
-        "sha256": "05r65gxq53m67gmxsfynralwxqr7kaja51526fm677zirrja6ic2",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "91b7e58b6ffc6ddad5acb7a7c1df21257724449e",
+        "sha256": "06cw3x42qgr2qzahbwnaz0w6vpk5qpybg6rwf4a4ya4ccj41l9di",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -185,9 +185,9 @@
         "codecompanion"
       ],
       "version_info": {
-        "commit": "4663eb3ecd538bd5062628fb6d95bbe6bdca78f6",
-        "sha256": "1jnihvljmd884jrp1qfyj32a25ggz776ppp596a1br1zxs3s1ndp",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "a67f826164c38c836fc6060f32b275c4c43317a7",
+        "sha256": "0dyw63a5fnpiqv3rsx5gmnjyp7bxmgakr4c4avr3vxi6ia4xpql4",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -217,9 +217,9 @@
       "is_core": false,
       "event": "LazyFile",
       "version_info": {
-        "commit": "84c739c753bd07c006849d10ebce1863dd41af7f",
-        "sha256": "1lajkdah5i1xp1ghcdm9yw0agbm5bvh2v2gnh9r84jc0n07l7nr4",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "f01c94468247439b6b1067560a9a3e19e96e06d5",
+        "sha256": "0sksk4zdn7jbg71rqra5fns9ihw0jqg6gm3ls740nksxnwg69spa",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -233,9 +233,9 @@
       "is_core": false,
       "lazy": false,
       "version_info": {
-        "commit": "fccfebab6c47a62716615559ab2aec92688cbd0e",
-        "sha256": "0sr8glk8kwhd25p1b01i0qb27kbknvlsccvrsq13sgvzx12l289b",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "53be16a3c11272a975f866cc63aaf31b212e109a",
+        "sha256": "0cm8r3wzsmq5h8m0af9l2rg2ln3jyfj527wql1bx84q25cq8qj78",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -267,9 +267,9 @@
         "BufRead Cargo.toml"
       ],
       "version_info": {
-        "commit": "b8281be336498035f9288d6542b2881a7140a9ec",
-        "sha256": "1psjgi570hg9caqq1yklc26nfrz665cbcypkd6f2jjy2kaxhm6li",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "7039bc1d130e424232a7aa64ceddb170a154ff5b",
+        "sha256": "070m5fxln10bn6c4jixpvn6anasm5qr865fqjm42nbzrwi3px7y9",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -302,9 +302,9 @@
         "BufNewFile"
       ],
       "version_info": {
-        "commit": "64e10d782ae5b9653558482910213b8946651456",
-        "sha256": "1wb42dfl54ld2p40sjzghdxbxw618p2w48acbwy9fvndd9imrjcm",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "ea18f97c58276e213736c9f0193f7aa4c690693e",
+        "sha256": "0pwxl2bknsc6cnpw4z99bpmq6nrmkvbhw3agfqcmzqkphqrakn7v",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -366,9 +366,9 @@
       "is_core": false,
       "enabled": true,
       "version_info": {
-        "commit": "38af0ab56c6eb8757ee6006dd13ab79c2bc11a49",
-        "sha256": "1v55vbrjkivlnp6dsm0528c2za71983m584zj56gl44js8h2frkp",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "5af48b78f6c1310ab1f61131d785387faae4cdd4",
+        "sha256": "0vnbqc5n7654jq94rippfm45v38y4n28g6bpwnkhazkw9750yalx",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -382,10 +382,10 @@
       "is_core": false,
       "lazy": true,
       "version_info": {
-        "commit": "10c76a652d7b1a81bacf5449df76e6e83d367bff",
+        "commit": "abc95e13502ff3acbed151de97667174b2e4132d",
         "lazyvim_version_type": "version",
-        "sha256": "1xrnkgs38n866pripa0adbx975v6773wgls6nc90vy67bh853mqk",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "17n9lpmhdc8rw6jg62zca42anh4zzds21f49890ywi5qmwyq3r15",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -419,9 +419,9 @@
         "TypstPreviewUpdate"
       ],
       "version_info": {
-        "commit": "1c2e19486397be1c580b560fc50ee36abe329c46",
-        "sha256": "17p3jrdfgq7pcfg03wmkykliyrpg246rjs4lgzk69h4xzias0fsi",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "b231e0e318378782b210ab57aaf7d81d3b0eea12",
+        "sha256": "0gxrvdapanrq1g335xibrnq99n7mmwh62c6m5xg8chg6l5f98y4l",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -434,9 +434,9 @@
       "source_file": "extras.ai.claudecode",
       "is_core": false,
       "version_info": {
-        "commit": "2390c6e45c4789072c293ac69de051d169668b29",
-        "sha256": "1flmisbbg38xx368dwak0h588q6n4skkx01c2cggp6afcwzjn3rk",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "6ad8e0fdbda84486f13f7f1fa4802942f4877f13",
+        "sha256": "1gv3xgap53f3m0hmyi8yy4hjjv88dcs5mq1m1czqgnkhg44946p5",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -466,9 +466,9 @@
       "is_core": false,
       "cmd": "StartupTime",
       "version_info": {
-        "commit": "5f33e50f1e2e2a80370c9094e4c303ea54cd2aea",
-        "sha256": "19mx29gskahcnjgdrmsjrbzj9f09l2745qr4pf0xm6i5p2dx21g5",
-        "fetched_at": "2026-06-04T16:58:25Z"
+        "commit": "b2de50f190c8139d70d36d82157dd9c1a8212579",
+        "sha256": "1g7j4a8jzcndqcl4qnah1ia3xddszjnj4d70xdgw94rzdsb4mk0m",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -701,9 +701,9 @@
       "is_core": false,
       "cmd": "Outline",
       "version_info": {
-        "commit": "2a132953b944561d45b52e4541ebfff71934a742",
-        "sha256": "1ixfzdiillcb9p2m536rw46cmrfydzimlkvsfbm3056q6agw6jz2",
-        "fetched_at": "2026-06-04T16:58:25Z"
+        "commit": "6f95d46ff1d128fd4e6ec77f660caec6ad40a122",
+        "sha256": "00dxi6wh0jmibw8qr1s7yzky750w4i05lv6pf02zfxdax1n4r1x3",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -720,10 +720,10 @@
       "is_core": false,
       "event": "InsertEnter",
       "version_info": {
-        "commit": "2ffe79f1f021def8dd1fcd81deb16f1bb0d989f3",
+        "commit": "fe29aba4117227a6df637bc41e4b4fb4e98864a0",
         "lazyvim_version_type": "version",
-        "sha256": "19z6cgwny9d3i1qzgppc3wxnjjpq4m95k8rnvif03m3gfl0hmpv0",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "03b5s85z728w72wyqpfjgxfmbl20gdgx8i960vwkqh40sx8lp5pm",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -797,9 +797,9 @@
         "plsql"
       ],
       "version_info": {
-        "commit": "a8dac0b3cf6132c80dc9b18bef36d4cf7a9e1fe6",
-        "sha256": "0gzhn6px019kd955di3540ngfn050hwll37wd5hdpj6i1apc5rhp",
-        "fetched_at": "2025-10-24T16:25:12Z"
+        "commit": "8c65c6b02e8434e5360fc78097e489c05e899697",
+        "sha256": "1qb2cpg31ak95acx1dw36amgib99pxjmhxwpih6xin2lzbgds45s",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -865,9 +865,9 @@
       "is_core": false,
       "lazy": false,
       "version_info": {
-        "commit": "e355987594cbf16283bee7b37e3aa3a65d5e1c5c",
-        "sha256": "177c8wf53n93jbp0jjnjjkv4ccs1p60j54r0hwwpz7inxhmjccxz",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "90cd6619728df9f6161e5691ac247f0fe3437462",
+        "sha256": "16h1qidbvyych59jw8dq45v98mq8rcfddq6kvkykz4m76hg6g4sb",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -881,9 +881,9 @@
       "is_core": false,
       "lazy": true,
       "version_info": {
-        "commit": "ca8f5696c45bd4786b8840923d86b6932ce92ded",
-        "sha256": "140ff28n7i4n53950bqmgdxmbvk2fwlqxp6nbni8lbxkgf9gshvm",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "028d843a892b4920d8306216369aeee9fbcebae5",
+        "sha256": "1wfda6n8p6bpqd9ac4gydg37kjjxi3d3grm4wlx8001z8hffn0rc",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -897,9 +897,9 @@
       "is_core": true,
       "event": "LazyFile",
       "version_info": {
-        "commit": "5be654f2232c10ddcad19c1607a67b6b4b78fc29",
-        "sha256": "0vwg3r4ch7v32s3jwx09cd636py2ma0djn7ynfyhvybywdgc0a2h",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "c0862d382a35b7b45757d8d151a6a634c09bf3ce",
+        "sha256": "0q9lx1m5s4awmx2fdv20f0l5k21bac2251gnwhamz5z868g4d2vk",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -945,9 +945,9 @@
       "source_file": "extras.lang.clojure",
       "is_core": false,
       "version_info": {
-        "commit": "710537ff5cd669c5a76c5f5b6a9169fd9b913d18",
-        "sha256": "0b84bjccw2qirhwr6pma5dj4aw5l1v9mwk6l0aphmvxsq274k8x1",
-        "fetched_at": "2026-06-04T16:58:25Z"
+        "commit": "14c279cc7241d97585f8000dfd7dcdbca9fb4458",
+        "sha256": "1pkxbh4mkfpax73vgcwz019nmi9h408r67hn0yqcbmayxfx8vpz8",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -960,9 +960,9 @@
       "source_file": "core.lsp",
       "is_core": true,
       "version_info": {
-        "commit": "5d32a9b8de9f90466797a740edb0fb4b3c27e423",
-        "sha256": "1yzqk9cfwgsrxjra4qy3qc79vlr5jwcn8j63bpdd6gdprfd2s064",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "761d376b5fbe6b21f659432ffadc1205c660176c",
+        "sha256": "0xhwaddw5pav95yxjfi5507hp5cyhxj2mji1nkrbqh2wfm9v3w16",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1010,9 +1010,9 @@
       "source_file": "extras.dap.core",
       "is_core": false,
       "version_info": {
-        "commit": "c9a0738e45f1bd41d792a126941348dce661cf9b",
-        "sha256": "160a0vj486djzw0rrh2p94q8lmhj05d72k3hnkjkk64628fdflam",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "cfa2d58f4537aca6ca83e2de1a0d9f1491121264",
+        "sha256": "07z37bzfm0zw4bvjx1jvmll14d7jg94bwkbh1mfvgmlrr4pq8gpm",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1045,9 +1045,9 @@
       "is_core": true,
       "event": "LazyFile",
       "version_info": {
-        "commit": "3d55c8f67c6ae5c15e1042571e107c7a3d5c5f4e",
-        "sha256": "0mjckz7vpp0d3mx2zf4j0rs8asx8mg1jrwqlxzn986k11i17di91",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "6bf29b9dbdad60b38b489b23309c22ba6d4c915a",
+        "sha256": "1i475rpwnf806xrmlh7w4nvaczarmcsakhj2fp0hmcrl6pcdph1p",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1082,9 +1082,9 @@
         "cabalproject"
       ],
       "version_info": {
-        "commit": "5be33b79f0320ad9ef7f558507f2e365deebef4f",
-        "sha256": "1dgl76gzwdipys6rzqpm2c9agrhplpyzmy5mmmpq7nwq3rdpa4pz",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "c85f8e3b788b1cafcdad758c38afecf73d5cd242",
+        "sha256": "007wva0wqvmvhwvhd89rp43q9abb5ls2bl9f0r2q25z5m8vaahvy",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1103,10 +1103,10 @@
         "cabalproject"
       ],
       "version_info": {
-        "commit": "699594b62245c8130ed3d8d222733b2882898ba0",
+        "commit": "702684530359342aea6b64dc2e9e36404d2b02e2",
         "lazyvim_version_type": "version",
-        "sha256": "0namr525qznr12kv3cvn8x96zh86da1dpha913vw86zacn53cgsg",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "1gjyyfns5176gzjcrc5n121apbw66iif6xf6wjkdkhnnnml19j0n",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1122,9 +1122,9 @@
         "rust"
       ],
       "version_info": {
-        "commit": "69fbce17b969ae91e9f5d697efca21a374e4876b",
-        "sha256": "07nyl2djzb8ricynlj7qiaaw758gnqd7mm78405z32z9x21kyc0h",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "e505aadad1a57d8d96b9fe5ce2bc0e5005264c48",
+        "sha256": "19ddrsy9xxj1jmhycgql7y5k8y16rwmzfbyiqb94wmdwhf69i075",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1143,9 +1143,9 @@
         "BufNewFile"
       ],
       "version_info": {
-        "commit": "19576de1c1b6d1b5e231ea6ef9cba9a811c322bb",
-        "sha256": "14xw77sxw83ya23ysqg4vdnpmann2w3fvpna9mw2vmshjkx6871n",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "4648fd8ba5c678d7e2db75ae44ffac269bb589d8",
+        "sha256": "1p7c4g34v0myv7pkycgbyxq3jdy7y09393ik8fbapfc48641cb0p",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1196,9 +1196,9 @@
       "is_core": true,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "cb02c5444613475b7edf0c8dc98264c1c857aa6e",
-        "sha256": "0rwv95aspmahbz97pbv6688ka8ndshqq721l9hs0w8gayaqzfkab",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "813d10a43d5d4eda4816e6a27eb6bf6250f75ea8",
+        "sha256": "1rzllxh6ms56hll2dcasbbs0v3yrnxar60akd08lilxnhb3fqpcc",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1212,9 +1212,9 @@
       "is_core": false,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "fe1257505eaec2b988aa1f80f6471db850d99bb1",
-        "sha256": "108bxd6637jz9ci7ymxy4k44w2i2xms31l8fi408wdzc2l8lazq4",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "e9c962aaa2c51e856ba7efd553eeaab965e782ad",
+        "sha256": "1p6ng78x02dnpihl94kzsxriv99jvxjn0azn4azfxzya2khkqjbj",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1233,9 +1233,9 @@
       "is_core": false,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "27a29d6b949b9497f80a0a03421e89fed71d8c37",
-        "sha256": "05bgx98n091y2412s4pl8nsjvwy8kkr3ca0vlmxaiyh9dvvjlrm1",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "849c243e0fc5265c95e751cf8ece23f20daa4dd5",
+        "sha256": "15zhqjq37wqwvk2jhflnya26bk8w5xx8bxn6ny1gqzha4kbcadrw",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1254,9 +1254,9 @@
       "is_core": false,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "626b8a5b93874c4d05ca25aedec56cfff0b378fb",
-        "sha256": "0idjswipk43pm4gd6ybmzcvfa40ab091gn3wh2kmxmwgcv6i22qc",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "f527407247245d121ca65d539d7a8a3686938915",
+        "sha256": "1j9djcww42r7680grpgbym8j54rh0425wbrqanap9gyrg6831lxg",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1269,9 +1269,9 @@
       "source_file": "extras.editor.mini-files",
       "is_core": false,
       "version_info": {
-        "commit": "a249438d15fa6f64085ba83a9d1794d726aaf5ad",
-        "sha256": "17s9khx1d6crxpbfdblyw9l1ar6wj7lz5x6cjbl261f24q0h9dza",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "9898bee3b9004a3adf1b0c1b6ba984eae87082c2",
+        "sha256": "1g2qa9mhyidb9bk1dapkdgb958pys7xhqyka11p2x3j7akqcsygf",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1285,9 +1285,9 @@
       "is_core": false,
       "event": "LazyFile",
       "version_info": {
-        "commit": "7c840c71d6a91f53d734cab2b6fe2290d285ec3b",
-        "sha256": "15drsq33c3jvjma7acxbgf7m0r7ilzb1i43r3rkl9wsiawyavk56",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "012ae1f3070ad47973d09c730091be2ee4bef09c",
+        "sha256": "0zr39ba1g7k40y4srbql4yqppzy433z38a26ydhjwfngy4zlwld0",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1306,9 +1306,9 @@
       "is_core": true,
       "lazy": true,
       "version_info": {
-        "commit": "98faae31e9be1cc054ae63485e58ceb185efcad0",
-        "sha256": "0nw5mcis3rwc2c81c7h0s8839mqb78spgq12dil2lkrm1yd4s2rf",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "5d58117d176c133f4cb5585ec8cb3450881c89a0",
+        "sha256": "1gjjv6fiyycjli5plrnb8hd0m30clvykvpmm0x6k6n9fp1ism4hg",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1327,10 +1327,10 @@
       "is_core": false,
       "event": "LazyFile",
       "version_info": {
-        "commit": "92fbaf895f83c59575ec599df532b297ebf62b14",
+        "commit": "9cc15a46d5082ee75b921b6be8c1f7784da7eea9",
         "lazyvim_version_type": "version",
-        "sha256": "13i4ixyg8kr0yl6ckl9xfqi7xd5in4d39wkzsw6gswxphazaivpx",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "033jgvad6i4lw6yazxclva7998wp4nwbl560vmj73jbr236pf8p3",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1349,9 +1349,9 @@
       "is_core": false,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "48fcaac289a19b8eff2fd5fe203267d478a8abdc",
-        "sha256": "19vnppjsra4g6200x9ssrpkcr4752rnisk6qqi7lpvd51bcigxxc",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "640f7e3524e4d749d4dcaf1b462d974c3d38bd73",
+        "sha256": "07m4j92wkmkxi76vk806wj347n5n0qv4lzdppki4lw4y94nkyrw0",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1370,9 +1370,9 @@
       "is_core": true,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "b1c5a726921b7a8c9321e9a7a208aa0571de5810",
-        "sha256": "0qkgmah6ndgiws8fad4r686bwb9g40qyynw01w29c0faab9l26rz",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "e332261859814c307e72458222070f84b6d6f4e8",
+        "sha256": "1br1ijcr8l47hpvfcwwdrx0gvkvfrvmfw3l1wald3irqyhrbsxvp",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1387,9 +1387,9 @@
       "is_core": false,
       "event": "InsertEnter",
       "version_info": {
-        "commit": "050638170639ceb7bef4e804507cbf209e565b2c",
-        "sha256": "1y3l6mjyn5y0ylb3fbmv2f7axqdgc2dhb1l44021ymdm9b8vck90",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "493cc4678488b6352b54fb722eda739014f65129",
+        "sha256": "1ygp2k2d5frgd65vyxlwl9mi9qikvab23rxnl2wd1qi3sk8b6qiy",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1408,10 +1408,10 @@
       "is_core": false,
       "event": "VimEnter",
       "version_info": {
-        "commit": "25de4998197d59673f1918968a8f4060195edca0",
+        "commit": "f223d4a4e05d57d09950d36dcca207413d809af3",
         "lazyvim_version_type": "version",
-        "sha256": "06jiz69ynnqcjxda54xydij22526ldh86yi3x1iqnjwb7fx9nxjz",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "0hlvyd62xd2m8k93s4p8cj4hd5pqm8040ifqhzfpq3qx5bac8bhh",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1429,9 +1429,9 @@
       "source_file": "extras.coding.mini-surround",
       "is_core": false,
       "version_info": {
-        "commit": "8d5d0c5aa92449368ac251e85451d79d8f69d296",
-        "sha256": "16a7f7mks3gyllkp8py75qnhg2zk5zzzvnww3z3fbjzdvsg8kimd",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "77f376bdebb3440ad13bc40b48062b29bccb7577",
+        "sha256": "0mf8zzrlg9fyh5gccbqvnbmj812d1h842x3zzyldaakmjbh2slmi",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1445,9 +1445,9 @@
       "is_core": false,
       "cmd": "Neotree",
       "version_info": {
-        "commit": "1e1cdbf3c5c580669ae7777aab49456772d8d7bf",
-        "sha256": "1lc1iiqg4k978bs4kygxphnk7nb1dhpivihz0q2hpkmn55pn6c6f",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "760d9701953ad2b0277fe9776ba99bb011ecac2b",
+        "sha256": "0y0icf03yf097jr1ridmfvmp86l5vg36xd2d0i8783cnyydknw3g",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1486,12 +1486,12 @@
         "TSUninstall"
       ],
       "version_info": {
-        "commit": "5cb0114e6242625db56dd6440e945ed1ece10bc7",
-        "lazyvim_version": "5cb0114e6242625db56dd6440e945ed1ece10bc7",
+        "commit": "37e52c733ada9d8d544d53a763140ef1ba404353",
+        "lazyvim_version": "37e52c733ada9d8d544d53a763140ef1ba404353",
         "lazyvim_version_type": "commit",
         "branch": "main",
-        "sha256": "1iidnclj7zbkw8czzgk9s05fz5zrzgsdpyn4c1vn5zs4i22ggr48",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "sha256": "1cfai5p3h3ira47cvj4rdqghlh71cnsjj6fd8mc8b9hcwf0xli78",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1505,9 +1505,9 @@
       "is_core": false,
       "event": "LazyFile",
       "version_info": {
-        "commit": "f3061339b8eaf9fda873600bc425b8d2d8502533",
-        "sha256": "00z2yvjs00h80p5rjzjqaiyw9dvh2nkk34qqzay2vp5qkpc9b86m",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "8decd73460d26ef0a0befb745d022dd1fc2c38b8",
+        "sha256": "0q3mmmv7qgsmlr2g4k2rkpy4lhbz3g13jizcqc6m25pa0p2sy2ad",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1557,9 +1557,9 @@
       "is_core": false,
       "event": "LazyFile",
       "version_info": {
-        "commit": "c4b82bb63b13856ba4d6b971b7aad3bb38fc6fe2",
-        "sha256": "17ng97l665q8ay2my1pk6vazvwp4mff6mgprzs9sdl82bm3a5s6g",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "0b281893e36fe147077b49f022bf9cd78af3ad12",
+        "sha256": "00dfmljzp3x14ja65639gxk6wi5fanbfrjhwvadxby4lqxigdbp4",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1599,9 +1599,9 @@
       ],
       "cmd": "Octo",
       "version_info": {
-        "commit": "af2411604b51cb4a0f3e2de50b1b7cacc2581c48",
-        "sha256": "131ivkfx640n7ga7jjbnqijhysx0c0x4jdds608fpdry4djpzpzv",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "0ddca04c02aab8ba18d2072f9b855f3806adad54",
+        "sha256": "1bcnwsg0lj48ns9k6z37jic5a7ngza8kqmjgpmxk3fyl27vibpar",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1708,9 +1708,9 @@
       "is_core": false,
       "event": "VeryLazy",
       "version_info": {
-        "commit": "9e9378d6ee34bb3782e0e8c63d9ec8ca618b479b",
-        "sha256": "0sv80i4dfxr5g1yg9s60bym7w17sk2wvdlkwi7m1xi8575gjbgc4",
-        "fetched_at": "2026-06-04T16:58:25Z"
+        "commit": "f6cb57c342268177f719acc3968b9d8de3ecc969",
+        "sha256": "065761lyr33yza1pz2mlzw9jawqaxp5k9vz5gp1plflvq9af0lj0",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1833,9 +1833,9 @@
       "is_core": true,
       "event": "LazyFile",
       "version_info": {
-        "commit": "88c1453db4ba7dd24131086fe51fdf74e587d275",
-        "sha256": "18ilqgm01cgfngxrlrdiddjb3xqh3pzgcxk360jxri8307vmzw3f",
-        "fetched_at": "2026-06-04T16:58:25Z"
+        "commit": "d7220b55e16ed3c04e88086256def5d282429493",
+        "sha256": "1fxz4bw3kzk3v79kmvqxz3dcfky9shf6kh2hramw9gvsvmm38h1g",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1882,9 +1882,9 @@
         "AvanteToggle"
       ],
       "version_info": {
-        "commit": "3c0341bc18ce95fe0c4ed445c444903c7db4162f",
-        "sha256": "1dcvyy5yn14ha2wdj7j9qhiamn66jfn52qxsnlkqvjf3h3skhnr7",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "18f470efbdb29e225da9ae76b52f82e260c1b7ad",
+        "sha256": "13a0v3c5v3801gyy03yml9wzvj0gjbnnnxgicif4g7r8gjx70a0j",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     },
     {
@@ -1899,9 +1899,9 @@
       "event": "BufReadPost",
       "cmd": "Copilot",
       "version_info": {
-        "commit": "901a6c564abb45c7703401ecc6416bb0d15afd37",
-        "sha256": "09kpi7wlhz0g71gjyx9qbhi5zy7y5wq6icyzspqmmmsjzkzn4bcv",
-        "fetched_at": "2026-09-09T07:12:27Z"
+        "commit": "ba6c1c7e7b2b6b0a93838097bd09c7c83afa30d3",
+        "sha256": "1msjqqdk5kcw3a09qsy10sqvnq7z2i1baksjkyfhzwvmikj8i007",
+        "fetched_at": "2026-11-21T09:24:33Z"
       }
     }
   ]
