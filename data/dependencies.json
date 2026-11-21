@@ -281,11 +281,15 @@
     ],
     "lang.haskell": [
       {
-        "name": "haskell-language-server",
+        "name": "hls",
         "nixpkg": "haskell-language-server"
       },
       {
         "name": "haskell-debug-adapter"
+      },
+      {
+        "name": "hlint",
+        "nixpkg": "hlint"
       }
     ],
     "lang.helm": [
@@ -599,7 +603,7 @@
       }
     ]
   },
-  "generated": "2026-09-09 07:12:49",
-  "lazyvim_path": "/tmp/nix-shell.G2Ca0g/tmp.mT33C7eH6e/LazyVim",
+  "generated": "2026-11-21 20:34:19",
+  "lazyvim_path": "/tmp/nix-shell.usSyQY/tmp.JIa50qJFsr/LazyVim",
   "mason_path": "/home/runner/work/lazyvim-nix/lazyvim-nix/tmp/update-cache/mason-registry"
 }
