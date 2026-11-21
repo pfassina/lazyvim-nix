@@ -1,5 +1,5 @@
 # Plugin Mapping Analysis Report
-Generated: 2026-09-09 07:12:49
+Generated: 2026-11-21 09:24:53
 Total unmapped plugins: 7
 Package verification: ENABLED
 
