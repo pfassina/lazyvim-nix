@@ -15,7 +15,7 @@ rec {
             inherit spec;
             inherit plugin;
             inherit isMultiModule;
-            linkNames = [ (getLinkName spec.name) ]
+            linkNames = [ (getLinkPath spec.name) ]
               ++ lib.optional isMultiModule mapping.module;
           }
         else null
@@ -36,7 +36,10 @@ rec {
         in deduplicated;
 
       # Create symlink commands
-      linkCommands = map (p: "ln -sf ${p.plugin} $out/${p.linkName}") deduplicatedPlugins;
+      linkCommands = map (p: ''
+        mkdir -p "$(dirname "$out/${p.linkName}")"
+        ln -sfn ${p.plugin} "$out/${p.linkName}"
+      '') deduplicatedPlugins;
     in
       pkgs.runCommand "lazyvim-dev-path" {} ''
         mkdir -p $out
@@ -45,6 +48,13 @@ rec {
 
   # Repository identity is independent of lazy.nvim's overridable plugin name.
   getLinkName = specName: lib.replaceStrings [ "/" ] [ "--" ] specName;
+
+  # lazy.nvim maps a module path back to its plugin by the directory basename
+  # (lazy.core.plugin.find), and only then loads a lazy plugin on require().
+  # Nest the package under its repository name so the basename matches the
+  # plugin name lazy.nvim derives from the URL.
+  getLinkPath = specName:
+    "${getLinkName specName}/${lib.last (lib.splitString "/" specName)}";
 
   # Generate dev plugin specs for available plugins
   generateDevPluginSpecs = self: allPluginSpecs: resolvedPlugins:

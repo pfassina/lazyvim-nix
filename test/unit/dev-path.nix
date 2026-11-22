@@ -10,7 +10,7 @@ let
       "nvim-mini/mini.pairs" = { package = "mini-nvim"; module = "mini.pairs"; };
     };
   };
-  inherit (devPathLib) createDevPath getLinkName generateDevPluginSpecs;
+  inherit (devPathLib) createDevPath getLinkName getLinkPath generateDevPluginSpecs;
   fakePlugin = name: pkgs.runCommand "fake-${name}" {} ''
     mkdir -p $out
     echo "${name}" > $out/marker
@@ -18,6 +18,10 @@ let
   fakeCatppuccin = fakePlugin "catppuccin";
   fakeOther = fakePlugin "other-nvim";
   fakeMini = fakePlugin "mini-nvim";
+  fakeTrouble = pkgs.runCommand "fake-trouble" {} ''
+    mkdir -p $out/lua/trouble
+    echo "return {}" > $out/lua/trouble/init.lua
+  '';
   specs = [
     { name = "catppuccin/nvim"; }
     { name = "other/nvim"; }
@@ -25,8 +29,9 @@ let
     { name = "nvim-mini/mini.pairs"; }
     { name = "nvim-mini/mini.ai"; }
     { name = "owner/unresolved-plugin"; }
+    { name = "folke/trouble.nvim"; }
   ];
-  resolved = [ fakeCatppuccin fakeOther fakeMini fakeMini fakeMini null ];
+  resolved = [ fakeCatppuccin fakeOther fakeMini fakeMini fakeMini null fakeTrouble ];
   devPath = createDevPath specs resolved;
   devSpecs = generateDevPluginSpecs devPathLib specs resolved;
   starterPatcher = import ../../nix/lib/starter-patcher.nix { inherit lib; };
@@ -61,7 +66,7 @@ let
     assert(plugins.nvim == nil, "phantom basename-only nvim plugin")
     assert(plugins.catppuccin.dev and plugins.catppuccin.pin)
     assert(plugins.catppuccin.opts.flavour == "mocha", "renamed spec did not merge")
-    assert(plugins.catppuccin.dir == "${devPath}/catppuccin--nvim")
+    assert(plugins.catppuccin.dir == "${devPath}/catppuccin--nvim/nvim")
     assert(vim.uv.fs_realpath(plugins.catppuccin.dir) == "${fakeCatppuccin}")
     -- A second repository with the same basename must retain its own package.
     assert(vim.uv.fs_realpath(config.dev.path({ url = "https://github.com/other/nvim.git", name = "renamed" })) == "${fakeOther}")
@@ -71,6 +76,12 @@ let
       assert(vim.uv.fs_realpath(plugins[module].dir) == "${fakeMini}")
       assert(vim.uv.fs_realpath("${devPath}/" .. module) == "${fakeMini}")
     end
+    -- lazy.nvim finds a plugin by its directory basename to load it on require().
+    Config.spec = spec
+    local trouble = plugins["trouble.nvim"]
+    assert(trouble.dir == "${devPath}/folke--trouble.nvim/trouble.nvim")
+    assert(require("lazy.core.plugin").find(trouble.dir .. "/lua/trouble/init.lua") == trouble,
+      "lazy.nvim cannot map the dev path back to its plugin")
     print("Renamed catppuccin merges by URL; repository dev paths and mini modules resolve Nix packages")
   '';
 in {
@@ -78,15 +89,18 @@ in {
     (getLinkName "catppuccin/nvim") "catppuccin--nvim";
 
   test-dev-path-creates-symlinks = testLib.runTest "dev-path-creates-symlinks"
-    ''[ -L "${devPath}/catppuccin--nvim" ] && [ -L "${devPath}/other--nvim" ] && [ -L "${devPath}/mini.ai" ] && [ -L "${devPath}/mini.pairs" ]'';
+    ''[ -L "${devPath}/catppuccin--nvim/nvim" ] && [ -L "${devPath}/other--nvim/nvim" ] && [ -L "${devPath}/folke--trouble.nvim/trouble.nvim" ] && [ -L "${devPath}/mini.ai" ] && [ -L "${devPath}/mini.pairs" ]'';
 
   test-dev-path-links-point-to-plugins = testLib.runTest "dev-path-links-point-to-plugins"
-    ''[ "$(readlink "${devPath}/catppuccin--nvim")" = "${fakeCatppuccin}" ] && [ "$(readlink "${devPath}/other--nvim")" = "${fakeOther}" ]'';
+    ''[ "$(readlink "${devPath}/catppuccin--nvim/nvim")" = "${fakeCatppuccin}" ] && [ "$(readlink "${devPath}/other--nvim/nvim")" = "${fakeOther}" ]'';
 
-  # Four repository links plus two preserved module aliases; duplicates and
-  # unresolved plugins must not add links.
+  # Five repository directories plus two preserved module aliases; duplicates
+  # and unresolved plugins must not add links.
   test-dev-path-dedup-and-null-filtering = testLib.runTest "dev-path-dedup-and-null-filtering"
-    ''[ "$(ls "${devPath}" | wc -l)" -eq 6 ]'';
+    ''[ "$(ls "${devPath}" | wc -l)" -eq 7 ]'';
+
+  test-dev-link-path = testLib.testEval "dev-link-path"
+    (getLinkPath "folke/trouble.nvim") "folke--trouble.nvim/trouble.nvim";
 
   test-dev-specs-format = testLib.testEval "dev-specs-format"
     (builtins.head devSpecs) ''{ "catppuccin/nvim", dev = true, pin = true },'';
