@@ -105,6 +105,13 @@ programs.lazyvim = {
 
 **⚠️ Experimental:** Automatic dependency installation is experimental and might not cover all required packages. Use `extraPackages` for missing dependencies.
 
+### Svelte TypeScript Plugin
+
+Enabling `extras.lang.svelte` automatically installs the matching
+`typescript-svelte-plugin` from nixpkgs and configures LazyVim's package path
+resolver to use its Nix store path. Mason remains disabled; no additional
+configuration is required.
+
 ### Custom Configuration
 
 #### Option 1: Inline Configuration
