@@ -6,6 +6,30 @@ with lib;
 {
   enable = mkEnableOption "LazyVim - A Neovim configuration framework";
 
+  defaultEditor = mkOption {
+    type = types.bool;
+    default = false;
+    description = ''
+      Whether to configure Neovim as the default editor using the EDITOR environment variable.
+    '';
+  };
+
+  viAlias = mkOption {
+    type = types.bool;
+    default = false;
+    description = ''
+      Symlink `vi` to `nvim` binary.
+    '';
+  };
+
+  vimAlias = mkOption {
+    type = types.bool;
+    default = false;
+    description = ''
+      Symlink `vim` to `nvim` binary.
+    '';
+  };
+
   appName = mkOption {
     type = types.str;
     default = "nvim";

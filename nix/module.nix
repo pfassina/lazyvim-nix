@@ -230,6 +230,10 @@ in {
       enable = true;
       package = pkgs.neovim-unwrapped;
 
+      defaultEditor = mkDefault cfg.defaultEditor;
+      viAlias = mkDefault cfg.viAlias;
+      vimAlias = mkDefault cfg.vimAlias;
+
       withNodeJs = true;
       withPython3 = true;
       withRuby = false;
